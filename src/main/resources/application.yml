@@ -1,0 +1,57 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:dairyfarm}?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      jdbc:
+        time_zone: Asia/Ho_Chi_Minh
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+app:
+  fe:
+    verify_url: ${VERIFY_URL}
+    forgot_password_url: ${FORGOT_PASSWORD_URL}
+  cors:
+    allowedOrigins:
+  api:
+    version:
+      v1: /api/v1
+  openapi:
+    dev-url: http://localhost:${SERVER_PORT:8080}
+    prod-url:
+  auth:
+    tokenSecret: 70aac314b181d9c8f06c2b94ebdc89c0f7bc8a583c51d82cb7689a2050576e43c57ffe2dd13e4f041638b5d27c0b6f4480271c9a19f1df2b31610c66a2f89882a36832dd20232fe666c0bbde75e262087aa120d0d2d54a6acaa0acc6459f8cd67b58c5dac6087f970efc933f4d23c43fa28446a548abafb9ea503f496bc0bdf0
+    refreshTokenExpirationMsec: 864000000  # 10 days
+    accessTokenExpirationMsec: 1800000 # 15 minutes
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL:dairyfarmfpt2024@gmail.com}
+    password: ${EMAIL_PASSWORD:zczn gpul doso imfo}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
