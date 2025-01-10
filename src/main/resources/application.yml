@@ -20,23 +20,23 @@ spring:
     multipart:
       max-file-size: 20MB
       max-request-size: 20MB
-
   jackson:
     time-zone: Asia/Ho_Chi_Minh
+
 app:
   fe:
     verify_url: ${VERIFY_URL}
     forgot_password_url: ${FORGOT_PASSWORD_URL}
   cors:
-    allowedOrigins:
+    allowedOrigins: http://localhost:4176,http://localhost:4200
   api:
     version:
       v1: /api/v1
   openapi:
     dev-url: http://localhost:${SERVER_PORT:8080}
-    prod-url:
+    prod-url: http://your-prod-url
   auth:
-    tokenSecret: 70aac314b181d9c8f06c2b94ebdc89c0f7bc8a583c51d82cb7689a2050576e43c57ffe2dd13e4f041638b5d27c0b6f4480271c9a19f1df2b31610c66a2f89882a36832dd20232fe666c0bbde75e262087aa120d0d2d54a6acaa0acc6459f8cd67b58c5dac6087f970efc933f4d23c43fa28446a548abafb9ea503f496bc0bdf0
+    tokenSecret: T04ca023b39512e46d0c2cf4b48d5aac61d34302994c87ed4eff225dcf3b0a218739f3897051a057f9b846a69ea2927a587044164b7bae5e1306219d50b588cb1
     refreshTokenExpirationMsec: 864000000  # 10 days
     accessTokenExpirationMsec: 1800000 # 15 minutes
   mail:
