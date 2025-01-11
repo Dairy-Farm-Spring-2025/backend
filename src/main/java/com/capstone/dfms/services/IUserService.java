@@ -1,4 +1,4 @@
 package com.capstone.dfms.services;
 
-public class UserServices {
+public interface IUserService {
 }
