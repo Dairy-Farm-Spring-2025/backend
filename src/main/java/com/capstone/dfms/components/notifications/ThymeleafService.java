@@ -49,7 +49,7 @@ public class ThymeleafService {
     public String getVerifyContent(UserEntity user, String url) {
         final Context context = new Context();
 
-        context.setVariable("firstName", user.getEmail());
+        context.setVariable("firstName", user.getName());
         context.setVariable("url", url);
 
         return templateEngine.process(TemplateMail.VERIFY_MAIL, context);

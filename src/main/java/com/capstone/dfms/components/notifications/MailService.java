@@ -54,14 +54,14 @@ public class MailService {
                 message.setRecipients(Message.RecipientType.TO, new InternetAddress[]{new InternetAddress(event.getUser().getEmail())});
 
                 message.setFrom(new InternetAddress(email));
-                message.setSubject("Xác thực tài khoản");
+                message.setSubject("Verify Account Dairy Farm");
                 message.setContent(thymeleafService.getVerifyContent(event.getUser(), event.getUrl()), CONTENT_TYPE_TEXT_HTML);
                 Transport.send(message);
             } else if (event.getType().equals("forgot")) {
                 message.setRecipients(Message.RecipientType.TO, new InternetAddress[]{new InternetAddress(event.getUser().getEmail())});
 
                 message.setFrom(new InternetAddress(email));
-                message.setSubject("Đặt lại mật khẩu");
+                message.setSubject("Forgot Password Dairy Farm");
                 message.setContent(thymeleafService.getResetPasswordContent(event.getUser(), event.getUrl()), CONTENT_TYPE_TEXT_HTML);
                 Transport.send(message);
             }
