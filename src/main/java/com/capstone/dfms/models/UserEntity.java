@@ -53,11 +53,15 @@ public class UserEntity {
     private RoleEntity roleId;
 
     @Column(nullable = false)
-    private Boolean emailVerified = false;
+    private Boolean emailVerified;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<TokenEntity> tokens;
 
-    private Boolean isActive= true;
+    private Boolean isActive;
+
+    private Boolean updateInfo;
+
+    private Boolean changePassword;
 }
