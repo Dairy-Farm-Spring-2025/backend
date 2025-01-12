@@ -5,6 +5,7 @@ import com.capstone.dfms.components.events.MailEvent;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.securities.TokenProvider;
+import com.capstone.dfms.components.securities.UserPrincipal;
 import com.capstone.dfms.components.utils.PasswordUtils;
 import com.capstone.dfms.models.RoleEntity;
 import com.capstone.dfms.models.TokenEntity;
@@ -13,7 +14,10 @@ import com.capstone.dfms.models.enums.UserStatus;
 import com.capstone.dfms.repositories.IRoleRepository;
 import com.capstone.dfms.repositories.ITokenRepository;
 import com.capstone.dfms.repositories.IUserRepository;
+import com.capstone.dfms.requests.UserChangePasswordRequest;
 import com.capstone.dfms.requests.UserForgotPasswordRequest;
+import com.capstone.dfms.requests.UserSignInRequest;
+import com.capstone.dfms.responses.SignInResponse;
 import com.capstone.dfms.services.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -54,18 +61,19 @@ public class UserService implements IUserService {
         Optional<UserEntity> userOptional = userRepository.findByEmail(user.getEmail());
 
         if(userOptional.isPresent()) {
-            if(user.getEmailVerified()){
-                throw new AppException(HttpStatus.BAD_REQUEST,"Email already exists");
-            }
+                throw new AppException(HttpStatus.CONFLICT,"Email already exists");
+
         }
         String defaultPassword = PasswordUtils.generateRandomString(8);
         user.setEmailVerified(false);
         user.setPassword(passwordEncoder.encode(defaultPassword));
         user.setProfilePhoto(ImageContants.DEFAULT_AVATAR);
         user.setIsActive(true);
+        user.setChangePassword(false);
+        user.setUpdateInfo(false);
         user.setStatus(UserStatus.active);
 
-        RoleEntity role = roleRepository.findById(user.getRoleId().getId()).orElseThrow(() -> new RuntimeException("Role not found"));
+        RoleEntity role = roleRepository.findById(user.getRoleId().getId()).orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND,"Role not found"));
         user.setRoleId(role);
 
         String employeeNumber = generateEmployeeNumberByRole(role.getId());
@@ -73,23 +81,43 @@ public class UserService implements IUserService {
 
          userRepository.save(user);
 
-        sendVerifyMail(user);
+        MailEvent mailEvent = new MailEvent(defaultPassword,this, user, "information");
+        applicationEventPublisher.publishEvent(mailEvent);
+    }
+    @Override
+    public SignInResponse signIn(UserSignInRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
+        if(!userPrincipal.getUser().getEmailVerified()){
+            sendVerifyMail(userPrincipal.getUser());
+            throw new AppException(HttpStatus.UNAUTHORIZED, "Email not verified. A verification email has been sent to your registered email address.");
+        }
+        if (!userPrincipal.getUser().getIsActive()) {
+            throw new AppException(HttpStatus.UNAUTHORIZED, "Your account has been locked. Please contact the Dairy Farm manager for assistance.");
+        }
 
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        String accessToken = tokenProvider.createAccessToken(authentication);
+        String refreshToken = tokenProvider.createRefreshToken(authentication);
+
+        return SignInResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .userId(userPrincipal.getId())
+                .fullName(userPrincipal.getUsername())
+                .roleName(userPrincipal.getUser().getRoleId().getName())
+                .build();
     }
 
-    private String generateEmployeeNumberByRole(Long roleId) {
-        long count = userRepository.count();
 
-        String employeeNumberPrefix = null;
-        if (roleId == 3) {
-            employeeNumberPrefix = "VE";
-        } if (roleId == 4) {
-            employeeNumberPrefix = "WO";
-        } 
-        return employeeNumberPrefix + String.format("%03d", count + 1);
-    }
+
     @Override
     public void verify(Long userId, String token) {
         tokenProvider.validateToken(token);
@@ -106,17 +134,17 @@ public class UserService implements IUserService {
     public String refresh(String token) {
         TokenEntity refreshToken = tokenRepository.findByName(token)
                 .orElseThrow(() ->
-                        new AppException(HttpStatus.BAD_REQUEST,"Refresh Token not found with token : " + token)
+                        new AppException(HttpStatus.NOT_FOUND,"Refresh Token not found with token : " + token)
                 );
         if(refreshToken.isRevoked()){
-            throw new AppException(HttpStatus.BAD_REQUEST,"Token đã bị thu hồi");
+            throw new AppException(HttpStatus.UNAUTHORIZED,"Token đã bị thu hồi");
         }
         if(refreshToken.isExpired()){
-            throw new AppException(HttpStatus.BAD_REQUEST,"Token đã hết hạn");
+            throw new AppException(HttpStatus.UNAUTHORIZED,"Token đã hết hạn");
         }
         if(refreshToken.getExpirationDate().isBefore(LocalDate.now())){
             refreshToken.setExpired(true);
-            throw new AppException(HttpStatus.BAD_REQUEST,"Token đã hết hạn");
+            throw new AppException(HttpStatus.UNAUTHORIZED,"Token đã hết hạn");
         }
 
         String accessToken = tokenProvider.createAccessToken(refreshToken.getUser().getId());
@@ -157,5 +185,37 @@ public class UserService implements IUserService {
         String urlPattern = verifyUrl + "?userId={0}&token={1}";
         String url = MessageFormat.format(urlPattern, user.getId(), token);
         applicationEventPublisher.publishEvent(new MailEvent(this, user, url, "verify"));
+    }
+
+    @Override
+    public void changePassword(UserChangePasswordRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity user = userPrincipal.getUser();
+
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Mật khẩu cũ không chính xác");
+        }
+
+        if (!request.getNewPassword().equals(request.getConfirmedPassword())) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Mật khẩu mới và mật khẩu xác nhận không khớp");
+        }
+        user.setChangePassword(true);
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    private String generateEmployeeNumberByRole(Long roleId) {
+        long count = userRepository.count();
+
+        String employeeNumberPrefix = null;
+        if (roleId == 3) {
+            employeeNumberPrefix = "VE";
+        } if (roleId == 4) {
+            employeeNumberPrefix = "WO";
+        }
+        return employeeNumberPrefix + String.format("%03d", count + 1);
     }
 }

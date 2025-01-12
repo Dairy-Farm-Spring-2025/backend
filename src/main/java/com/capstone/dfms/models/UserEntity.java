@@ -62,4 +62,6 @@ public class UserEntity {
     private Boolean isActive;
 
     private Boolean updateInfo;
+
+    private Boolean changePassword;
 }

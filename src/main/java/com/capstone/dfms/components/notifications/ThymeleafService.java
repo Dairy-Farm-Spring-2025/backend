@@ -48,20 +48,26 @@ public class ThymeleafService {
 
     public String getVerifyContent(UserEntity user, String url) {
         final Context context = new Context();
-
         context.setVariable("firstName", user.getName());
         context.setVariable("url", url);
-
         return templateEngine.process(TemplateMail.VERIFY_MAIL, context);
     }
 
     public String getResetPasswordContent(UserEntity user, String url) {
         final Context context = new Context();
-
-        context.setVariable("firstName", user.getEmail());
+        context.setVariable("firstName", user.getName());
         context.setVariable("url", url);
-
         return templateEngine.process(TemplateMail.RESET_PASSWORD_MAIL, context);
+    }
+
+    public String getInformationContent(UserEntity user, String password) {
+        final Context context = new Context();
+
+        context.setVariable("firstName", user.getName());
+        context.setVariable("email", user.getEmail());
+        context.setVariable("password", password);
+
+        return templateEngine.process(TemplateMail.SEND_INFORMATION, context);
     }
 
 

@@ -64,6 +64,15 @@ public class MailService {
                 message.setSubject("Forgot Password Dairy Farm");
                 message.setContent(thymeleafService.getResetPasswordContent(event.getUser(), event.getUrl()), CONTENT_TYPE_TEXT_HTML);
                 Transport.send(message);
+
+            }if (event.getType().equals("information")) {
+                message.setRecipients(Message.RecipientType.TO,
+                        new InternetAddress[]{new InternetAddress(event.getUser().getEmail())});
+                message.setFrom(new InternetAddress(email));
+                message.setSubject("Account sign in Dairy Farm");
+
+                message.setContent(thymeleafService.getInformationContent(event.getUser(), event.getPassword()), CONTENT_TYPE_TEXT_HTML);
+                Transport.send(message);
             }
 
         } catch (MessagingException e) {
