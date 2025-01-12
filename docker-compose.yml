@@ -1,0 +1,32 @@
+version: '3'
+services:
+  dfms-backend:
+    image: capstone/dfms:latest
+    ports:
+      - "8080:8080"
+    environment:
+      MYSQL_HOST: db_dfms
+      MYSQL_PORT: 3306
+      MYSQL_USER: dairyfarm2024
+      MYSQL_PASSWORD: dairyfarm2003
+      MYSQL_DATABASE: dfms
+    depends_on:
+      - db_dfms
+
+
+  db_dfms:
+    image: mysql:latest
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: SWD392
+      MYSQL_DATABASE: dfms
+      MYSQL_USER: dairyfarm2024
+      MYSQL_PASSWORD: dairyfarm2003
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
