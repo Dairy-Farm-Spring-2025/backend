@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta name="viewport" content="width=device-width"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title th:text="${subject}">Account Information</title>
+  <style>
+    img {
+        border: none;
+        -ms-interpolation-mode: bicubic;
+        max-width: 100%;
+    }
+    body {
+        background-color: #f6f6f6;
+        font-family: sans-serif;
+        -webkit-font-smoothing: antialiased;
+        font-size: 14px;
+        line-height: 1.4;
+        margin: 0;
+        padding: 0;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+    }
+    table {
+        border-collapse: separate;
+        mso-table-lspace: 0pt;
+        mso-table-rspace: 0pt;
+        width: 100%;
+    }
+    table td {
+        font-family: sans-serif;
+        font-size: 14px;
+        vertical-align: top;
+    }
+    .container {
+        display: block;
+        margin: 0 auto !important;
+        max-width: 580px;
+        padding: 10px;
+        width: 580px;
+    }
+    .main {
+        background: #ffffff;
+        border-radius: 3px;
+        width: 100%;
+    }
+    .wrapper {
+        padding: 20px;
+    }
+    .btn-primary a {
+        background-color: #55c57a;
+        border-color: #55c57a;
+        color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+<table class="body" role="presentation" border="0" cellpadding="0" cellspacing="0">
+  <tbody>
+  <tr>
+    <td>&nbsp;</td>
+    <td class="container">
+      <div class="content">
+        <!-- START MAIN CONTENT -->
+        <table class="main" role="presentation">
+          <tbody>
+          <tr>
+            <td class="wrapper">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                <tbody>
+                <tr>
+                  <td>
+                    <div>
+                      <p>Hi <span th:text="${firstName}"></span>,</p>
+                      <p>Your account has been successfully created! 🎉 Below are your login details:</p>
+                      <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                        <tr>
+                          <td><strong>Email:</strong></td>
+                          <td th:text="${email}"></td>
+                        </tr>
+                        <tr>
+                          <td><strong>Password:</strong></td>
+                          <td th:text="${password}"></td>
+                        </tr>
+                      </table>
+                      <p>For security reasons, please change your password after logging in for the first time.</p>
+                      <p>Click the button below to log in:</p>
+                      <table class="btn btn-primary" role="presentation" cellspacing="0" cellpadding="0" border="0">
+                        <tbody>
+                        <tr>
+                          <td align="center">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                              <tbody>
+                              <tr>
+                                <td>
+                                  <a th:href="${loginUrl}" target="_blank">Login to Your Account</a>
+                                </td>
+                              </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                        </tbody>
+                      </table>
+                      <p>If you have any questions or issues, feel free to contact us.</p>
+                      <p>Best regards,</p>
+                      <p>Dairy Farm Team</p>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <!-- END MAIN CONTENT -->
+        <div class="footer">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+            <tbody>
+            <tr>
+              <td class="content-block">
+                <span class="apple-link">Dairy Farm Inc, Lô E2a-7, Đường D1, Đ. D1, Long Thạnh Mỹ, Thành Phố Thủ Đức, Thành phố Hồ Chí Minh</span>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>

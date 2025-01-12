@@ -2,6 +2,7 @@ package com.capstone.dfms.components.configurations;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
@@ -32,15 +33,20 @@ public class OpenApiConfig {
         prodServer.setUrl(prodUrl);
         prodServer.setDescription("Server URL in Production environment");
 
+        Info info = new Info()
+                .title("Dairy Farm API")
+                .version("1.0.0")
+                .description("API Dairy Farm Management");
 
-        return new OpenAPI().servers(List.of(devServer, prodServer))
+
+        return new OpenAPI().info(info).servers(List.of(devServer, prodServer))
                 .addSecurityItem(new SecurityRequirement().
                         addList("Bearer Authentication"))
                 .components(new Components().addSecuritySchemes
                         ("Bearer Authentication", createAPIKeyScheme()));
     }
 
-    private io.swagger.v3.oas.models.security.SecurityScheme createAPIKeyScheme() {
+    private SecurityScheme createAPIKeyScheme() {
         return new io.swagger.v3.oas.models.security.SecurityScheme().type(SecurityScheme.Type.HTTP)
                 .bearerFormat("JWT")
                 .scheme("bearer");
