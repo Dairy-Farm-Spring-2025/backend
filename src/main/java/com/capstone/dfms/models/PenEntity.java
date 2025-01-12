@@ -23,6 +23,8 @@ public class PenEntity extends BaseEntity {
     private PenType penType;
     private float length;
     private float width;
+
+    @Enumerated(EnumType.STRING)
     private PenStatus penStatus;
 
     @ManyToOne

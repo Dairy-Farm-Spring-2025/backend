@@ -1,5 +1,6 @@
 package com.capstone.dfms.models;
 
+import com.capstone.dfms.models.enums.AreaType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,4 +24,7 @@ public class AreaEntity extends  BaseEntity{
     private float length;
 
     private float width;
+
+    @Enumerated(EnumType.STRING)
+    private AreaType areaType;
 }

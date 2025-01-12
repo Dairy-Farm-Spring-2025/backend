@@ -32,7 +32,8 @@ public class CowPenEntity extends BaseEntity{
     @JoinColumn(name = "pen_id")
     private PenEntity penEntity;
 
-    private LocalDate fromDate;
     private LocalDate toDate;
+
+    @Enumerated(EnumType.STRING)
     private PenCowStatus status;
 }

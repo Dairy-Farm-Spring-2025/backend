@@ -18,9 +18,12 @@ public class HealthRecord extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long healthRecordId;
 
+    @Enumerated(EnumType.STRING)
     private HealthRecordStatus status;
     private float weight;
     private float size;
+
+    @Enumerated(EnumType.STRING)
     private CowStatus period;
 
     @ManyToOne

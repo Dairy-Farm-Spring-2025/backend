@@ -21,5 +21,7 @@ public class IllnessDetailEntity extends BaseEntity {
 
     private LocalDate date;
     private String description;
+
+    @Enumerated(EnumType.STRING)
     private IllnessDetailStatus status;
 }

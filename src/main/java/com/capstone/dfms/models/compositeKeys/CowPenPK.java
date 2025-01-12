@@ -5,6 +5,7 @@ import jakarta.persistence.Embeddable;
 import lombok.*;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 @Embeddable
 @Data
@@ -15,4 +16,5 @@ public class CowPenPK implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long penId;
     private Long cowId;
+    private LocalDate fromDate;
 }
