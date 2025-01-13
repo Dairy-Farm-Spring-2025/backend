@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserEntity {
+public class UserEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -52,6 +52,7 @@ public class UserEntity {
     @JoinColumn(name = "role_id")
     private RoleEntity roleId;
 
+    @JsonIgnore
     @Column(nullable = false)
     private Boolean emailVerified;
 
@@ -59,9 +60,12 @@ public class UserEntity {
     @JsonIgnore
     private List<TokenEntity> tokens;
 
+    @JsonIgnore
     private Boolean isActive;
 
+    @JsonIgnore
     private Boolean updateInfo;
 
+    @JsonIgnore
     private Boolean changePassword;
 }

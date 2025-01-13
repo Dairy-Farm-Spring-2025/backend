@@ -7,6 +7,7 @@ import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.securities.TokenProvider;
 import com.capstone.dfms.components.securities.UserPrincipal;
 import com.capstone.dfms.components.utils.PasswordUtils;
+import com.capstone.dfms.mappers.UserMapper;
 import com.capstone.dfms.models.RoleEntity;
 import com.capstone.dfms.models.TokenEntity;
 import com.capstone.dfms.models.UserEntity;
@@ -14,6 +15,7 @@ import com.capstone.dfms.models.enums.UserStatus;
 import com.capstone.dfms.repositories.IRoleRepository;
 import com.capstone.dfms.repositories.ITokenRepository;
 import com.capstone.dfms.repositories.IUserRepository;
+import com.capstone.dfms.requests.PersonalUpdateRequest;
 import com.capstone.dfms.requests.UserChangePasswordRequest;
 import com.capstone.dfms.requests.UserForgotPasswordRequest;
 import com.capstone.dfms.requests.UserSignInRequest;
@@ -34,6 +36,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -134,7 +137,7 @@ public class UserService implements IUserService {
     public String refresh(String token) {
         TokenEntity refreshToken = tokenRepository.findByName(token)
                 .orElseThrow(() ->
-                        new AppException(HttpStatus.NOT_FOUND,"Refresh Token not found with token : " + token)
+                        new AppException(HttpStatus.OK,"Refresh Token not found with token : " + token)
                 );
         if(refreshToken.isRevoked()){
             throw new AppException(HttpStatus.UNAUTHORIZED,"Token đã bị thu hồi");
@@ -163,7 +166,7 @@ public class UserService implements IUserService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         else{
-            throw new AppException(HttpStatus.BAD_REQUEST, "Confirmed password is wrong");
+            throw new AppException(HttpStatus.OK, "Confirmed password is wrong");
         }
         userRepository.save(user);
     }
@@ -195,16 +198,84 @@ public class UserService implements IUserService {
 
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Mật khẩu cũ không chính xác");
+            throw new AppException(HttpStatus.OK, "Old password incorrect");
         }
 
         if (!request.getNewPassword().equals(request.getConfirmedPassword())) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Mật khẩu mới và mật khẩu xác nhận không khớp");
+            throw new AppException(HttpStatus.OK, "New password and confirm password do not match");
         }
         user.setChangePassword(true);
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+    }
+
+    @Override
+    public UserEntity getMyProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity user = userPrincipal.getUser();
+        return user;
+    }
+
+    @Override
+    public UserEntity updatePersonalInformation(PersonalUpdateRequest update) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity user = userPrincipal.getUser();
+        UserMapper.INSTANCE.updateUserFromRequest(update, user);
+        user.setUpdateInfo(true);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public List<UserEntity> getAllUser() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public List<UserEntity> getWorkers() {
+        Long fixedRoleId = 4L;
+        return userRepository.findByRoleId(fixedRoleId);
+    }
+
+    @Override
+    public List<UserEntity> getVeterinarians() {
+        Long fixedRoleId = 3L;
+        return userRepository.findByRoleId(fixedRoleId);
+    }
+
+    @Override
+    public void banUser(Long id) {
+        UserEntity existingUser = userRepository
+                .findById(id)
+                .orElseThrow(()
+                        -> new DataNotFoundException("User", "id", id));
+        existingUser.setIsActive(false);
+        existingUser.setStatus(UserStatus.quitJob);
+        userRepository.save(existingUser);
+    }
+
+
+    @Override
+    public void unbanUser(Long id) {
+        UserEntity existingUser = userRepository
+                .findById(id)
+                .orElseThrow(()
+                        -> new DataNotFoundException("User", "id", id));
+        existingUser.setIsActive(true);
+        existingUser.setStatus(UserStatus.active);
+        userRepository.save(existingUser);
+    }
+
+    @Override
+    public void updateOnLeave(Long id) {
+        UserEntity existingUser = userRepository
+                .findById(id)
+                .orElseThrow(()
+                        -> new DataNotFoundException("User", "id", id));
+        existingUser.setStatus(UserStatus.onLeave);
+        userRepository.save(existingUser);
     }
 
     private String generateEmployeeNumberByRole(Long roleId) {

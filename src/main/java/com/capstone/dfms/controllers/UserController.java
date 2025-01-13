@@ -14,7 +14,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.capstone.dfms.mappers.UserMapper.INSTANCE;
 @RestController
@@ -87,13 +90,60 @@ public class UserController {
         userService.setPassword(userId, token, request);
         return CoreApiResponse.success("Change password successfully!");
     }
-
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("/changepassword")
     public CoreApiResponse<?> changePassword(
             @RequestBody UserChangePasswordRequest request
     ){
         userService.changePassword(request);
         return CoreApiResponse.success("Change password successfully!");
+    }
+
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @GetMapping("/profile")
+    public CoreApiResponse<?> getCurrentUserProfile() {
+        UserEntity currentUser = userService.getMyProfile();
+        return CoreApiResponse.success(currentUser);
+    }
+
+    @PutMapping("/update")
+    public CoreApiResponse<UserEntity> updateUser(@Valid @RequestBody PersonalUpdateRequest updateUserRequest) {
+        return CoreApiResponse.success(userService.updatePersonalInformation(updateUserRequest));
+    }
+
+    @GetMapping("/all")
+    public CoreApiResponse<List<UserEntity>> getAllUsers() {
+        return CoreApiResponse.success(userService.getAllUser());
+    }
+
+    @GetMapping("/veterinarians")
+    public CoreApiResponse<List<UserEntity>> getVeterinarians() {
+        List<UserEntity> users = userService.getVeterinarians();
+        return CoreApiResponse.success(users);
+    }
+
+    @GetMapping("/workers")
+    public CoreApiResponse<List<UserEntity>> getworkers() {
+        List<UserEntity> users = userService.getWorkers();
+        return CoreApiResponse.success(users);
+    }
+
+    @PutMapping("/ban/{id}")
+    public CoreApiResponse<?> banUser(@PathVariable Long id) {
+        userService.banUser(id);
+        return CoreApiResponse.success("Lock account successfully!");
+    }
+
+    @PutMapping("/unban/{id}")
+    public CoreApiResponse<?> unbanUser(@PathVariable Long id) {
+        userService.unbanUser(id);
+        return CoreApiResponse.success("Unlock account successfully!");
+    }
+
+    @PutMapping("/onleave/{id}")
+    public CoreApiResponse<?> updateUser(@PathVariable Long id) {
+        userService.updateOnLeave(id);
+        return CoreApiResponse.success("Update status user successfully! ");
     }
 
     private boolean isValidToken(String token) {
