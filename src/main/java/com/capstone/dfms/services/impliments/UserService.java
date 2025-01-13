@@ -277,6 +277,10 @@ public class UserService implements IUserService {
         existingUser.setStatus(UserStatus.onLeave);
         userRepository.save(existingUser);
     }
+    @Override
+    public List<RoleEntity> getAllRoles() {
+        return roleRepository.findAll();
+    }
 
     private String generateEmployeeNumberByRole(Long roleId) {
         long count = userRepository.count();

@@ -1,5 +1,6 @@
 package com.capstone.dfms.services;
 
+import com.capstone.dfms.models.RoleEntity;
 import com.capstone.dfms.models.UserEntity;
 import com.capstone.dfms.requests.PersonalUpdateRequest;
 import com.capstone.dfms.requests.UserChangePasswordRequest;
@@ -39,4 +40,6 @@ public interface IUserService {
     void unbanUser(Long id);
 
     void updateOnLeave(Long id);
+
+    List<RoleEntity> getAllRoles();
 }
