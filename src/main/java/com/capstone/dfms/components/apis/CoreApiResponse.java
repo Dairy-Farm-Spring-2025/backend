@@ -56,6 +56,8 @@ public class CoreApiResponse<T> extends ResponseEntity<CoreResponse<T>> {
         return new CoreApiResponse<>(coreResponse, HttpStatus.OK);
     }
 
+
+
     public static <T> CoreApiResponse<T> error(HttpStatus status,String message,T data) {
         CoreResponse<T> coreResponse = new CoreResponse<>(
                 status.value(),

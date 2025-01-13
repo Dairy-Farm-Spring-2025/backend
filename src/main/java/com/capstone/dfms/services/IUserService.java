@@ -1,10 +1,13 @@
 package com.capstone.dfms.services;
 
 import com.capstone.dfms.models.UserEntity;
+import com.capstone.dfms.requests.PersonalUpdateRequest;
 import com.capstone.dfms.requests.UserChangePasswordRequest;
 import com.capstone.dfms.requests.UserForgotPasswordRequest;
 import com.capstone.dfms.requests.UserSignInRequest;
 import com.capstone.dfms.responses.SignInResponse;
+
+import java.util.List;
 
 public interface IUserService {
     void createAccount(UserEntity user);
@@ -20,4 +23,20 @@ public interface IUserService {
     void setPassword(Long userId, String token, UserForgotPasswordRequest request);
 
     void changePassword(UserChangePasswordRequest request);
+
+    UserEntity  getMyProfile();
+
+    UserEntity updatePersonalInformation(PersonalUpdateRequest update);
+
+    List<UserEntity> getAllUser();
+
+    List<UserEntity> getWorkers();
+
+    List<UserEntity> getVeterinarians();
+
+    void banUser(Long id);
+
+    void unbanUser(Long id);
+
+    void updateOnLeave(Long id);
 }
