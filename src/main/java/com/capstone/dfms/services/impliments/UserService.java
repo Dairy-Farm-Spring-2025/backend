@@ -76,7 +76,8 @@ public class UserService implements IUserService {
         user.setUpdateInfo(false);
         user.setStatus(UserStatus.active);
 
-        RoleEntity role = roleRepository.findById(user.getRoleId().getId()).orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND,"Role not found"));
+        RoleEntity role = roleRepository.findById(user.getRoleId().getId()).orElseThrow(()
+                -> new AppException(HttpStatus.OK,"Role not found"));
         user.setRoleId(role);
 
         String employeeNumber = generateEmployeeNumberByRole(role.getId());
