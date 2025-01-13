@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -25,4 +26,6 @@ public class CowResponse {
     private CowOrigin cowOrigin;
     private Gender gender;
     private CowTypeResponse cowType;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

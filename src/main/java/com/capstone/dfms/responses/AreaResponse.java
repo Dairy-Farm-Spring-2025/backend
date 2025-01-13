@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,4 +19,6 @@ public class AreaResponse {
     private float length;
     private float width;
     private AreaType areaType;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
