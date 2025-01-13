@@ -5,6 +5,8 @@ import com.capstone.dfms.models.enums.PenStatus;
 import com.capstone.dfms.models.enums.PenType;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,4 +20,6 @@ public class PenResponse {
     private float width;
     private PenStatus penStatus;
     private AreaResponse area;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
