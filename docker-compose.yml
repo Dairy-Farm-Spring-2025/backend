@@ -9,8 +9,11 @@ services:
       MYSQL_USER: dairyfarm2024
       MYSQL_PASSWORD: dairyfarm2003
       MYSQL_DATABASE: dfms
+      VERIFY_URL: http://34.124.196.11:8080/api/v1/users/verify
     depends_on:
       - db_dfms
+    volumes:
+      - /root/images:/app/uploads
 
   db_dfms:
     image: mysql:latest
