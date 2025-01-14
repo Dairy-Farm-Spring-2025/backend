@@ -108,7 +108,7 @@ public class UserController {
         UserEntity currentUser = userService.getMyProfile();
         return CoreApiResponse.success(currentUser);
     }
-
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("/update")
     public CoreApiResponse<UserEntity> updateUser(
             @Valid @ModelAttribute PersonalUpdateRequest updateUserRequest,
