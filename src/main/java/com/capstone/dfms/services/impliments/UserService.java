@@ -7,6 +7,7 @@ import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.securities.TokenProvider;
 import com.capstone.dfms.components.securities.UserPrincipal;
 import com.capstone.dfms.components.utils.PasswordUtils;
+import com.capstone.dfms.components.utils.UploadImagesUtils;
 import com.capstone.dfms.mappers.UserMapper;
 import com.capstone.dfms.models.RoleEntity;
 import com.capstone.dfms.models.TokenEntity;
@@ -33,9 +34,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,7 +80,8 @@ public class UserService implements IUserService {
         user.setUpdateInfo(false);
         user.setStatus(UserStatus.active);
 
-        RoleEntity role = roleRepository.findById(user.getRoleId().getId()).orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND,"Role not found"));
+        RoleEntity role = roleRepository.findById(user.getRoleId().getId()).orElseThrow(()
+                -> new AppException(HttpStatus.OK,"Role not found"));
         user.setRoleId(role);
 
         String employeeNumber = generateEmployeeNumberByRole(role.getId());
@@ -219,12 +224,24 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public UserEntity updatePersonalInformation(PersonalUpdateRequest update) {
+    public UserEntity updatePersonalInformation(PersonalUpdateRequest update, MultipartFile imageFile) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         UserEntity user = userPrincipal.getUser();
+        if (update.getDob() != null) {
+            LocalDate dob = update.getDob();
+            LocalDate now = LocalDate.now();
+            int age = Period.between(dob, now).getYears();
+            if (age < 18) {
+                throw new AppException(HttpStatus.BAD_REQUEST,"User must be at least 18 years old.");
+            }
+        }
         UserMapper.INSTANCE.updateUserFromRequest(update, user);
+
         user.setUpdateInfo(true);
+        if (imageFile != null && !imageFile.isEmpty()) {
+            user.setProfilePhoto(UploadImagesUtils.storeFile(imageFile, ImageContants.USERS_IMAGE_PATH));
+        }
         return userRepository.save(user);
     }
 

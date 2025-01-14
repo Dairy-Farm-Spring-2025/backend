@@ -48,6 +48,7 @@ public class UserEntity extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private UserStatus status;
+
     @ManyToOne
     @JoinColumn(name = "role_id")
     private RoleEntity roleId;
@@ -68,4 +69,5 @@ public class UserEntity extends BaseEntity {
 
     @JsonIgnore
     private Boolean changePassword;
+
 }

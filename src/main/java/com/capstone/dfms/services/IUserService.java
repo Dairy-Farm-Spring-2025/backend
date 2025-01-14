@@ -7,7 +7,9 @@ import com.capstone.dfms.requests.UserChangePasswordRequest;
 import com.capstone.dfms.requests.UserForgotPasswordRequest;
 import com.capstone.dfms.requests.UserSignInRequest;
 import com.capstone.dfms.responses.SignInResponse;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface IUserService {
@@ -27,7 +29,7 @@ public interface IUserService {
 
     UserEntity  getMyProfile();
 
-    UserEntity updatePersonalInformation(PersonalUpdateRequest update);
+    UserEntity updatePersonalInformation(PersonalUpdateRequest update, MultipartFile imageFile) throws IOException;
 
     List<UserEntity> getAllUser();
 

@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.capstone.dfms.mappers.UserMapper.INSTANCE;
@@ -108,8 +110,10 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public CoreApiResponse<UserEntity> updateUser(@Valid @RequestBody PersonalUpdateRequest updateUserRequest) {
-        return CoreApiResponse.success(userService.updatePersonalInformation(updateUserRequest));
+    public CoreApiResponse<UserEntity> updateUser(
+            @Valid @ModelAttribute PersonalUpdateRequest updateUserRequest,
+            @RequestParam(name = "imageAvatar", required = false) MultipartFile imageAvatar) throws IOException {
+        return CoreApiResponse.success(userService.updatePersonalInformation(updateUserRequest,imageAvatar));
     }
 
     @GetMapping("/all")
