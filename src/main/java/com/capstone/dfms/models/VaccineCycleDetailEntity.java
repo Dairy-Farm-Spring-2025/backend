@@ -27,4 +27,14 @@ public class VaccineCycleDetailEntity extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private InjectionSite injectionSite;
     private int ageInMonths;
+
+    @ManyToOne
+    @JoinColumn(name = "item_id")
+    private ItemEntity itemEntity;
+
+    @ManyToOne
+    @JoinColumn(name = "vaccine_cycle_id")
+    private VaccineCycleEntity vaccineCycleEntity;
+
+
 }
