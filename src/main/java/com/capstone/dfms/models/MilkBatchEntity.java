@@ -28,9 +28,7 @@ public class MilkBatchEntity extends BaseEntity{
 
     private Long volume;
 
-    @ManyToOne
-    @JoinColumn(name = "cow_id")
-    private CowEntity cowId;
+
 
 //    @OneToMany(mappedBy = "milkBatch", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<DailyMilkEntity> dailyMilks;
