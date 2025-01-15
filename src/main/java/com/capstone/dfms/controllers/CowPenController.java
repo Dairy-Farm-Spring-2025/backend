@@ -1,0 +1,69 @@
+package com.capstone.dfms.controllers;
+
+import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.requests.CowPenCreateRequest;
+import com.capstone.dfms.requests.CowPenUpdateRequest;
+import com.capstone.dfms.responses.CowPenResponse;
+import com.capstone.dfms.services.ICowPenService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static com.capstone.dfms.mappers.ICowPenMapper.INSTANCE;
+
+@RestController
+@RequestMapping("${app.api.version.v1}/cow-pens")
+@RequiredArgsConstructor
+public class CowPenController {
+    private final ICowPenService cowPenService;
+
+    @PostMapping
+    public CoreApiResponse<CowPenResponse> create(@RequestBody CowPenCreateRequest request) {
+        CowPenResponse response = cowPenService.create(INSTANCE.toModel(request));
+        return CoreApiResponse.success(response);
+    }
+
+    @GetMapping
+    public CoreApiResponse<List<CowPenResponse>> getAll() {
+        List<CowPenResponse> responseList = cowPenService.getAll();
+        return CoreApiResponse.success(responseList);
+    }
+
+    // Read by ID
+    @GetMapping("/{penId}/{cowId}/{fromDate}")
+    public CoreApiResponse<CowPenResponse> getById(
+            @PathVariable Long penId,
+            @PathVariable Long cowId,
+            @PathVariable String fromDate) {
+        LocalDate date = LocalDate.parse(fromDate); // Convert String to LocalDate
+        CowPenResponse response = cowPenService.getById(penId, cowId, date);
+        return CoreApiResponse.success(response);
+    }
+
+    // Update
+    @PutMapping("/{penId}/{cowId}/{fromDate}")
+    public CoreApiResponse<CowPenResponse> update(
+            @PathVariable Long penId,
+            @PathVariable Long cowId,
+            @PathVariable String fromDate,
+            @RequestBody CowPenUpdateRequest request) {
+        LocalDate date = LocalDate.parse(fromDate); // Convert String to LocalDate
+        CowPenResponse response = cowPenService.update(penId, cowId, date, INSTANCE.toModel(request));
+        return CoreApiResponse.success(response);
+    }
+
+    // Delete
+    @DeleteMapping("/{penId}/{cowId}/{fromDate}")
+    public CoreApiResponse<Void> delete(
+            @PathVariable Long penId,
+            @PathVariable Long cowId,
+            @PathVariable String fromDate) {
+        LocalDate date = LocalDate.parse(fromDate); // Convert String to LocalDate
+        cowPenService.delete(penId, cowId, date);
+        return CoreApiResponse.success("");
+    }
+}

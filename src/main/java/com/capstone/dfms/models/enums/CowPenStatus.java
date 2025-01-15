@@ -1,6 +1,6 @@
 package com.capstone.dfms.models.enums;
 
-public enum PenCowStatus {
+public enum CowPenStatus {
     assigned,       // Cow is currently assigned to the pen
     temporarilyMoved, // Cow is temporarily moved to another location
     underTreatment, // Cow is in a treatment pen

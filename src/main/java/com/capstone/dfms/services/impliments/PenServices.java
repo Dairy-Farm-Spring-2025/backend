@@ -87,5 +87,10 @@ public class PenServices implements IPenServices {
         return penEntities.stream().map(penMapper::toResponse).toList();
     }
 
+    @Override
+    public List<PenEntity> getAvailablePens(LocalDate currentDate) {
+        return penRepository.findAvailablePens(currentDate);
+    }
+
 
 }

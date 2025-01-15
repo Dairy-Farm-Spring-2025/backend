@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.models.PenEntity;
 import com.capstone.dfms.requests.PenCreateRequest;
 import com.capstone.dfms.requests.PenUpdateRequest;
 import com.capstone.dfms.responses.PenResponse;
@@ -9,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static com.capstone.dfms.mappers.IPenMapper.INSTANCE;
@@ -45,5 +47,14 @@ public class PenController {
     public CoreApiResponse<List<PenResponse>> getAllPens() {
         List<PenResponse> pens = penServices.getAllPens();
         return CoreApiResponse.success(pens);
+    }
+
+    @GetMapping("/available")
+    public CoreApiResponse<List<PenEntity>> getAvailablePen() {
+        // Get available pens
+        List<PenEntity> availablePens = penServices.getAvailablePens(LocalDate.now());
+
+        // Return the response
+        return CoreApiResponse.success(availablePens);
     }
 }
