@@ -24,4 +24,8 @@ public class IllnessDetailEntity extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private IllnessDetailStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "illness_id")
+    private IllnessEntity illnessEntity;
 }
