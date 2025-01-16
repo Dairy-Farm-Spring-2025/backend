@@ -121,6 +121,11 @@ public class UserController {
         return CoreApiResponse.success(userService.getAllUser());
     }
 
+    @GetMapping("/{id}")
+    public CoreApiResponse<UserEntity> getUserById(@PathVariable Long id) {
+        return CoreApiResponse.success(userService.getUserById(id));
+    }
+
     @GetMapping("/veterinarians")
     public CoreApiResponse<List<UserEntity>> getVeterinarians() {
         List<UserEntity> users = userService.getVeterinarians();
