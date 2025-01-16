@@ -44,4 +44,6 @@ public interface IUserService {
     void updateOnLeave(Long id);
 
     List<RoleEntity> getAllRoles();
+
+    UserEntity getUserById(Long id);
 }

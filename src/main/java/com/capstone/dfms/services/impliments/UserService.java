@@ -294,6 +294,13 @@ public class UserService implements IUserService {
         existingUser.setStatus(UserStatus.onLeave);
         userRepository.save(existingUser);
     }
+
+    @Override
+    public UserEntity getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(()
+                        -> new DataNotFoundException("User", "id", id));
+    }
     @Override
     public List<RoleEntity> getAllRoles() {
         return roleRepository.findAll();
@@ -303,7 +310,11 @@ public class UserService implements IUserService {
         long count = userRepository.count();
 
         String employeeNumberPrefix = null;
-        if (roleId == 3) {
+        if (roleId == 1) {
+            employeeNumberPrefix = "AD";
+        }if (roleId == 2) {
+            employeeNumberPrefix = "MA";
+        }if (roleId == 3) {
             employeeNumberPrefix = "VE";
         } if (roleId == 4) {
             employeeNumberPrefix = "WO";

@@ -1,5 +1,6 @@
 package com.capstone.dfms.models;
 
+import com.capstone.dfms.models.enums.MilkShift;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,10 +18,23 @@ public class DailyMilkEntity extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long dailyMilkId;
 
+    @Enumerated(EnumType.STRING)
+    private MilkShift shift;
+
     private LocalDate milkDate;
 
     @ManyToOne
-    @JoinColumn(name = "milk_batch_id", nullable = false)
+    @JoinColumn(name = "milk_batch_id", nullable = true)
     @JsonBackReference
     private MilkBatchEntity milkBatch;
+
+    private Long volume;
+
+    @ManyToOne
+    @JoinColumn(name = "worker_id")
+    private UserEntity worker;
+
+    @ManyToOne
+    @JoinColumn(name = "cow_id")
+    private CowEntity cow;
 }
