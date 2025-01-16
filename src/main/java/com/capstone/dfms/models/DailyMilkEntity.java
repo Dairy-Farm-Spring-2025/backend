@@ -24,9 +24,11 @@ public class DailyMilkEntity extends BaseEntity{
     private LocalDate milkDate;
 
     @ManyToOne
-    @JoinColumn(name = "milk_batch_id", nullable = false)
+    @JoinColumn(name = "milk_batch_id", nullable = true)
     @JsonBackReference
     private MilkBatchEntity milkBatch;
+
+    private Long volume;
 
     @ManyToOne
     @JoinColumn(name = "worker_id")

@@ -28,10 +28,4 @@ public class MilkBatchEntity extends BaseEntity{
 
     private Long volume;
 
-
-
-//    @OneToMany(mappedBy = "milkBatch", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<DailyMilkEntity> dailyMilks;
-
-
 }
