@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -21,11 +22,10 @@ public class MilkBatchEntity extends BaseEntity{
 
     private Long totalVolume;
 
-    private LocalDate expiryDate;
+    private LocalDateTime date;
+
+    private LocalDateTime expiryDate;
 
     @Enumerated(EnumType.STRING)
     private MilkBatchStatus status;
-
-    private Long volume;
-
 }

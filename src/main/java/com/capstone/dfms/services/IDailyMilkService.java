@@ -5,7 +5,7 @@ import com.capstone.dfms.models.DailyMilkEntity;
 import java.util.List;
 
 public interface IDailyMilkService {
-    DailyMilkEntity createDailyMilk(DailyMilkEntity dailyMilk);
+    void createDailyMilk(DailyMilkEntity dailyMilk);
 
     List<DailyMilkEntity> getDailyMilksByCowId(Long cowId);
 

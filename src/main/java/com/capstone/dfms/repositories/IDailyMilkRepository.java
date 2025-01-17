@@ -1,6 +1,8 @@
 package com.capstone.dfms.repositories;
 
+import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.DailyMilkEntity;
+import com.capstone.dfms.models.MilkBatchEntity;
 import com.capstone.dfms.models.enums.MilkShift;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,6 +30,15 @@ public interface IDailyMilkRepository extends JpaRepository<DailyMilkEntity, Lon
             @Param("areaId") Long areaId,
             @Param("milkDate") LocalDate milkDate
     );
+
+    @Query("SELECT d FROM DailyMilkEntity d WHERE d.dailyMilkId IN :ids")
+    List<DailyMilkEntity> findByDailyMilkIdIn(@Param("ids") List<Long> ids);
+
+    @Query("SELECT COUNT(dm) FROM DailyMilkEntity dm WHERE dm.cow = :cow AND dm.milkDate = :milkDate")
+    long countByCowAndMilkDate(@Param("cow") CowEntity cow, @Param("milkDate") LocalDate milkDate);
+
+    List<DailyMilkEntity> findByMilkBatch(MilkBatchEntity milkBatch);
+
 
 
 }
