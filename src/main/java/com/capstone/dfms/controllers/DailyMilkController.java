@@ -10,6 +10,7 @@ import com.capstone.dfms.responses.PenResponse;
 import com.capstone.dfms.services.impliments.DailyMilkService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import static com.capstone.dfms.mappers.IDailyMilkMapper.INSTANCE;
 
@@ -21,9 +22,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DailyMilkController {
     private final DailyMilkService dailyMilkService;
-
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PostMapping("/create")
-    public CoreApiResponse<?> createPen(
+    public CoreApiResponse<?> createDailyMilk(
             @Valid @RequestBody DailyMilkRequest dailyMilkRequest
     ) {
         dailyMilkService.createDailyMilk(IDailyMilkMapper.INSTANCE.toModel(dailyMilkRequest));
@@ -44,6 +45,20 @@ public class DailyMilkController {
     ) {
         List<DailyMilkEntity> results = dailyMilkService.searchDailyMilk(cowId, areaId);
         return CoreApiResponse.success(results);
+    }
+
+    @PutMapping("/volume/{dailyMilkId}")
+    public CoreApiResponse<?> updateDailyMilkVolume(
+            @PathVariable Long dailyMilkId,
+            @RequestParam Long newVolume) {
+        dailyMilkService.updateDailyMilkVolume(dailyMilkId, newVolume);
+        return CoreApiResponse.success("Volume updated successfully.");
+    }
+
+    @DeleteMapping("/{id}")
+    public CoreApiResponse<?> deleteDailyMilk(@PathVariable long id) {
+        dailyMilkService.deleteDailyMilk(id);
+        return CoreApiResponse.success("Daily Milk deleted successfully.");
     }
 
 
