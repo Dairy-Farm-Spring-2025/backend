@@ -10,4 +10,8 @@ public interface IDailyMilkService {
     List<DailyMilkEntity> getDailyMilksByCowId(Long cowId);
 
     List<DailyMilkEntity> searchDailyMilk(Long cowId, Long areaId);
+
+    void updateDailyMilkVolume(Long dailyMilkId, Long newVolume);
+
+    void deleteDailyMilk(long id);
 }

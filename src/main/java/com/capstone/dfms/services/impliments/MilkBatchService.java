@@ -21,7 +21,6 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class MilkBatchService implements IMilkBatchService {
-
     private  final IMilkBatchRepository milkBatchRepository;
 
     private final IDailyMilkRepository dailyMilkRepository;

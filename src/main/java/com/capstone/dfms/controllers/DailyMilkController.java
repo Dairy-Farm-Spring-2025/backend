@@ -47,5 +47,19 @@ public class DailyMilkController {
         return CoreApiResponse.success(results);
     }
 
+    @PutMapping("/volume/{dailyMilkId}")
+    public CoreApiResponse<?> updateDailyMilkVolume(
+            @PathVariable Long dailyMilkId,
+            @RequestParam Long newVolume) {
+        dailyMilkService.updateDailyMilkVolume(dailyMilkId, newVolume);
+        return CoreApiResponse.success("Volume updated successfully.");
+    }
+
+    @DeleteMapping("/{id}")
+    public CoreApiResponse<?> deleteDailyMilk(@PathVariable long id) {
+        dailyMilkService.deleteDailyMilk(id);
+        return CoreApiResponse.success("Daily Milk deleted successfully.");
+    }
+
 
 }
