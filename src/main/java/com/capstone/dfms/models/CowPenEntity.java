@@ -1,11 +1,14 @@
 package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.compositeKeys.CowPenPK;
-import com.capstone.dfms.models.enums.CowPenStatus;
+import com.capstone.dfms.models.enums.PenCowStatus;
+import com.capstone.dfms.models.enums.PenType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
 @Table(name = "cow_pens")
@@ -32,5 +35,5 @@ public class CowPenEntity extends BaseEntity{
     private LocalDate toDate;
 
     @Enumerated(EnumType.STRING)
-    private CowPenStatus status;
+    private PenCowStatus status;
 }

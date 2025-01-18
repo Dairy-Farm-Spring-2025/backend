@@ -102,4 +102,20 @@ public class CowPenService implements ICowPenService {
             throw new AppException(HttpStatus.OK, "Cow-Pen not found for the provided key.");
         }
     }
+
+    @Override
+    public List<CowPenResponse> getCowPenFollowCowId(Long cowId) {
+        return cowPenRepository.findByIdCowId(cowId).stream()
+                .map(mapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<CowPenResponse> getCowPenFollowPenId(Long penId) {
+        return cowPenRepository.findByIdPenId(penId).stream()
+                .map(mapper::toResponse)
+                .toList();
+    }
+
+
 }

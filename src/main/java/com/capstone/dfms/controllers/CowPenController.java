@@ -2,7 +2,6 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.requests.CowPenCreateRequest;
-import com.capstone.dfms.requests.CowPenUpdateRequest;
 import com.capstone.dfms.responses.CowPenResponse;
 import com.capstone.dfms.services.ICowPenService;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +49,7 @@ public class CowPenController {
             @PathVariable Long penId,
             @PathVariable Long cowId,
             @PathVariable String fromDate,
-            @RequestBody CowPenUpdateRequest request) {
+            @RequestBody CowPenCreateRequest request) {
         LocalDate date = LocalDate.parse(fromDate); // Convert String to LocalDate
         CowPenResponse response = cowPenService.update(penId, cowId, date, INSTANCE.toModel(request));
         return CoreApiResponse.success(response);
@@ -66,4 +65,25 @@ public class CowPenController {
         cowPenService.delete(penId, cowId, date);
         return CoreApiResponse.success("");
     }
+
+    @GetMapping("/pen/{penId}")
+    public CoreApiResponse<List<CowPenResponse>> getByPenId(
+            @PathVariable Long penId) {
+        List<CowPenResponse> response = cowPenService.getCowPenFollowPenId(penId);
+        return CoreApiResponse.success(response);
+    }
+
+    @GetMapping("/cow/{cowId}")
+    public CoreApiResponse<List<CowPenResponse>> getByCowId(
+            @PathVariable Long cowId) {
+        List<CowPenResponse> response = cowPenService.getCowPenFollowCowId(cowId);
+        return CoreApiResponse.success(response);
+    }
+
+    //===========================================================================================
+    
+
+
+
+
 }

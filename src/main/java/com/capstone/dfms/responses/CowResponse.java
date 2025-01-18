@@ -28,4 +28,5 @@ public class CowResponse {
     private CowTypeResponse cowType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean isInPen;
 }
