@@ -17,18 +17,16 @@ public interface IDailyMilkRepository extends JpaRepository<DailyMilkEntity, Lon
     List<DailyMilkEntity> findByCowId(@Param("cowId") Long cowId);
 
     @Query("SELECT d FROM DailyMilkEntity d " +
-            "JOIN d.cow c " +
-            "JOIN CowPenEntity cp ON cp.id.cowId = c.cowId " +
-            "JOIN cp.penEntity p " +
-            "JOIN p.areaBelongto a " +
+            "LEFT JOIN d.cow c " +
+            "LEFT JOIN CowPenEntity cp ON cp.id.cowId = c.cowId " +
+            "LEFT JOIN cp.penEntity p " +
+            "LEFT JOIN p.areaBelongto a " +
             "WHERE (:cowId IS NULL OR c.cowId = :cowId) " +
             "AND (:areaId IS NULL OR a.areaId = :areaId) " +
-            "AND d.milkDate = :milkDate " +
-            "AND (cp.toDate IS NULL OR cp.toDate >= :milkDate)")
+            "AND d.milkDate = CURRENT_DATE()")
     List<DailyMilkEntity> searchDailyMilk(
             @Param("cowId") Long cowId,
-            @Param("areaId") Long areaId,
-            @Param("milkDate") LocalDate milkDate
+            @Param("areaId") Long areaId
     );
 
     @Query("SELECT d FROM DailyMilkEntity d WHERE d.dailyMilkId IN :ids")
