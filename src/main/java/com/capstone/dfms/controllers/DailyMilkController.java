@@ -2,17 +2,13 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.mappers.IDailyMilkMapper;
-import com.capstone.dfms.mappers.IPenMapper;
 import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.requests.DailyMilkRequest;
-import com.capstone.dfms.requests.PenCreateRequest;
-import com.capstone.dfms.responses.PenResponse;
 import com.capstone.dfms.services.impliments.DailyMilkService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import static com.capstone.dfms.mappers.IDailyMilkMapper.INSTANCE;
 
 
 import java.util.List;
