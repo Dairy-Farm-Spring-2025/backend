@@ -1,9 +1,12 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.requests.CowPenApproveRequest;
 import com.capstone.dfms.requests.CowPenCreateRequest;
+import com.capstone.dfms.requests.CowPenUpdateRequest;
 import com.capstone.dfms.responses.CowPenResponse;
 import com.capstone.dfms.services.ICowPenService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +24,7 @@ public class CowPenController {
     private final ICowPenService cowPenService;
 
     @PostMapping
-    public CoreApiResponse<CowPenResponse> create(@RequestBody CowPenCreateRequest request) {
+    public CoreApiResponse<CowPenResponse> create(@Valid @RequestBody CowPenCreateRequest request) {
         CowPenResponse response = cowPenService.create(INSTANCE.toModel(request));
         return CoreApiResponse.success(response);
     }
@@ -49,7 +52,7 @@ public class CowPenController {
             @PathVariable Long penId,
             @PathVariable Long cowId,
             @PathVariable String fromDate,
-            @RequestBody CowPenCreateRequest request) {
+            @RequestBody CowPenUpdateRequest request) {
         LocalDate date = LocalDate.parse(fromDate); // Convert String to LocalDate
         CowPenResponse response = cowPenService.update(penId, cowId, date, INSTANCE.toModel(request));
         return CoreApiResponse.success(response);
@@ -63,7 +66,7 @@ public class CowPenController {
             @PathVariable String fromDate) {
         LocalDate date = LocalDate.parse(fromDate); // Convert String to LocalDate
         cowPenService.delete(penId, cowId, date);
-        return CoreApiResponse.success("");
+        return CoreApiResponse.success("Delete successfully");
     }
 
     @GetMapping("/pen/{penId}")
@@ -81,9 +84,25 @@ public class CowPenController {
     }
 
     //===========================================================================================
-    
+//    @GetMapping("/approve")
+//    public CoreApiResponse<CowPenResponse> approve(
+//            @Valid @RequestBody CowPenApproveRequest cowPenApproveRequest) {
+////        LocalDate date = LocalDate.parse();
+//        cowPenService.approveOrRejectMovePen(cowPenApproveRequest.getPenId(),
+//                cowPenApproveRequest.getCowId(),
+//                cowPenApproveRequest.getFromDate(),
+//                cowPenApproveRequest.isApproval());
+//        return CoreApiResponse.success("");
+//    }
 
-
-
-
+    @GetMapping("/approve/{penId}/{cowId}/{fromDate}/{approval}")
+    public CoreApiResponse<CowPenResponse> approve(
+            @PathVariable Long penId,
+            @PathVariable Long cowId,
+            @PathVariable String fromDate,
+            @PathVariable boolean approval) {
+        LocalDate date = LocalDate.parse(fromDate); // Convert String to LocalDate
+        CowPenResponse cowPenResponse = cowPenService.approveOrRejectMovePen(penId, cowId, date, approval);
+        return CoreApiResponse.success(cowPenResponse);
+    }
 }

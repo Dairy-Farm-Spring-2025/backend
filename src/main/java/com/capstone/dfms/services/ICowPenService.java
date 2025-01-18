@@ -15,4 +15,6 @@ public interface ICowPenService {
 
     List<CowPenResponse> getCowPenFollowCowId(Long cowId);
     List<CowPenResponse> getCowPenFollowPenId(Long penId);
+
+    CowPenResponse approveOrRejectMovePen(Long penId, Long cowId, LocalDate fromDate, boolean isApproval);
 }

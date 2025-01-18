@@ -27,7 +27,7 @@ public class CowController {
 
     @PutMapping("/{id}")
     public CoreApiResponse<CowResponse> updateCow(@PathVariable Long id, @Valid @RequestBody CowUpdateRequest cowUpdateRequest) {
-        CowResponse cowResponse = cowServices.updateCow(id, INSTANCE.toModel(cowUpdateRequest));
+        CowResponse cowResponse = cowServices.updateCow(id, cowUpdateRequest);
         return CoreApiResponse.success(cowResponse);
     }
 

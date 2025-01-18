@@ -8,6 +8,7 @@ import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.CowTypeEntity;
 import com.capstone.dfms.repositories.ICowRepository;
 import com.capstone.dfms.repositories.ICowTypeRepository;
+import com.capstone.dfms.requests.CowUpdateRequest;
 import com.capstone.dfms.responses.CowResponse;
 import com.capstone.dfms.services.ICowServices;
 import lombok.AllArgsConstructor;
@@ -46,33 +47,17 @@ public class CowServices implements ICowServices {
     }
 
     @Override
-    public CowResponse updateCow(Long id, CowEntity request) {
+    public CowResponse updateCow(Long id, CowUpdateRequest request) {
         CowEntity existingEntity = cowRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow with ID '" + id + "' not found."));
 
-        if(request.getName() != null) {
-            request.setName(StringUtils.NameStandardlizing(request.getName()));
-            if (cowRepository.existsByName(request.getName())
-                    && !existingEntity.getName().equalsIgnoreCase(request.getName())) {
-                throw new AppException(HttpStatus.OK, "Area with the name '" + request.getName() + "' already exists.");
-            }
-        }
+        cowMapper.updateCowFromRequest(request, existingEntity);
 
-//        existingEntity.setName(request.getName() != null ? request.getName() : existingEntity.getName());
-//        existingEntity.setCowStatus(request.getCowStatus() != null ? request.getCowStatus() : existingEntity.getCowStatus());
-//        existingEntity.setDateOfBirth(request.getDateOfBirth() != null ? request.getDateOfBirth() : existingEntity.getDateOfBirth());
-//        existingEntity.setDateOfEnter(request.getDateOfEnter() != null ? request.getDateOfEnter() : existingEntity.getDateOfEnter());
-//        existingEntity.setDateOfOut(request.getDateOfOut() != null ? request.getDateOfOut() : existingEntity.getDateOfOut());
-//        existingEntity.setDescription(request.getDescription() != null ? request.getDescription() : existingEntity.getDescription());
-//        existingEntity.setCowOrigin(request.getCowOrigin() != null ? request.getCowOrigin() : existingEntity.getCowOrigin());
-//        existingEntity.setGender(request.getGender() != null ? request.getGender() : existingEntity.getGender());
-        updateField(request::getCowStatus, existingEntity::setCowStatus);
-        updateField(request::getDateOfBirth, existingEntity::setDateOfBirth);
-        updateField(request::getDateOfEnter, existingEntity::setDateOfEnter);
-        updateField(request::getDateOfOut, existingEntity::setDateOfOut);
-        updateField(request::getDescription, existingEntity::setDescription);
-        updateField(request::getCowOrigin, existingEntity::setCowOrigin);
-        updateField(request::getGender, existingEntity::setGender);
+        if(request.getCowTypeId() != null){
+            CowTypeEntity cowType = cowTypeRepository.findById(request.getCowTypeId())
+                    .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow type not found."));
+            existingEntity.setCowTypeEntity(cowType);
+        }
 
         CowEntity updatedEntity = cowRepository.save(existingEntity);
         return getCowById(updatedEntity.getCowId());

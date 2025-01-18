@@ -6,6 +6,7 @@ import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.CowPenEntity;
 import com.capstone.dfms.models.PenEntity;
 import com.capstone.dfms.models.compositeKeys.CowPenPK;
+import com.capstone.dfms.models.enums.PenCowStatus;
 import com.capstone.dfms.repositories.ICowPenRepository;
 import com.capstone.dfms.repositories.ICowRepository;
 import com.capstone.dfms.repositories.IPenRepository;
@@ -50,6 +51,7 @@ public class CowPenService implements ICowPenService {
         // Assign found entities to the request
         request.setCowEntity(cowEntity);
         request.setPenEntity(penEntity);
+        request.setStatus(PenCowStatus.planning);
 
         CowPenEntity savedEntity = cowPenRepository.save(request);
         return mapper.toResponse(savedEntity);
@@ -117,5 +119,25 @@ public class CowPenService implements ICowPenService {
                 .toList();
     }
 
+
+    //----------------------------------------------------------
+    @Override
+    public CowPenResponse approveOrRejectMovePen(Long penId, Long cowId, LocalDate fromDate, boolean isApproval) {
+        CowPenPK cowPenPK = new CowPenPK(penId, cowId, fromDate);
+        CowPenEntity cowPenEntity = cowPenRepository.findById(cowPenPK)
+                .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow-Pen not found for the provided key."));
+
+        if(cowPenEntity.getStatus() != PenCowStatus.planning){
+            throw new AppException(HttpStatus.OK, "Not longer to approve or reject");
+        }
+
+        if(isApproval){
+            cowPenEntity.setStatus(PenCowStatus.assigned);
+        }
+        else {
+            cowPenEntity.setStatus(PenCowStatus.cancel);
+        }
+        return this.update(penId, cowId, fromDate, cowPenEntity);
+    }
 
 }
