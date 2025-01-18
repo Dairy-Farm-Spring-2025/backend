@@ -3,6 +3,7 @@ package com.capstone.dfms.controllers;
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.mappers.IDailyMilkMapper;
 import com.capstone.dfms.models.DailyMilkEntity;
+import com.capstone.dfms.models.enums.MilkShift;
 import com.capstone.dfms.requests.DailyMilkRequest;
 import com.capstone.dfms.services.impliments.DailyMilkService;
 import jakarta.validation.Valid;
@@ -37,9 +38,10 @@ public class DailyMilkController {
     @GetMapping("/search")
     public CoreApiResponse<List<DailyMilkEntity>> searchDailyMilk(
             @RequestParam(required = false) Long cowId,
-            @RequestParam(required = false) Long areaId
+            @RequestParam(required = false) Long areaId,
+            @RequestParam(required = false) MilkShift shift
     ) {
-        List<DailyMilkEntity> results = dailyMilkService.searchDailyMilk(cowId, areaId);
+        List<DailyMilkEntity> results = dailyMilkService.searchDailyMilk(cowId, areaId, shift);
         return CoreApiResponse.success(results);
     }
 
