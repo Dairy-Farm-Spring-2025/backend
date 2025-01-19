@@ -39,6 +39,11 @@ public interface IDailyMilkRepository extends JpaRepository<DailyMilkEntity, Lon
 
     List<DailyMilkEntity> findByMilkBatch(MilkBatchEntity milkBatch);
 
+    @Query("SELECT COALESCE(SUM(d.volume), 0) FROM DailyMilkEntity d " +
+            "WHERE d.milkDate = :milkDate")
+    Long getTotalMilkVolumeByDate(@Param("milkDate") LocalDate milkDate);
+
+
 
 
 }

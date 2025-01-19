@@ -13,6 +13,7 @@ import com.capstone.dfms.repositories.ICowRepository;
 import com.capstone.dfms.repositories.IDailyMilkRepository;
 import com.capstone.dfms.repositories.IMilkBatchRepository;
 import com.capstone.dfms.repositories.IUserRepository;
+import com.capstone.dfms.responses.TotalMilkTodayResponse;
 import com.capstone.dfms.services.IDailyMilkService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -100,6 +101,14 @@ public class DailyMilkService implements IDailyMilkService {
         }
 
         dailyMilkRepository.delete(dailyMilk);
+    }
+
+    @Override
+    public TotalMilkTodayResponse getTotalMilkVolumeForDate(LocalDate milkDate) {
+        Long totalMilk = dailyMilkRepository.getTotalMilkVolumeByDate(milkDate);
+        return TotalMilkTodayResponse.builder()
+                .totalMilk(totalMilk)
+                .build();
     }
 
 }
