@@ -2,6 +2,7 @@ package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.MilkShift;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,7 +26,7 @@ public class DailyMilkEntity extends BaseEntity{
 
     @ManyToOne
     @JoinColumn(name = "milk_batch_id", nullable = true)
-    @JsonBackReference
+    @JsonIgnoreProperties("dailyMilks")
     private MilkBatchEntity milkBatch;
 
     private Long volume;

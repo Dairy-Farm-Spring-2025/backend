@@ -5,13 +5,16 @@ import com.capstone.dfms.mappers.IDailyMilkMapper;
 import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.enums.MilkShift;
 import com.capstone.dfms.requests.DailyMilkRequest;
+import com.capstone.dfms.responses.TotalMilkTodayResponse;
 import com.capstone.dfms.services.impliments.DailyMilkService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -59,5 +62,10 @@ public class DailyMilkController {
         return CoreApiResponse.success("Daily Milk deleted successfully.");
     }
 
-
+    @GetMapping("/total/day")
+    public CoreApiResponse<TotalMilkTodayResponse> getTotalMilk(
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate milkDate) {
+        TotalMilkTodayResponse response = dailyMilkService.getTotalMilkVolumeForDate(milkDate);
+        return CoreApiResponse.success(response);
+    }
 }
