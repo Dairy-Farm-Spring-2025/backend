@@ -5,6 +5,7 @@ import com.capstone.dfms.mappers.IDailyMilkMapper;
 import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.enums.MilkShift;
 import com.capstone.dfms.requests.DailyMilkRequest;
+import com.capstone.dfms.responses.MonthlyMilkSummaryResponse;
 import com.capstone.dfms.responses.TotalMilkTodayResponse;
 import com.capstone.dfms.services.impliments.DailyMilkService;
 import jakarta.validation.Valid;
@@ -66,6 +67,30 @@ public class DailyMilkController {
     public CoreApiResponse<TotalMilkTodayResponse> getTotalMilk(
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate milkDate) {
         TotalMilkTodayResponse response = dailyMilkService.getTotalMilkVolumeForDate(milkDate);
+        return CoreApiResponse.success(response);
+    }
+
+    @GetMapping("/total/month")
+    public CoreApiResponse<List<MonthlyMilkSummaryResponse>> getMonthlyMilkSummary(
+            @RequestParam int year) {
+        List<MonthlyMilkSummaryResponse> summary = dailyMilkService.getMonthlyMilkSummary(year);
+        return CoreApiResponse.success(summary);
+    }
+
+    @GetMapping("/total/{cowId}/day")
+    public CoreApiResponse<TotalMilkTodayResponse> getTotalMilkByCowAndDate(
+            @PathVariable Long cowId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        Long totalMilk = dailyMilkService.getTotalMilkByCowAndDate(cowId, date);
+        TotalMilkTodayResponse response = new TotalMilkTodayResponse(totalMilk);
+        return CoreApiResponse.success(response);
+    }
+
+    @GetMapping("/total/{cowId}/month")
+    public CoreApiResponse<List<MonthlyMilkSummaryResponse>> getTotalMilkByMonthAndCow(
+            @RequestParam int year,
+            @PathVariable Long cowId) {
+        List<MonthlyMilkSummaryResponse> response = dailyMilkService.getTotalMilkByMonthAndCow(year, cowId);
         return CoreApiResponse.success(response);
     }
 }
