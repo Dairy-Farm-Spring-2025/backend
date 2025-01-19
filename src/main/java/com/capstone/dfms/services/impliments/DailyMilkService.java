@@ -13,6 +13,7 @@ import com.capstone.dfms.repositories.ICowRepository;
 import com.capstone.dfms.repositories.IDailyMilkRepository;
 import com.capstone.dfms.repositories.IMilkBatchRepository;
 import com.capstone.dfms.repositories.IUserRepository;
+import com.capstone.dfms.responses.MonthlyMilkSummaryResponse;
 import com.capstone.dfms.responses.TotalMilkTodayResponse;
 import com.capstone.dfms.services.IDailyMilkService;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -109,6 +111,29 @@ public class DailyMilkService implements IDailyMilkService {
         return TotalMilkTodayResponse.builder()
                 .totalMilk(totalMilk)
                 .build();
+    }
+
+    @Override
+    public List<MonthlyMilkSummaryResponse> getMonthlyMilkSummary(int year) {
+        List<Object[]> results = dailyMilkRepository.getTotalMilkByMonth(year);
+        return results.stream()
+                .map(result -> new MonthlyMilkSummaryResponse((Integer) result[0], (Long) result[1]))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Long getTotalMilkByCowAndDate(Long cowId, LocalDate date) {
+        return dailyMilkRepository.getTotalMilkByCowAndDate(cowId, date);
+    }
+    @Override
+    public List<MonthlyMilkSummaryResponse> getTotalMilkByMonthAndCow(int year, Long cowId) {
+        List<Object[]> result = dailyMilkRepository.getTotalMilkByMonthAndCow(year, cowId);
+        return result.stream()
+                .map(obj -> new MonthlyMilkSummaryResponse(
+                        (Integer) obj[1],  // month
+                        (Long) obj[2]  // totalMilk
+                ))
+                .collect(Collectors.toList());
     }
 
 }

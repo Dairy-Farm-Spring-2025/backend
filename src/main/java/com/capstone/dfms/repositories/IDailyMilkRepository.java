@@ -43,7 +43,26 @@ public interface IDailyMilkRepository extends JpaRepository<DailyMilkEntity, Lon
             "WHERE d.milkDate = :milkDate")
     Long getTotalMilkVolumeByDate(@Param("milkDate") LocalDate milkDate);
 
+    @Query("SELECT MONTH(d.milkDate) AS month, SUM(d.volume) AS totalMilk " +
+            "FROM DailyMilkEntity d " +
+            "WHERE YEAR(d.milkDate) = :year " +
+            "GROUP BY MONTH(d.milkDate) " +
+            "ORDER BY month")
+    List<Object[]> getTotalMilkByMonth(@Param("year") int year);
 
+    @Query("SELECT d.cow.cowId AS cowId, MONTH(d.milkDate) AS month, SUM(d.volume) AS totalMilk " +
+            "FROM DailyMilkEntity d " +
+            "WHERE YEAR(d.milkDate) = :year " +
+            "AND d.cow.cowId = :cowId " +
+            "GROUP BY d.cow.cowId, MONTH(d.milkDate) " +
+            "ORDER BY month")
+    List<Object[]> getTotalMilkByMonthAndCow(@Param("year") int year, @Param("cowId") Long cowId);
+
+    @Query("SELECT SUM(d.volume) " +
+            "FROM DailyMilkEntity d " +
+            "WHERE d.cow.cowId = :cowId " +
+            "AND d.milkDate = :date")
+    Long getTotalMilkByCowAndDate(@Param("cowId") Long cowId, @Param("date") LocalDate date);
 
 
 }

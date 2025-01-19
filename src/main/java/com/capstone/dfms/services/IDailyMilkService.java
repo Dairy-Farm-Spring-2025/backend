@@ -2,6 +2,7 @@ package com.capstone.dfms.services;
 
 import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.enums.MilkShift;
+import com.capstone.dfms.responses.MonthlyMilkSummaryResponse;
 import com.capstone.dfms.responses.TotalMilkTodayResponse;
 
 import java.time.LocalDate;
@@ -19,4 +20,10 @@ public interface IDailyMilkService {
     void deleteDailyMilk(long id);
 
     TotalMilkTodayResponse getTotalMilkVolumeForDate(LocalDate milkDate);
+
+    List<MonthlyMilkSummaryResponse> getMonthlyMilkSummary(int year);
+
+    Long getTotalMilkByCowAndDate(Long cowId, LocalDate date);
+
+    List<MonthlyMilkSummaryResponse> getTotalMilkByMonthAndCow(int year, Long cowId);
 }
