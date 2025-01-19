@@ -1,6 +1,6 @@
 package com.capstone.dfms.requests;
 
-import com.capstone.dfms.models.enums.CowPenStatus;
+import com.capstone.dfms.models.enums.PenCowStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,5 +14,5 @@ import java.time.LocalDate;
 @Builder
 public class CowPenUpdateRequest {
     private LocalDate toDate;
-    private CowPenStatus status;
+    private PenCowStatus status;
 }

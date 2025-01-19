@@ -8,6 +8,7 @@ import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.CowTypeEntity;
 import com.capstone.dfms.repositories.ICowRepository;
 import com.capstone.dfms.repositories.ICowTypeRepository;
+import com.capstone.dfms.requests.CowUpdateRequest;
 import com.capstone.dfms.responses.CowResponse;
 import com.capstone.dfms.services.ICowServices;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Service
 @AllArgsConstructor
@@ -37,34 +40,27 @@ public class CowServices implements ICowServices {
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow type not found."));
         request.setCowTypeEntity(cowType);
 
+        request.setName(this.generateCowName());
+
         CowEntity savedEntity = cowRepository.save(request);
         return cowMapper.toResponse(savedEntity);
     }
 
     @Override
-    public CowResponse updateCow(Long id, CowEntity request) {
+    public CowResponse updateCow(Long id, CowUpdateRequest request) {
         CowEntity existingEntity = cowRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow with ID '" + id + "' not found."));
 
-        if(request.getName() != null) {
-            request.setName(StringUtils.NameStandardlizing(request.getName()));
-            if (cowRepository.existsByName(request.getName())
-                    && !existingEntity.getName().equalsIgnoreCase(request.getName())) {
-                throw new AppException(HttpStatus.OK, "Area with the name '" + request.getName() + "' already exists.");
-            }
+        cowMapper.updateCowFromRequest(request, existingEntity);
+
+        if(request.getCowTypeId() != null){
+            CowTypeEntity cowType = cowTypeRepository.findById(request.getCowTypeId())
+                    .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow type not found."));
+            existingEntity.setCowTypeEntity(cowType);
         }
 
-        existingEntity.setName(request.getName() != null ? request.getName() : existingEntity.getName());
-        existingEntity.setCowStatus(request.getCowStatus() != null ? request.getCowStatus() : existingEntity.getCowStatus());
-        existingEntity.setDateOfBirth(request.getDateOfBirth() != null ? request.getDateOfBirth() : existingEntity.getDateOfBirth());
-        existingEntity.setDateOfEnter(request.getDateOfEnter() != null ? request.getDateOfEnter() : existingEntity.getDateOfEnter());
-        existingEntity.setDateOfOut(request.getDateOfOut() != null ? request.getDateOfOut() : existingEntity.getDateOfOut());
-        existingEntity.setDescription(request.getDescription() != null ? request.getDescription() : existingEntity.getDescription());
-        existingEntity.setCowOrigin(request.getCowOrigin() != null ? request.getCowOrigin() : existingEntity.getCowOrigin());
-        existingEntity.setGender(request.getGender() != null ? request.getGender() : existingEntity.getGender());
-
         CowEntity updatedEntity = cowRepository.save(existingEntity);
-        return cowMapper.toResponse(updatedEntity);
+        return getCowById(updatedEntity.getCowId());
     }
 
     @Override
@@ -78,19 +74,54 @@ public class CowServices implements ICowServices {
     public CowResponse getCowById(Long id) {
         CowEntity cowEntity = cowRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow with ID '" + id + "' not found."));
-        return cowMapper.toResponse(cowEntity);
+
+        CowResponse response = cowMapper.toResponse(cowEntity);
+
+        // Check if the cow is in a pen and set the `isInPen` property
+        boolean isInPen = this.cowIsInPen(cowEntity.getCowId());
+        response.setInPen(isInPen);
+
+        return response;
     }
 
     @Override
     public List<CowResponse> getAllCows() {
         List<CowEntity> cowEntities = cowRepository.findAll();
         return cowEntities.stream()
-                .map(cowMapper::toResponse)
+                .map(cowEntity -> {
+                    // Map CowEntity to CowResponse
+                    CowResponse response = cowMapper.toResponse(cowEntity);
+
+                    // Check if the cow is in a pen
+                    boolean isInPen = this.cowIsInPen(cowEntity.getCowId());
+                    response.setInPen(isInPen);
+
+                    return response;
+                })
                 .toList();
     }
 
     //----------General Function---------------------------------------------------
-    public LocalDate convertDateToLocalDate(Date date) {
-        return date != null ? date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null;
+//    public LocalDate convertDateToLocalDate(Date date) {
+//        return date != null ? date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null;
+//    }
+
+    private String generateCowName() {
+        long count = cowRepository.count();
+
+        return "CO" + String.format("%03d", count + 1);
+    }
+
+    private boolean cowIsInPen(Long cowId){
+        return !cowRepository.isCowNotInAnyPen(cowId, LocalDate.now());
+    }
+
+
+    //--------------------------------------------------------------------------------
+    private <T> void updateField(Supplier<T> getter, Consumer<T> setter) {
+        T value = getter.get();
+        if (value != null) {
+            setter.accept(value);
+        }
     }
 }

@@ -12,4 +12,9 @@ public interface ICowPenService {
     CowPenResponse getById(Long penId, Long cowId, LocalDate fromDate);
     CowPenResponse update(Long penId, Long cowId, LocalDate fromDate, CowPenEntity updatedRequest);
     void delete(Long penId, Long cowId, LocalDate fromDate);
+
+    List<CowPenResponse> getCowPenFollowCowId(Long cowId);
+    List<CowPenResponse> getCowPenFollowPenId(Long penId);
+
+    CowPenResponse approveOrRejectMovePen(Long penId, Long cowId, LocalDate fromDate, boolean isApproval);
 }

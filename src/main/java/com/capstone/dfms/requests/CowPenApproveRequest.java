@@ -1,6 +1,6 @@
 package com.capstone.dfms.requests;
 
-import com.capstone.dfms.models.enums.PenCowStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -9,11 +9,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CowPenCreateRequest {
+public class CowPenApproveRequest {
     @NotNull(message = "Pen ID cannot be null")
     private Long penId;
 
@@ -21,8 +22,9 @@ public class CowPenCreateRequest {
     private Long cowId;
 
     @NotNull(message = "From date cannot be null")
-    @Future(message = "From date must be in the future")
     private LocalDate fromDate;
 
-    private LocalDate toDate;
+    @NotNull(message = "You must approve or reject")
+    private boolean approval;
+
 }

@@ -2,7 +2,9 @@ package com.capstone.dfms.responses;
 
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.PenEntity;
-import com.capstone.dfms.models.enums.CowPenStatus;
+import com.capstone.dfms.models.enums.PenCowStatus;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +22,7 @@ public class CowPenResponse {
     private CowEntity cowEntity;
     private LocalDate fromDate;
     private LocalDate toDate;
-    private CowPenStatus status;
+    private PenCowStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
