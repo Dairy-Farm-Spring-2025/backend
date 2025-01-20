@@ -147,10 +147,10 @@ public class MilkBatchService implements IMilkBatchService {
 
         List<DailyMilkEntity> updatedDailyMilks = dailyMilkRepository.findByMilkBatch(milkBatch);
         long totalVolume = updatedDailyMilks.stream().mapToLong(DailyMilkEntity::getVolume).sum();
-        if (totalVolume > 20L) {
-            throw new AppException(HttpStatus.BAD_REQUEST,
-                    "The total volume of the milk batch must not exceed 20 liters.");
-        }
+//        if (totalVolume > 20L) {
+//            throw new AppException(HttpStatus.BAD_REQUEST,
+//                    "The total volume of the milk batch must not exceed 20 liters.");
+//        }
         milkBatch.setTotalVolume(totalVolume);
         milkBatchRepository.save(milkBatch);
     }
