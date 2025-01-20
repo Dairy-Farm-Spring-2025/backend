@@ -19,10 +19,16 @@ public class AreaCreateRequest {
     private String description;
 
     @Positive(message = "Length must be a positive number.")
-    private float length;
+    private Float length;
 
     @Positive(message = "Width must be a positive number.")
-    private float width;
+    private Float width;
+
+    @Positive(message = "Length of pen must be a positive number.")
+    private Float penLength;
+
+    @Positive(message = "Width of pen must be a positive number.")
+    private Float penWidth;
 
     @NotNull(message = "Area type is required.")
     private AreaType areaType;

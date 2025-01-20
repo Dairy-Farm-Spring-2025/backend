@@ -35,7 +35,7 @@ public class AreaController {
             @PathVariable Long id,
             @Valid @RequestBody AreaUpdateRequest areaUpdateRequest
     ) {
-        AreaResponse areaResponse = areaServices.updateArea(id, INSTANCE.toModel(areaUpdateRequest));
+        AreaResponse areaResponse = areaServices.updateArea(id, areaUpdateRequest);
         return CoreApiResponse.success(areaResponse);
     }
 

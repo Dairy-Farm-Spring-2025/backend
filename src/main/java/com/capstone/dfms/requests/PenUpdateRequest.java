@@ -16,8 +16,8 @@ public class PenUpdateRequest {
     private String name;
     private String description;
     private PenType penType;
-    private float length;
-    private float width;
+//    private float length;
+//    private float width;
     private PenStatus penStatus;
     private Long areaId;
 }

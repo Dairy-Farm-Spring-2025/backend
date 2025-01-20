@@ -33,7 +33,7 @@ public class PenController {
             @PathVariable Long id,
             @Valid @RequestBody PenUpdateRequest penUpdateRequest
     ) {
-        PenResponse penResponse = penServices.updatePen(id, INSTANCE.toModel(penUpdateRequest));
+        PenResponse penResponse = penServices.updatePen(id, penUpdateRequest);
         return CoreApiResponse.success(penResponse);
     }
 

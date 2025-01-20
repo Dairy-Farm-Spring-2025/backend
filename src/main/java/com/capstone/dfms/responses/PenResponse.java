@@ -16,8 +16,6 @@ public class PenResponse {
     private String name;
     private String description;
     private PenType penType;
-    private float length;
-    private float width;
     private PenStatus penStatus;
     private AreaResponse area;
     private LocalDateTime createdAt;

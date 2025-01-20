@@ -18,6 +18,8 @@ public class AreaResponse {
     private String description;
     private float length;
     private float width;
+    private float penLength;
+    private float penWidth;
     private AreaType areaType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
