@@ -40,7 +40,7 @@ public class CowServices implements ICowServices {
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow type not found."));
         request.setCowTypeEntity(cowType);
 
-        request.setName(this.generateCowName());
+        request.setName(this.getInitials(cowType.getName()));
 
         CowEntity savedEntity = cowRepository.save(request);
         return cowMapper.toResponse(savedEntity);
@@ -102,14 +102,29 @@ public class CowServices implements ICowServices {
     }
 
     //----------General Function---------------------------------------------------
-//    public LocalDate convertDateToLocalDate(Date date) {
-//        return date != null ? date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null;
-//    }
-
     private String generateCowName() {
         long count = cowRepository.count();
 
         return "CO" + String.format("%03d", count + 1);
+    }
+
+    public String getInitials(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            return "";
+        }
+
+        // Split the string into words
+        String[] words = input.trim().split("\\s+");
+
+        // Extract the first character of each word
+        StringBuilder initials = new StringBuilder();
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                initials.append(word.charAt(0)); // Append the first character
+            }
+        }
+
+        return initials.toString() + (cowRepository.countByNameContains(initials.toString()) + 1);
     }
 
     private boolean cowIsInPen(Long cowId){

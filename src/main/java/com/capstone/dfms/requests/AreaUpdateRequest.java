@@ -14,7 +14,9 @@ import lombok.NoArgsConstructor;
 public class AreaUpdateRequest {
     private String name;
     private String description;
-    private float length;
-    private float width;
+    private Float length;
+    private Float width;
+    private Float penLength;
+    private Float penWidth;
     private AreaType areaType;
 }

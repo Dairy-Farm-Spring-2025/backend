@@ -7,6 +7,7 @@ import com.capstone.dfms.models.AreaEntity;
 import com.capstone.dfms.models.PenEntity;
 import com.capstone.dfms.repositories.IAreaRepository;
 import com.capstone.dfms.repositories.IPenRepository;
+import com.capstone.dfms.requests.PenUpdateRequest;
 import com.capstone.dfms.responses.PenResponse;
 import com.capstone.dfms.services.IPenServices;
 import lombok.AllArgsConstructor;
@@ -38,7 +39,7 @@ public class PenServices implements IPenServices {
     }
 
     @Override
-    public PenResponse updatePen(Long id, PenEntity request) {
+    public PenResponse updatePen(Long id, PenUpdateRequest request) {
         PenEntity existingPen = penRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Pen with ID '" + id + "' not found."));
 
@@ -50,15 +51,17 @@ public class PenServices implements IPenServices {
             }
         }
 
-        existingPen.setName(request.getName() != null ? request.getName() : existingPen.getName());
-        existingPen.setDescription(request.getDescription() != null ? request.getDescription() : existingPen.getDescription());
-        existingPen.setPenType(request.getPenType() != null ? request.getPenType() : existingPen.getPenType());
-        existingPen.setLength(request.getLength() != 0 ? request.getLength() : existingPen.getLength());
-        existingPen.setWidth(request.getWidth() != 0 ? request.getWidth() : existingPen.getWidth());
-        existingPen.setPenStatus(request.getPenStatus() != null ? request.getPenStatus() : existingPen.getPenStatus());
+        penMapper.updatePenFromRequest(request, existingPen);
 
-        if (request.getAreaBelongto() != null && request.getAreaBelongto().getAreaId() != null) {
-            AreaEntity area = areaRepository.findById(request.getAreaBelongto().getAreaId())
+//        existingPen.setName(request.getName() != null ? request.getName() : existingPen.getName());
+//        existingPen.setDescription(request.getDescription() != null ? request.getDescription() : existingPen.getDescription());
+//        existingPen.setPenType(request.getPenType() != null ? request.getPenType() : existingPen.getPenType());
+//        existingPen.setLength(request.getLength() != 0 ? request.getLength() : existingPen.getLength());
+//        existingPen.setWidth(request.getWidth() != 0 ? request.getWidth() : existingPen.getWidth());
+//        existingPen.setPenStatus(request.getPenStatus() != null ? request.getPenStatus() : existingPen.getPenStatus());
+
+        if (request.getAreaId() != null) {
+            AreaEntity area = areaRepository.findById(request.getAreaId())
                     .orElseThrow(() -> new AppException(HttpStatus.OK, "Area not found."));
             existingPen.setAreaBelongto(area);
         }

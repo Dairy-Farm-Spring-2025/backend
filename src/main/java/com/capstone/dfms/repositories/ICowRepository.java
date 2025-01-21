@@ -13,4 +13,7 @@ public interface ICowRepository extends JpaRepository<CowEntity, Long> {
 
     @Query("SELECT COUNT(cp) = 0 FROM CowPenEntity cp WHERE cp.cowEntity.id = :cowId AND (cp.toDate IS NULL OR cp.toDate > :currentDate)")
     boolean isCowNotInAnyPen(@Param("cowId") Long cowId, @Param("currentDate") LocalDate currentDate);
+
+    @Query("SELECT COUNT(c) FROM CowEntity c WHERE c.name LIKE %:substring%")
+    long countByNameContains(@Param("substring") String substring);
 }
