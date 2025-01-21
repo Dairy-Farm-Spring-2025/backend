@@ -17,5 +17,6 @@ public class WarehouseLocationEntity extends BaseEntity{
     private Long warehouseLocationId;
 
     private String name;
+
     private String description;
 }
