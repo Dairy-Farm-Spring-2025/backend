@@ -2,8 +2,10 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.requests.CowPenApproveRequest;
+import com.capstone.dfms.requests.CowPenBulkRequest;
 import com.capstone.dfms.requests.CowPenCreateRequest;
 import com.capstone.dfms.requests.CowPenUpdateRequest;
+import com.capstone.dfms.responses.CowPenBulkResponse;
 import com.capstone.dfms.responses.CowPenResponse;
 import com.capstone.dfms.services.ICowPenService;
 import jakarta.validation.Valid;
@@ -104,5 +106,12 @@ public class CowPenController {
         LocalDate date = LocalDate.parse(fromDate); // Convert String to LocalDate
         CowPenResponse cowPenResponse = cowPenService.approveOrRejectMovePen(penId, cowId, date, approval);
         return CoreApiResponse.success(cowPenResponse);
+    }
+
+    @PostMapping("/create-bulk")
+    public CoreApiResponse<CowPenBulkResponse> createBulk(@Valid @RequestBody CowPenBulkRequest cowPenBulkRequest){
+        CowPenBulkResponse<CowPenResponse> cowPenBulkResponse =
+                cowPenService.createBulkCowPen(cowPenBulkRequest);
+        return CoreApiResponse.success(cowPenBulkResponse);
     }
 }

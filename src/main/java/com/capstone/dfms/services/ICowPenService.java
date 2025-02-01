@@ -1,6 +1,10 @@
 package com.capstone.dfms.services;
 
+import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.CowPenEntity;
+import com.capstone.dfms.models.PenEntity;
+import com.capstone.dfms.requests.CowPenBulkRequest;
+import com.capstone.dfms.responses.CowPenBulkResponse;
 import com.capstone.dfms.responses.CowPenResponse;
 
 import java.time.LocalDate;
@@ -17,4 +21,5 @@ public interface ICowPenService {
     List<CowPenResponse> getCowPenFollowPenId(Long penId);
 
     CowPenResponse approveOrRejectMovePen(Long penId, Long cowId, LocalDate fromDate, boolean isApproval);
+    CowPenBulkResponse<CowPenResponse> createBulkCowPen(CowPenBulkRequest cowPenBulkRequest);
 }
