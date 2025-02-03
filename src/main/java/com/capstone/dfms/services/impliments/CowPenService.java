@@ -7,6 +7,7 @@ import com.capstone.dfms.models.CowPenEntity;
 import com.capstone.dfms.models.PenEntity;
 import com.capstone.dfms.models.compositeKeys.CowPenPK;
 import com.capstone.dfms.models.enums.PenCowStatus;
+import com.capstone.dfms.models.enums.PenStatus;
 import com.capstone.dfms.repositories.ICowPenRepository;
 import com.capstone.dfms.repositories.ICowRepository;
 import com.capstone.dfms.repositories.IPenRepository;
@@ -40,9 +41,9 @@ public class CowPenService implements ICowPenService {
         }
 
         CowEntity cowEntity = cowRepository.findById(request.getId().getCowId())
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow not found with ID: " + request.getId().getCowId()));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found with ID: " + request.getId().getCowId()));
         PenEntity penEntity = penRepository.findById(request.getId().getPenId())
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Pen not found with ID: " + request.getId().getPenId()));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Pen not found with ID: " + request.getId().getPenId()));
 
         List<CowPenEntity> existingCowPenForCow = cowPenRepository.findValidCowPensByCowId(cowEntity.getCowId(), LocalDate.now());
         if(existingCowPenForCow.size() != 0)
@@ -55,6 +56,9 @@ public class CowPenService implements ICowPenService {
         request.setCowEntity(cowEntity);
         request.setPenEntity(penEntity);
         request.setStatus(PenCowStatus.planning);
+
+        penEntity.setPenStatus(PenStatus.inPlaning);
+        penRepository.save(penEntity);
 
         CowPenEntity savedEntity = cowPenRepository.save(request);
         return mapper.toResponse(savedEntity);
@@ -131,7 +135,7 @@ public class CowPenService implements ICowPenService {
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow-Pen not found for the provided key."));
 
         if(cowPenEntity.getStatus() != PenCowStatus.planning){
-            throw new AppException(HttpStatus.OK, "Not longer to approve or reject");
+            throw new AppException(HttpStatus.BAD_REQUEST, "Not longer to approve or reject");
         }
 
         if(isApproval){
@@ -163,9 +167,9 @@ public class CowPenService implements ICowPenService {
         for (int i = 0; i < cowEntities.size(); i++) {
             int finalI = i;
             CowEntity cow = cowRepository.findById(cowEntities.get(finalI))
-                    .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow not found with ID: " + cowEntities.get(finalI)));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found with ID: " + cowEntities.get(finalI)));
             PenEntity pen = penRepository.findById(penEntities.get(finalI))
-                    .orElseThrow(() -> new AppException(HttpStatus.OK, "Pen not found with ID: " + penEntities.get(finalI)));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Pen not found with ID: " + penEntities.get(finalI)));
 
             String error = validateCowPen(cow, pen, fromDate);
             if (!error.isEmpty()) {
@@ -174,7 +178,7 @@ public class CowPenService implements ICowPenService {
                 continue;
             }
 
-            CowPenPK cowPenPK = new CowPenPK(cow.getCowId(), pen.getPenId(), fromDate);
+            CowPenPK cowPenPK = new CowPenPK(pen.getPenId(), cow.getCowId(), fromDate);
             // Create new CowPenEntity
             CowPenEntity cowPenEntity = new CowPenEntity();
             cowPenEntity.setId(cowPenPK);

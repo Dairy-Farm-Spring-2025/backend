@@ -23,6 +23,4 @@ public class CowPenCreateRequest {
     @NotNull(message = "From date cannot be null")
     @Future(message = "From date must be in the future")
     private LocalDate fromDate;
-
-    private LocalDate toDate;
 }
