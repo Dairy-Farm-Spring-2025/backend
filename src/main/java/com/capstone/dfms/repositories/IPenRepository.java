@@ -15,4 +15,10 @@ public interface IPenRepository extends JpaRepository<PenEntity, Long> {
 
     @Query("SELECT p FROM PenEntity p WHERE p.penId NOT IN (SELECT c.id.penId FROM CowPenEntity c WHERE c.toDate IS NULL OR c.toDate >= :currentDate)")
     List<PenEntity> findAvailablePens(@Param("currentDate") LocalDate currentDate);
+
+    @Query("SELECT COUNT(cp) > 0 FROM CowPenEntity cp WHERE cp.penEntity.penId = :penId AND cp.id.fromDate <= :currentDate")
+    boolean isOccupiedPen(@Param("penId") Long penId, @Param("currentDate") LocalDate currentDate);
+
+    @Query("SELECT p FROM PenEntity p WHERE p.penStatus = 'inPlaning'")
+    List<PenEntity> getPenWithStatusInPlanning();
 }
