@@ -4,9 +4,6 @@ import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.IWarehouseMapper;
-import com.capstone.dfms.models.CowEntity;
-import com.capstone.dfms.models.CowTypeEntity;
-import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.WarehouseLocationEntity;
 import com.capstone.dfms.repositories.IWarehouseLocationRepository;
 import com.capstone.dfms.requests.WarehouseUpdateRequest;
@@ -20,7 +17,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class WarehouseLocationService implements IWarehouseLocationService {
-    
     private final IWarehouseLocationRepository warehouseLocationRepository;
 
     private final IWarehouseMapper warehouseMapper;
