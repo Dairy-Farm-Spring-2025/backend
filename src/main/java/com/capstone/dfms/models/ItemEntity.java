@@ -16,7 +16,7 @@ import lombok.*;
 public class ItemEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long areaId;
+    private Long itemId;
 
     private String name;
 
@@ -25,6 +25,7 @@ public class ItemEntity {
 
     @Enumerated(EnumType.STRING)
     private ItemUnit unit;
+
     private float quantity;
 
     @ManyToOne

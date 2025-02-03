@@ -1,8 +1,6 @@
 package com.capstone.dfms.mappers;
 
-import com.capstone.dfms.models.UserEntity;
 import com.capstone.dfms.models.WarehouseLocationEntity;
-import com.capstone.dfms.requests.CreateAccountRequest;
 import com.capstone.dfms.requests.WarehouseUpdateRequest;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
