@@ -15,6 +15,8 @@ public interface IDailyMilkService {
 
     List<DailyMilkEntity> searchDailyMilk(Long cowId, Long areaId, MilkShift shift);
 
+    List<DailyMilkEntity> searchDailyMilkAvailable(Long cowId, Long areaId, MilkShift shift);
+
     void updateDailyMilkVolume(Long dailyMilkId, Long newVolume);
 
     void deleteDailyMilk(long id);

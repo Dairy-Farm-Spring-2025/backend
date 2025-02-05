@@ -49,6 +49,16 @@ public class DailyMilkController {
         return CoreApiResponse.success(results);
     }
 
+    @GetMapping("/search_available")
+    public CoreApiResponse<List<DailyMilkEntity>> searchDailyMilkAvailable (
+            @RequestParam(required = false) Long cowId,
+            @RequestParam(required = false) Long areaId,
+            @RequestParam(required = false) MilkShift shift
+    ) {
+        List<DailyMilkEntity> results = dailyMilkService.searchDailyMilk(cowId, areaId, shift);
+        return CoreApiResponse.success(results);
+    }
+
     @PutMapping("/volume/{dailyMilkId}")
     public CoreApiResponse<?> updateDailyMilkVolume(
             @PathVariable Long dailyMilkId,

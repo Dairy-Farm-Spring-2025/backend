@@ -8,6 +8,7 @@ import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.MilkBatchEntity;
 import com.capstone.dfms.models.UserEntity;
 import com.capstone.dfms.models.enums.CowStatus;
+import com.capstone.dfms.models.enums.DailyMilkStatus;
 import com.capstone.dfms.models.enums.MilkShift;
 import com.capstone.dfms.repositories.ICowRepository;
 import com.capstone.dfms.repositories.IDailyMilkRepository;
@@ -54,6 +55,7 @@ public class DailyMilkService implements IDailyMilkService {
         }
         dailyMilk.setCow(cow);
         dailyMilk.setMilkDate(LocalDate.now());
+        dailyMilk.setStatus(DailyMilkStatus.pending);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
@@ -69,6 +71,12 @@ public class DailyMilkService implements IDailyMilkService {
 
     @Override
     public List<DailyMilkEntity> searchDailyMilk(Long cowId, Long areaId, MilkShift shift) {
+//        LocalDate today = LocalDate.now();
+        return dailyMilkRepository.searchDailyMilk(cowId, areaId, shift);
+    }
+
+    @Override
+    public List<DailyMilkEntity> searchDailyMilkAvailable(Long cowId, Long areaId, MilkShift shift) {
 //        LocalDate today = LocalDate.now();
         return dailyMilkRepository.searchDailyMilk(cowId, areaId, shift);
     }
