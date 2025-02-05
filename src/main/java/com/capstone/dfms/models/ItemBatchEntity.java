@@ -20,8 +20,6 @@ public class ItemBatchEntity extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemBatchId;
 
-    @Enumerated(EnumType.STRING)
-    private ItemUnit unit;
     private float quantity;
 
     private LocalDate importDate;
