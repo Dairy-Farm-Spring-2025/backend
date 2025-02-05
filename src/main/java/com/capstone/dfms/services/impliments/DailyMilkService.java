@@ -78,7 +78,7 @@ public class DailyMilkService implements IDailyMilkService {
     @Override
     public List<DailyMilkEntity> searchDailyMilkAvailable(Long cowId, Long areaId, MilkShift shift) {
 //        LocalDate today = LocalDate.now();
-        return dailyMilkRepository.searchDailyMilk(cowId, areaId, shift);
+        return dailyMilkRepository.searchDailyMilkAvaible(cowId, areaId, shift);
     }
 
     @Override
