@@ -55,7 +55,7 @@ public class DailyMilkController {
             @RequestParam(required = false) Long areaId,
             @RequestParam(required = false) MilkShift shift
     ) {
-        List<DailyMilkEntity> results = dailyMilkService.searchDailyMilk(cowId, areaId, shift);
+        List<DailyMilkEntity> results = dailyMilkService.searchDailyMilkAvailable(cowId, areaId, shift);
         return CoreApiResponse.success(results);
     }
 
