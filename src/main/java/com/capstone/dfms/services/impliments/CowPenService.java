@@ -7,9 +7,12 @@ import com.capstone.dfms.models.CowPenEntity;
 import com.capstone.dfms.models.PenEntity;
 import com.capstone.dfms.models.compositeKeys.CowPenPK;
 import com.capstone.dfms.models.enums.PenCowStatus;
+import com.capstone.dfms.models.enums.PenStatus;
 import com.capstone.dfms.repositories.ICowPenRepository;
 import com.capstone.dfms.repositories.ICowRepository;
 import com.capstone.dfms.repositories.IPenRepository;
+import com.capstone.dfms.requests.CowPenBulkRequest;
+import com.capstone.dfms.responses.CowPenBulkResponse;
 import com.capstone.dfms.responses.CowPenResponse;
 import com.capstone.dfms.services.ICowPenService;
 import com.capstone.dfms.services.IPenServices;
@@ -18,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,9 +41,9 @@ public class CowPenService implements ICowPenService {
         }
 
         CowEntity cowEntity = cowRepository.findById(request.getId().getCowId())
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow not found with ID: " + request.getId().getCowId()));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found with ID: " + request.getId().getCowId()));
         PenEntity penEntity = penRepository.findById(request.getId().getPenId())
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Pen not found with ID: " + request.getId().getPenId()));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Pen not found with ID: " + request.getId().getPenId()));
 
         List<CowPenEntity> existingCowPenForCow = cowPenRepository.findValidCowPensByCowId(cowEntity.getCowId(), LocalDate.now());
         if(existingCowPenForCow.size() != 0)
@@ -52,6 +56,9 @@ public class CowPenService implements ICowPenService {
         request.setCowEntity(cowEntity);
         request.setPenEntity(penEntity);
         request.setStatus(PenCowStatus.planning);
+
+        penEntity.setPenStatus(PenStatus.inPlaning);
+        penRepository.save(penEntity);
 
         CowPenEntity savedEntity = cowPenRepository.save(request);
         return mapper.toResponse(savedEntity);
@@ -128,7 +135,7 @@ public class CowPenService implements ICowPenService {
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow-Pen not found for the provided key."));
 
         if(cowPenEntity.getStatus() != PenCowStatus.planning){
-            throw new AppException(HttpStatus.OK, "Not longer to approve or reject");
+            throw new AppException(HttpStatus.BAD_REQUEST, "Not longer to approve or reject");
         }
 
         if(isApproval){
@@ -138,6 +145,67 @@ public class CowPenService implements ICowPenService {
             cowPenEntity.setStatus(PenCowStatus.cancel);
         }
         return this.update(penId, cowId, fromDate, cowPenEntity);
+    }
+
+    @Override
+    public CowPenBulkResponse<CowPenResponse> createBulkCowPen(CowPenBulkRequest cowPenBulkRequest) {
+        List<Long> cowEntities = cowPenBulkRequest.getCowEntities();
+        List<Long> penEntities = cowPenBulkRequest.getPenEntities();
+        LocalDate fromDate = cowPenBulkRequest.getFromDate();
+
+        if (cowEntities == null || penEntities == null || cowEntities.isEmpty() || penEntities.isEmpty()) {
+            throw new IllegalArgumentException("Cow entities and pen entities cannot be null or empty.");
+        }
+
+        if (cowEntities.size() != penEntities.size()) {
+            throw new IllegalArgumentException("The number of cows and pens must match.");
+        }
+        List<CowPenResponse> responses = new ArrayList<>();
+        ArrayList<String> errorList = new ArrayList<>();
+
+
+        for (int i = 0; i < cowEntities.size(); i++) {
+            int finalI = i;
+            CowEntity cow = cowRepository.findById(cowEntities.get(finalI))
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found with ID: " + cowEntities.get(finalI)));
+            PenEntity pen = penRepository.findById(penEntities.get(finalI))
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Pen not found with ID: " + penEntities.get(finalI)));
+
+            String error = validateCowPen(cow, pen, fromDate);
+            if (!error.isEmpty()) {
+                //If have error dont run create
+                errorList.add(error);
+                continue;
+            }
+
+            CowPenPK cowPenPK = new CowPenPK(pen.getPenId(), cow.getCowId(), fromDate);
+            // Create new CowPenEntity
+            CowPenEntity cowPenEntity = new CowPenEntity();
+            cowPenEntity.setId(cowPenPK);
+            cowPenEntity.setCowEntity(cow);
+            cowPenEntity.setPenEntity(pen);
+            cowPenEntity.setStatus(PenCowStatus.planning);
+
+            // Save the entity
+            CowPenResponse response = this.create(cowPenEntity);
+            responses.add(response);
+        }
+
+        return new CowPenBulkResponse<>(responses, errorList);
+    }
+
+    private String validateCowPen(CowEntity cow, PenEntity pen, LocalDate fromDate) {
+        StringBuilder error = new StringBuilder();
+
+        if (!cowPenRepository.findValidCowPensByCowId(cow.getCowId(), fromDate).isEmpty()) {
+            error.append("Cow ").append(cow.getCowId()).append(" is already in another pen. ");
+        }
+
+        if (!cowPenRepository.findValidCowPensByPenId(pen.getPenId(), fromDate).isEmpty()) {
+            error.append("Pen ").append(pen.getPenId()).append(" is already occupied. ");
+        }
+
+        return error.toString();
     }
 
 }
