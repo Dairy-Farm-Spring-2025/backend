@@ -1,0 +1,22 @@
+package com.capstone.dfms.services;
+
+import com.capstone.dfms.models.ItemBatchEntity;
+import com.capstone.dfms.models.ItemEntity;
+import com.capstone.dfms.requests.ItemBatchRequest;
+import com.capstone.dfms.requests.ItemCreateRequest;
+
+import java.util.List;
+
+public interface IItemBatchService {
+
+    ItemBatchEntity createItemBatch(ItemBatchEntity itemBatch);
+
+    ItemBatchEntity getItemBatchById(long id);
+
+    List<ItemBatchEntity> getAllItemBatchs();
+
+    ItemBatchEntity updateItemBatch(Long id, ItemBatchRequest request);
+
+    void deleteItemBatch(long id);
+
+}
