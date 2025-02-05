@@ -32,6 +32,7 @@ public class DailyMilkEntity extends BaseEntity{
 
     private Long volume;
 
+    @Enumerated(EnumType.STRING)
     private DailyMilkStatus status;
 
     @ManyToOne
