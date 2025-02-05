@@ -1,5 +1,6 @@
 package com.capstone.dfms.models;
 
+import com.capstone.dfms.models.enums.DailyMilkStatus;
 import com.capstone.dfms.models.enums.MilkShift;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -30,6 +31,9 @@ public class DailyMilkEntity extends BaseEntity{
     private MilkBatchEntity milkBatch;
 
     private Long volume;
+
+    @Enumerated(EnumType.STRING)
+    private DailyMilkStatus status;
 
     @ManyToOne
     @JoinColumn(name = "worker_id")

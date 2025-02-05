@@ -31,6 +31,22 @@ public interface IDailyMilkRepository extends JpaRepository<DailyMilkEntity, Lon
             @Param("shift") MilkShift shift
     );
 
+    @Query("SELECT d FROM DailyMilkEntity d " +
+            "LEFT JOIN d.cow c " +
+            "LEFT JOIN CowPenEntity cp ON cp.id.cowId = c.cowId " +
+            "LEFT JOIN cp.penEntity p " +
+            "LEFT JOIN p.areaBelongto a " +
+            "WHERE (:cowId IS NULL OR c.cowId = :cowId) " +
+            "AND (:areaId IS NULL OR a.areaId = :areaId) " +
+            "AND (:shift IS NULL OR d.shift = :shift) " +
+            "AND d.milkDate = CURRENT_DATE() " +
+            "AND (d.milkBatch IS NULL OR d.milkBatch.id IS NULL)")
+    List<DailyMilkEntity> searchDailyMilkAvaible(
+            @Param("cowId") Long cowId,
+            @Param("areaId") Long areaId,
+            @Param("shift") MilkShift shift
+    );
+
     @Query("SELECT d FROM DailyMilkEntity d WHERE d.dailyMilkId IN :ids")
     List<DailyMilkEntity> findByDailyMilkIdIn(@Param("ids") List<Long> ids);
 

@@ -4,6 +4,7 @@ import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.MilkBatchEntity;
+import com.capstone.dfms.models.enums.DailyMilkStatus;
 import com.capstone.dfms.models.enums.MilkBatchStatus;
 import com.capstone.dfms.models.enums.MilkShift;
 import com.capstone.dfms.repositories.IDailyMilkRepository;
@@ -74,6 +75,7 @@ public class MilkBatchService implements IMilkBatchService {
 
         for (DailyMilkEntity dailyMilk : dailyMilks) {
             dailyMilk.setMilkBatch(batch);
+            dailyMilk.setStatus(DailyMilkStatus.inMilkBatch);
         }
         dailyMilkRepository.saveAll(dailyMilks);
     }
@@ -128,6 +130,7 @@ public class MilkBatchService implements IMilkBatchService {
                             "Daily Milk ID " + dailyMilkId + " is not part of this Milk Batch.");
                 }
                 dailyMilk.setMilkBatch(null);
+                dailyMilk.setStatus(DailyMilkStatus.pending);
                 dailyMilkRepository.save(dailyMilk);
             }
         }
@@ -141,6 +144,7 @@ public class MilkBatchService implements IMilkBatchService {
                             "Daily Milk ID " + dailyMilkId + " already belongs to another Milk Batch.");
                 }
                 dailyMilk.setMilkBatch(milkBatch);
+                dailyMilk.setStatus(DailyMilkStatus.inMilkBatch);
                 dailyMilkRepository.save(dailyMilk);
             }
         }
