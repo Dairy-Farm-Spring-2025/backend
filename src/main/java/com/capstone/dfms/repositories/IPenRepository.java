@@ -2,6 +2,7 @@ package com.capstone.dfms.repositories;
 
 import com.capstone.dfms.models.PenEntity;
 import com.capstone.dfms.models.TokenEntity;
+import com.capstone.dfms.models.enums.PenStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -19,6 +20,9 @@ public interface IPenRepository extends JpaRepository<PenEntity, Long> {
     @Query("SELECT COUNT(cp) > 0 FROM CowPenEntity cp WHERE cp.penEntity.penId = :penId AND cp.id.fromDate <= :currentDate")
     boolean isOccupiedPen(@Param("penId") Long penId, @Param("currentDate") LocalDate currentDate);
 
-    @Query("SELECT p FROM PenEntity p WHERE p.penStatus = 'inPlaning'")
-    List<PenEntity> getPenWithStatusInPlanning();
+    @Query("SELECT COUNT(cp) > 0 FROM CowPenEntity cp WHERE cp.penEntity.penId = :penId AND cp.toDate >= :toDate")
+    boolean isAvailablePen(@Param("penId") Long penId, @Param("toDate") LocalDate toDate);
+
+    @Query("SELECT p FROM PenEntity p WHERE p.penStatus = :status")
+    List<PenEntity> getPenWithStatus(@Param("status") PenStatus status);
 }
