@@ -1,6 +1,8 @@
 package com.capstone.dfms.schedules;
 
+import com.capstone.dfms.models.CowPenEntity;
 import com.capstone.dfms.models.PenEntity;
+import com.capstone.dfms.models.enums.PenCowStatus;
 import com.capstone.dfms.models.enums.PenStatus;
 import com.capstone.dfms.repositories.ICowPenRepository;
 import com.capstone.dfms.repositories.IPenRepository;
@@ -21,15 +23,49 @@ public class CowPenSchedule {
     @Scheduled(fixedRate = 43200000) // Runs every 60 seconds
     @Transactional
     public void updatePenStatus() {
-        List<PenEntity> pens = penRepository.getPenWithStatusInPlanning();
+        this.setEmptyForAvailablePen();
+        this.setOccupiedForAssignedPen();
+    }
+
+    private void setOccupiedForAssignedPen(){
+        List<PenEntity> inPlanningPens = penRepository.getPenWithStatus(PenStatus.inPlaning);
         LocalDate currentDate = LocalDate.now(); // Get today's date
 
-        for (PenEntity pen : pens) {
+        for (PenEntity pen : inPlanningPens) {
             boolean isOccupied = penRepository.isOccupiedPen(pen.getPenId(), currentDate);
             if (isOccupied && pen.getPenStatus() != PenStatus.occupied) {
                 pen.setPenStatus(PenStatus.occupied);
                 penRepository.save(pen);
             }
         }
+    }
+
+    private void setEmptyForAvailablePen(){
+        LocalDate currentDate = LocalDate.now(); // Get today's date
+        List<CowPenEntity> expiredPen = cowPenRepository.findToDateBefore(currentDate);
+        for (CowPenEntity cowPen : expiredPen) {
+            PenEntity pen = cowPen.getPenEntity();
+
+            boolean isOccupied = penRepository.isAvailablePen(pen.getPenId(), currentDate);
+            if (isOccupied && pen.getPenStatus() != PenStatus.empty) {
+                pen.setPenStatus(PenStatus.empty);
+                penRepository.save(pen);
+
+                cowPen.setStatus(PenCowStatus.expired);
+                cowPenRepository.save(cowPen);
+            }
+        }
+
+
+//        List<PenEntity> inPlanningPens = penRepository.getPenWithStatus(PenStatus.occupied);
+//        LocalDate currentDate = LocalDate.now(); // Get today's date
+//
+//        for (PenEntity pen : inPlanningPens) {
+//            boolean isOccupied = penRepository.isAvailablePen(pen.getPenId(), currentDate);
+//            if (isOccupied && pen.getPenStatus() != PenStatus.empty) {
+//                pen.setPenStatus(PenStatus.empty);
+//                penRepository.save(pen);
+//            }
+//        }
     }
 }

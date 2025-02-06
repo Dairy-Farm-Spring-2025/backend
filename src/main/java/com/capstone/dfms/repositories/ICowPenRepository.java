@@ -30,4 +30,11 @@ public interface ICowPenRepository extends JpaRepository<CowPenEntity, CowPenPK>
             "AND (c.toDate IS NULL OR c.toDate >= :currentDate)")
     List<CowPenEntity> findValidCowPensByPenId(@Param("penId") Long penId,
                                                @Param("currentDate") LocalDate currentDate);
+
+    @Query("SELECT c FROM CowPenEntity c " +
+            "WHERE c.id.cowId = :cowId " +
+            "ORDER BY c.toDate DESC LIMIT 1")
+    CowPenEntity findPreviousCowPensByCowId(@Param("cowId") Long cowId);
+    @Query("SELECT c FROM CowPenEntity c WHERE  c.toDate <= :inputDate")
+    List<CowPenEntity> findToDateBefore(@Param("inputDate") LocalDate inputDate);
 }
