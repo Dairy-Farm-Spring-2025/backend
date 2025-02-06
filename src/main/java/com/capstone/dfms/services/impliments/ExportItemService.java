@@ -5,6 +5,7 @@ import com.capstone.dfms.components.securities.UserPrincipal;
 import com.capstone.dfms.models.ExportItemEntity;
 import com.capstone.dfms.models.ItemBatchEntity;
 import com.capstone.dfms.models.UserEntity;
+import com.capstone.dfms.models.enums.BatchStatus;
 import com.capstone.dfms.models.enums.ExportItemStatus;
 import com.capstone.dfms.repositories.IExportItemRepository;
 import com.capstone.dfms.repositories.IItemBatchRepository;
@@ -110,11 +111,25 @@ public class ExportItemService implements IExportItemService {
         if (!exportItem.getPicker().getId().equals(user.getId())) {
             throw new AppException(HttpStatus.FORBIDDEN, "You are not authorized to approve this export item.");
         }
+        ItemBatchEntity itemBatch = exportItem.getItemBatchEntity();
+        float exportQuantity = exportItem.getQuantity();
 
+        if (itemBatch.getQuantity() < exportQuantity) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Not enough quantity in the batch!");
+        }
+
+        itemBatch.setQuantity(itemBatch.getQuantity() - exportQuantity);
+
+        if (itemBatch.getQuantity() == 0) {
+            itemBatch.setStatus(BatchStatus.depleted);
+        }
         exportItem.setStatus(ExportItemStatus.exported);
+        exportItem.setExportDate(LocalDateTime.now());
 
+        itemBatchRepository.save(itemBatch);
         return exportItemRepository.save(exportItem);
     }
+
 
 
 

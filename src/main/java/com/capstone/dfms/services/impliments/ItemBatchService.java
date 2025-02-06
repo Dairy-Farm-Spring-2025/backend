@@ -61,14 +61,10 @@ public class ItemBatchService implements IItemBatchService {
     }
 
     @Override
-    public ItemBatchEntity updateItemBatch(Long id, ItemBatchRequest request) {
+    public ItemBatchEntity updateItemBatch(Long id, BatchStatus status) {
         ItemBatchEntity itemBatch = itemBatchRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Item batch", "id", id));
-
-        itemBatchMapper.updateItemBatchFromRequest(request, itemBatch);
-
-
-
+        itemBatch.setStatus(status);
         return itemBatchRepository.save(itemBatch);
     }
 
