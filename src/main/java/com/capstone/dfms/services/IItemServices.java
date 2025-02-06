@@ -1,6 +1,5 @@
 package com.capstone.dfms.services;
 
-import com.capstone.dfms.models.CategoryEntity;
 import com.capstone.dfms.models.ItemEntity;
 import com.capstone.dfms.requests.ItemCreateRequest;
 

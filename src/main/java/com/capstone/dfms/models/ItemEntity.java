@@ -20,6 +20,8 @@ public class ItemEntity {
 
     private String name;
 
+    private String description;
+
     @Enumerated(EnumType.STRING)
     private ItemStatus status;
 
