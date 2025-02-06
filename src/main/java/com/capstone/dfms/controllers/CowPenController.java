@@ -1,10 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
-import com.capstone.dfms.requests.CowPenApproveRequest;
-import com.capstone.dfms.requests.CowPenBulkRequest;
-import com.capstone.dfms.requests.CowPenCreateRequest;
-import com.capstone.dfms.requests.CowPenUpdateRequest;
+import com.capstone.dfms.requests.*;
 import com.capstone.dfms.responses.CowPenBulkResponse;
 import com.capstone.dfms.responses.CowPenResponse;
 import com.capstone.dfms.services.ICowPenService;
@@ -113,5 +110,11 @@ public class CowPenController {
         CowPenBulkResponse<CowPenResponse> cowPenBulkResponse =
                 cowPenService.createBulkCowPen(cowPenBulkRequest);
         return CoreApiResponse.success(cowPenBulkResponse);
+    }
+
+    @PostMapping("/moving-pen")
+    public CoreApiResponse<CowPenResponse> movingPen(@Valid @RequestBody CowPenMovingRequest request){
+        CowPenResponse cowPenResponse = cowPenService.movingPen(request);
+        return CoreApiResponse.success(cowPenResponse);
     }
 }
