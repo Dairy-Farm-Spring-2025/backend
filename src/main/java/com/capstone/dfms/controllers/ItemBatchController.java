@@ -2,6 +2,7 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.ItemBatchEntity;
+import com.capstone.dfms.models.enums.BatchStatus;
 import com.capstone.dfms.requests.ItemBatchRequest;
 import com.capstone.dfms.services.IItemBatchService;
 import jakarta.validation.Valid;
@@ -44,11 +45,11 @@ public class ItemBatchController {
         return CoreApiResponse.success("Delete item batch successfully");
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("update/{id}/{status}")
     public CoreApiResponse<?> updateItemBatch(
             @PathVariable Long id,
-            @RequestBody ItemBatchRequest request) {
-        itemBatchService.updateItemBatch(id,request );
+            @PathVariable BatchStatus status) {
+        itemBatchService.updateItemBatch(id, status);
         return CoreApiResponse.success("Item batch updated successfully.");
     }
 }
