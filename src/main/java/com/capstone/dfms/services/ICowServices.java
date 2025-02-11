@@ -12,4 +12,6 @@ public interface ICowServices {
     void deleteCow(Long id);
     CowResponse getCowById(Long id);
     List<CowResponse> getAllCows();
+
+    byte[] generateCowQRCode(Long cowId);
 }

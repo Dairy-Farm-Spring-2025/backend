@@ -1,6 +1,7 @@
 package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.QRCodeUtil;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.ICowMapper;
 import com.capstone.dfms.models.AreaEntity;
@@ -137,6 +138,20 @@ public class CowServices implements ICowServices {
         T value = getter.get();
         if (value != null) {
             setter.accept(value);
+        }
+    }
+
+
+    @Override
+    public byte[] generateCowQRCode(Long cowId) {
+        CowEntity cow = cowRepository.findById(cowId)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Cow not found"));
+
+        String cowUrl = "http://34.124.196.11:8080/api/v1/cows/" + cowId;
+        try {
+            return QRCodeUtil.generateQRCode(cowUrl, 300, 300);
+        } catch (Exception e) {
+            throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate QR code", e);
         }
     }
 }

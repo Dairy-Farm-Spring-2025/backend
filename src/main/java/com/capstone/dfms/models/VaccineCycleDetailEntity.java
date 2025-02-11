@@ -2,6 +2,7 @@ package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.InjectionSite;
 import com.capstone.dfms.models.enums.ItemUnit;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,9 +20,11 @@ public class VaccineCycleDetailEntity extends BaseEntity{
     private Long vaccineCycleDetailId;
 
     private String name;
+
     private String description;
 
     private ItemUnit dosageUnit;
+
     private double dosage;
 
     @Enumerated(EnumType.STRING)
@@ -34,7 +37,6 @@ public class VaccineCycleDetailEntity extends BaseEntity{
 
     @ManyToOne
     @JoinColumn(name = "vaccine_cycle_id")
+    @JsonIgnoreProperties("vaccineCycleDetails")
     private VaccineCycleEntity vaccineCycleEntity;
-
-
 }
