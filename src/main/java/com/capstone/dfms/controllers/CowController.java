@@ -1,12 +1,15 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.requests.CowCreateRequest;
 import com.capstone.dfms.requests.CowUpdateRequest;
 import com.capstone.dfms.responses.CowResponse;
 import com.capstone.dfms.services.ICowServices;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,4 +45,13 @@ public class CowController {
         List<CowResponse> cowResponses = cowServices.getAllCows();
         return CoreApiResponse.success(cowResponses);
     }
+
+    @GetMapping("/qr/{id}")
+    public ResponseEntity<byte[]> generateCowQRCode(@PathVariable Long id) {
+            byte[] qrCodeImage = cowServices.generateCowQRCode(id);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_PNG)
+                    .body(qrCodeImage);
+    }
+
 }
