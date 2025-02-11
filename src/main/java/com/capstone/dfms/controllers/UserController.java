@@ -161,6 +161,12 @@ public class UserController {
         return CoreApiResponse.success(userService.getAllRoles());
     }
 
+    @PutMapping("/changerole/{userId}/{roleId}")
+    public CoreApiResponse<?> changeUserRole(@PathVariable Long userId, @PathVariable Long roleId ) {
+         userService.changeUserRole(userId,roleId);
+        return CoreApiResponse.success("Update user role successfully");
+    }
+
     private boolean isValidToken(String token) {
         return token != null && isJWT(token);
     }
@@ -168,5 +174,6 @@ public class UserController {
         String[] parts = token.split("\\.");
         return parts.length == 3;
     }
+
 
 }

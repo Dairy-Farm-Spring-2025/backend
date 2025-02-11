@@ -19,6 +19,4 @@ public class RoleEntity {
     private Long id;
 
     private String name;
-
-
 }

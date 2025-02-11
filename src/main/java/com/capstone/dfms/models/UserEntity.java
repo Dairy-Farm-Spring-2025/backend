@@ -69,5 +69,4 @@ public class UserEntity extends BaseEntity {
 
     @JsonIgnore
     private Boolean changePassword;
-
 }
