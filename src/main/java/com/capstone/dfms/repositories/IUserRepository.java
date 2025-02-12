@@ -1,5 +1,6 @@
 package com.capstone.dfms.repositories;
 
+import com.capstone.dfms.models.RoleEntity;
 import com.capstone.dfms.models.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,5 +16,7 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 
     @Query("SELECT u FROM UserEntity u WHERE u.roleId.id = :roleId")
     List<UserEntity> findByRoleId(@Param("roleId") Long roleId);
+
+    boolean existsByRoleId(RoleEntity role);
 
 }

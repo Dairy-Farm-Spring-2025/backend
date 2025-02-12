@@ -306,6 +306,20 @@ public class UserService implements IUserService {
         return roleRepository.findAll();
     }
 
+    @Override
+    public UserEntity changeUserRole(Long userId,Long roleId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
+
+        RoleEntity newRole = roleRepository.findById(roleId)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Role not found"));
+
+        user.setRoleId(newRole);
+        userRepository.save(user);
+
+        return userRepository.save(user); // Convert entity to response DTO
+    }
+
     private String generateEmployeeNumberByRole(Long roleId) {
         long count = userRepository.count();
 

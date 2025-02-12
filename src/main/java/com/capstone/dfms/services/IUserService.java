@@ -46,4 +46,6 @@ public interface IUserService {
     List<RoleEntity> getAllRoles();
 
     UserEntity getUserById(Long id);
+
+    UserEntity changeUserRole(Long userId,Long roleId);
 }
