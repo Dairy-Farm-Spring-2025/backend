@@ -2,7 +2,10 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.models.IllnessDetailEntity;
 import com.capstone.dfms.requests.IllnessDetailCreateRequest;
+import com.capstone.dfms.requests.IllnessDetailPlanRequest;
+import com.capstone.dfms.requests.IllnessDetailReportRequest;
 import com.capstone.dfms.requests.IllnessDetailUpdateRequest;
+import com.capstone.dfms.responses.CowPenBulkResponse;
 import com.capstone.dfms.services.IIllnessDetailService;
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +26,7 @@ public class IllnessDetailController {
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PostMapping
     public CoreApiResponse<IllnessDetailEntity> createIllnessDetail(@RequestBody IllnessDetailCreateRequest detail) {
-        return CoreApiResponse.success(illnessDetailService.createIllnessDetail(INSTANCE.toModel(detail)));
+        return CoreApiResponse.success(illnessDetailService.createIllnessDetail(INSTANCE.toModel(detail), false));
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
@@ -56,4 +59,17 @@ public class IllnessDetailController {
         illnessDetailService.deleteIllnessDetail(id);
         return CoreApiResponse.success("Delete successfully!");
     }
+
+    @PreAuthorize("hasAnyRole('VETERINARIANS')")
+    @PostMapping("/create-plan")
+    public CoreApiResponse<CowPenBulkResponse> createTreatmentPlan(@RequestBody List<IllnessDetailPlanRequest> detail) {
+        return CoreApiResponse.success(illnessDetailService.createTreatmentPlan(detail));
+    }
+
+    @PreAuthorize("hasAnyRole('VETERINARIANS')")
+    @PutMapping("/report-treatment/{id}")
+    public CoreApiResponse<IllnessDetailEntity> reportTreatment(@PathVariable Long id, @RequestBody IllnessDetailReportRequest detail) {
+        return CoreApiResponse.success(illnessDetailService.reportTreatment(id, detail));
+    }
+
 }
