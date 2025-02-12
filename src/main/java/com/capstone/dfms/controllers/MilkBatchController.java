@@ -3,9 +3,11 @@ package com.capstone.dfms.controllers;
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.MilkBatchEntity;
+import com.capstone.dfms.requests.MilkBatchRequest;
 import com.capstone.dfms.requests.UpdateMilkBatchRequest;
 import com.capstone.dfms.responses.AreaResponse;
 import com.capstone.dfms.services.IMilkBatchService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,6 +56,12 @@ public class MilkBatchController {
     ){
         milkBatchService.deleteMilkBatch(id);
         return CoreApiResponse.success("Delete milk batch successfully");
+    }
+
+    @PostMapping("/create")
+    public CoreApiResponse<MilkBatchEntity> createMilkBatchWithDailyMilks(@RequestBody @Valid MilkBatchRequest request) {
+        MilkBatchEntity milkBatch = milkBatchService.createMilkBatchWithDailyMilks(request);
+        return CoreApiResponse.success(milkBatch);
     }
 
 }

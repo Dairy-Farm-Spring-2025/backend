@@ -2,6 +2,7 @@ package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.InjectionSite;
 import com.capstone.dfms.models.enums.ItemUnit;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,6 +38,7 @@ public class VaccineCycleDetailEntity extends BaseEntity{
 
     @ManyToOne
     @JoinColumn(name = "vaccine_cycle_id")
-    @JsonIgnoreProperties("vaccineCycleDetails")
+//    @JsonIgnoreProperties("vaccineCycleDetails")
+    @JsonIgnore
     private VaccineCycleEntity vaccineCycleEntity;
 }

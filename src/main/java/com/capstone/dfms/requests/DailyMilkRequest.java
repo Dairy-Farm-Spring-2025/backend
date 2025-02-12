@@ -8,7 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DailyMilkRequest {
-    private String shift;
 
     private Long volume;
 

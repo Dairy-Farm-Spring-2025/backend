@@ -1,6 +1,7 @@
 package com.capstone.dfms.services;
 
 import com.capstone.dfms.models.VaccineCycleEntity;
+import com.capstone.dfms.requests.UpdateVaccineCycleRequest;
 import com.capstone.dfms.requests.VaccineCycleRequest;
 import com.capstone.dfms.requests.VaccineCycleUpdateInfo;
 
@@ -13,7 +14,7 @@ public interface IVaccineCycleService {
 
     List<VaccineCycleEntity> getAllVaccineCycles();
 
-    VaccineCycleEntity updateVaccineCycle(Long id, VaccineCycleUpdateInfo request);
+    VaccineCycleEntity updateVaccineCycle(Long id, UpdateVaccineCycleRequest request);
 
     void deleteVaccineCycle(long id);
 }

@@ -12,9 +12,7 @@ import com.capstone.dfms.repositories.ICowTypeRepository;
 import com.capstone.dfms.repositories.IItemRepository;
 import com.capstone.dfms.repositories.IVaccineCycleDetailRepository;
 import com.capstone.dfms.repositories.IVaccineCycleRepository;
-import com.capstone.dfms.requests.VaccineCycleDetailRequest;
-import com.capstone.dfms.requests.VaccineCycleRequest;
-import com.capstone.dfms.requests.VaccineCycleUpdateInfo;
+import com.capstone.dfms.requests.*;
 import com.capstone.dfms.services.IVaccineCycleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -86,14 +84,14 @@ public class VaccineCycleService implements IVaccineCycleService {
         return vaccineCycleRepository.findAll();
     }
 
-    @Override
-    public VaccineCycleEntity updateVaccineCycle(Long id, VaccineCycleUpdateInfo request) {
-        VaccineCycleEntity vaccineCycle = vaccineCycleRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Vaccine cycle", "id", id));
-
-        vaccineCycleMapper.updateVaccineCycleFromRequest(request, vaccineCycle);
-        return vaccineCycleRepository.save(vaccineCycle);
-    }
+//    @Override
+//    public VaccineCycleEntity updateVaccineCycle(Long id, VaccineCycleUpdateInfo request) {
+//        VaccineCycleEntity vaccineCycle = vaccineCycleRepository.findById(id)
+//                .orElseThrow(() -> new DataNotFoundException("Vaccine cycle", "id", id));
+//
+//        vaccineCycleMapper.updateVaccineCycleFromRequest(request, vaccineCycle);
+//        return vaccineCycleRepository.save(vaccineCycle);
+//    }
 
     @Override
     public void deleteVaccineCycle(long id) {
@@ -102,4 +100,63 @@ public class VaccineCycleService implements IVaccineCycleService {
 
         vaccineCycleRepository.delete(vaccineCycle);
     }
+
+    @Override
+    public VaccineCycleEntity updateVaccineCycle(Long id, UpdateVaccineCycleRequest request) {
+        VaccineCycleEntity vaccineCycle = vaccineCycleRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Vaccine Cycle", "id", id));
+
+        vaccineCycle.setName(request.getName());
+        vaccineCycle.setDescription(request.getDescription());
+
+        if (request.getDetails() != null) {
+            for (VaccineCycleDetailRequest detailReq : request.getDetails()) {
+                ItemEntity item = itemRepository.findById(detailReq.getItemId())
+                        .orElseThrow(() -> new DataNotFoundException("Item", "id", detailReq.getItemId()));
+
+                VaccineCycleDetailEntity newDetail = new VaccineCycleDetailEntity();
+                newDetail.setName(detailReq.getName());
+                newDetail.setDescription(detailReq.getDescription());
+                newDetail.setDosageUnit(detailReq.getDosageUnit());
+                newDetail.setDosage(detailReq.getDosage());
+                newDetail.setInjectionSite(detailReq.getInjectionSite());
+                newDetail.setAgeInMonths(detailReq.getAgeInMonths());
+                newDetail.setItemEntity(item);
+                newDetail.setVaccineCycleEntity(vaccineCycle);
+
+                vaccineCycle.getVaccineCycleDetails().add(newDetail);
+            }
+        }
+
+        if (request.getUpdateDetail() != null) {
+            for (UpdateVaccineCycleDetailRequest updateReq : request.getUpdateDetail()) {
+                VaccineCycleDetailEntity existingDetail = vaccineCycleDetailRepository.findById(updateReq.getId())
+                        .orElseThrow(() -> new DataNotFoundException("Vaccine Cycle Detail", "id", updateReq.getId()));
+
+                existingDetail.setName(updateReq.getName());
+                existingDetail.setDescription(updateReq.getDescription());
+                existingDetail.setDosageUnit(updateReq.getDosageUnit());
+                existingDetail.setDosage(updateReq.getDosage());
+                existingDetail.setInjectionSite(updateReq.getInjectionSite());
+                existingDetail.setAgeInMonths(updateReq.getAgeInMonths());
+
+                ItemEntity item = itemRepository.findById(updateReq.getItemId())
+                        .orElseThrow(() -> new DataNotFoundException("Item", "id", updateReq.getItemId()));
+                existingDetail.setItemEntity(item);
+            }
+        }
+
+        if (request.getDelete() != null) {
+            for (Long detailId : request.getDelete()) {
+                VaccineCycleDetailEntity detailToDelete = vaccineCycleDetailRepository.findById(detailId)
+                        .orElseThrow(() -> new DataNotFoundException("Vaccine Cycle Detail", "id", detailId));
+                vaccineCycleDetailRepository.delete(detailToDelete);
+            }
+        }
+
+        return vaccineCycleRepository.save(vaccineCycle);
+    }
+
+
+
 }

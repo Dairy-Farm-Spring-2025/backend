@@ -3,6 +3,7 @@ package com.capstone.dfms.controllers;
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.VaccineCycleEntity;
 import com.capstone.dfms.models.WarehouseLocationEntity;
+import com.capstone.dfms.requests.UpdateVaccineCycleRequest;
 import com.capstone.dfms.requests.VaccineCycleRequest;
 import com.capstone.dfms.requests.VaccineCycleUpdateInfo;
 import com.capstone.dfms.requests.WarehouseUpdateRequest;
@@ -37,18 +38,24 @@ public class VaccineCycleController {
     }
 
     @DeleteMapping("/{id}")
-    public CoreApiResponse<?> deleteWarehouse(
+    public CoreApiResponse<?> deleteVaccineCycle(
             @PathVariable Long id
     ){
         vaccineCycleService.deleteVaccineCycle(id);
         return CoreApiResponse.success("Delete vaccine cycle successfully");
     }
 
+//    @PutMapping("/{id}")
+//    public CoreApiResponse<?> updateVaccineCycle(
+//            @PathVariable Long id,
+//            @RequestBody VaccineCycleUpdateInfo request) {
+//        vaccineCycleService.updateVaccineCycle(id,request );
+//        return CoreApiResponse.success("Vaccine cylce update successfully.");
+//    }
+
     @PutMapping("/{id}")
-    public CoreApiResponse<?> updateWarehouse(
-            @PathVariable Long id,
-            @RequestBody VaccineCycleUpdateInfo request) {
-        vaccineCycleService.updateVaccineCycle(id,request );
-        return CoreApiResponse.success("Vaccine cylce update successfully.");
+    public CoreApiResponse<VaccineCycleEntity> updateVaccineCycle(@PathVariable Long id,
+                                                                  @RequestBody @Valid UpdateVaccineCycleRequest request) {
+        return CoreApiResponse.success(vaccineCycleService.updateVaccineCycle(id, request));
     }
 }
