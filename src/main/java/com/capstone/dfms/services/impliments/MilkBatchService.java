@@ -2,16 +2,25 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
+import com.capstone.dfms.components.securities.UserPrincipal;
+import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.MilkBatchEntity;
+import com.capstone.dfms.models.UserEntity;
 import com.capstone.dfms.models.enums.DailyMilkStatus;
 import com.capstone.dfms.models.enums.MilkBatchStatus;
 import com.capstone.dfms.models.enums.MilkShift;
+import com.capstone.dfms.repositories.ICowRepository;
 import com.capstone.dfms.repositories.IDailyMilkRepository;
 import com.capstone.dfms.repositories.IMilkBatchRepository;
+import com.capstone.dfms.repositories.IUserRepository;
+import com.capstone.dfms.requests.DailyMilkRequest;
+import com.capstone.dfms.requests.MilkBatchRequest;
 import com.capstone.dfms.services.IMilkBatchService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,6 +34,10 @@ public class MilkBatchService implements IMilkBatchService {
     private  final IMilkBatchRepository milkBatchRepository;
 
     private final IDailyMilkRepository dailyMilkRepository;
+
+    private final IUserRepository userRepository;
+
+    private final ICowRepository cowRepository;
 
     @Override
     public void createMilkBatch(List<Long> dailyMilkIds) {
@@ -157,6 +170,47 @@ public class MilkBatchService implements IMilkBatchService {
 //        }
         milkBatch.setTotalVolume(totalVolume);
         milkBatchRepository.save(milkBatch);
+    }
+
+    @Override
+    public MilkBatchEntity createMilkBatchWithDailyMilks(MilkBatchRequest request) {
+        MilkBatchEntity milkBatch = MilkBatchEntity.builder()
+                .totalVolume(0L)
+                .date(LocalDateTime.now())
+                .expiryDate(LocalDateTime.now().plusDays(5))
+                .status(MilkBatchStatus.inventory)
+                .dailyMilks(new ArrayList<>())
+                .build();
+
+        milkBatch = milkBatchRepository.save(milkBatch);
+
+        long totalVolume = 0;
+
+        for (DailyMilkRequest dailyMilkRequest : request.getDailyMilks()) {
+            CowEntity cow = cowRepository.findById(dailyMilkRequest.getCowId())
+                    .orElseThrow(() -> new DataNotFoundException("Cow", "id", dailyMilkRequest.getCowId()));
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            UserEntity user = userPrincipal.getUser();
+
+            DailyMilkEntity dailyMilk = DailyMilkEntity.builder()
+                    .shift(MilkShift.valueOf(request.getShift()))
+                    .milkDate(LocalDate.now())
+                    .volume(dailyMilkRequest.getVolume())
+                    .status(DailyMilkStatus.pending)
+                    .worker(user)
+                    .cow(cow)
+                    .milkBatch(milkBatch)
+                    .build();
+
+            totalVolume += dailyMilk.getVolume();
+            milkBatch.getDailyMilks().add(dailyMilk);
+            dailyMilkRepository.save(dailyMilk);
+        }
+
+        milkBatch.setTotalVolume(totalVolume);
+        return milkBatchRepository.save(milkBatch);
     }
 
 }

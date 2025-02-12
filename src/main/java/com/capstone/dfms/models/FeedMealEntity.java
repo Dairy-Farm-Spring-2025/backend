@@ -15,7 +15,9 @@ public class FeedMealEntity extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long feedMealId;
+
     private String name;
+
     private String description;
 
     @ManyToOne

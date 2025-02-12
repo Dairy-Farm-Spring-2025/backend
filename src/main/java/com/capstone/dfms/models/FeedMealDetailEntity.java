@@ -17,8 +17,7 @@ public class FeedMealDetailEntity extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long feedMealDetailId;
 
-    @Enumerated(EnumType.STRING)
-    private ItemUnit quantity;
+    private Long quantity;
 
     @ManyToOne
     @JoinColumn(name = "item_id")
