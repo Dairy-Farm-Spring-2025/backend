@@ -81,6 +81,9 @@ public class ExportItemService implements IExportItemService {
     public ExportItemEntity cancelExportItem (Long id){
         ExportItemEntity exportItem = exportItemRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This export item is not existed!"));
+       if (exportItem.getStatus() != ExportItemStatus.pending) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Only export items with PENDING status can be canceled!");
+        }
 
         exportItem.setStatus(ExportItemStatus.cancel);
 
