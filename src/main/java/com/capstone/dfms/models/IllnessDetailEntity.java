@@ -26,6 +26,14 @@ public class IllnessDetailEntity extends BaseEntity {
     private IllnessDetailStatus status;
 
     @ManyToOne
+    @JoinColumn(name = "veterinarian_id")
+    private UserEntity veterinarian;
+
+    @ManyToOne
+    @JoinColumn(name = "vaccine_id")
+    private ItemEntity vaccine;
+
+    @ManyToOne
     @JoinColumn(name = "illness_id")
     private IllnessEntity illnessEntity;
 }

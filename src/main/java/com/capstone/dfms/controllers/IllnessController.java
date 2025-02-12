@@ -21,34 +21,39 @@ import static com.capstone.dfms.mappers.IIllnessMapper.INSTANCE;
 public class IllnessController {
     private final  IIllnessService illnessService;
 
-    @PreAuthorize("hasAnyRole('WORKER')")
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PostMapping("/create")
     public CoreApiResponse<IllnessEntity> createIllness(@RequestBody IllnessCreateRequest request) {
         IllnessEntity illness = INSTANCE.toModel(request);
         return CoreApiResponse.success(illnessService.createIllness(illness));
     }
 
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @GetMapping
     public CoreApiResponse<List<IllnessEntity>> getAllIllnesses() {
         return CoreApiResponse.success(illnessService.getAllIllnesses());
     }
 
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @GetMapping("/{id}")
     public CoreApiResponse<IllnessEntity> getIllnessById(@PathVariable Long id) {
         IllnessEntity illness = illnessService.getIllnessById(id);
         return CoreApiResponse.success(illness);
     }
 
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @GetMapping("/cow/{cowId}")
     public CoreApiResponse<List<IllnessEntity>> getIllnessesByCowId(@PathVariable Long cowId) {
         return CoreApiResponse.success((illnessService.getIllnessesByCowId(cowId)));
     }
 
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("/{id}")
     public CoreApiResponse<IllnessEntity> updateIllness(@PathVariable Long id, @RequestBody IllnessUpdateRequest updatedIllness) {
         return CoreApiResponse.success(illnessService.updateIllness(id, updatedIllness, false));
     }
 
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<Void> deleteIllness(@PathVariable Long id) {
         illnessService.deleteIllness(id);
