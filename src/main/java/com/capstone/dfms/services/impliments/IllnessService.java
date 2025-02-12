@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.securities.UserPrincipal;
+import com.capstone.dfms.components.statics.UserStatic;
 import com.capstone.dfms.mappers.IIllnessMapper;
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.IllnessEntity;
@@ -34,7 +35,7 @@ public class IllnessService implements IIllnessService {
     public IllnessEntity createIllness(IllnessEntity illness) {
         CowEntity cowEntity = this.findCowEntity(illness.getCowEntity().getCowId());
         illness.setCowEntity(cowEntity);
-        illness.setUserEntity(this.getCurrentUser());
+        illness.setUserEntity(UserStatic.getCurrentUser());
         return illnessRepository.save(illness);
     }
 
@@ -74,7 +75,7 @@ public class IllnessService implements IIllnessService {
         iIllnessMapper.updateIllnessEntityFromDto(updatedIllness, oldIllness);
 
         if(isPrognosis){
-            oldIllness.setVeterinarian(this.getCurrentUser());
+            oldIllness.setVeterinarian(UserStatic.getCurrentUser());
         }
 
         return illnessRepository.save(oldIllness);
@@ -111,10 +112,5 @@ public class IllnessService implements IIllnessService {
         return cowEntity;
     }
 
-    private UserEntity getCurrentUser(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        UserEntity user = userPrincipal.getUser();
-        return user;
-    }
+
 }
