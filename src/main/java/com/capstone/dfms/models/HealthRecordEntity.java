@@ -5,6 +5,9 @@ import com.capstone.dfms.models.enums.HealthRecordStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "health_records")
 @Data
@@ -20,6 +23,7 @@ public class HealthRecordEntity extends BaseEntity{
 
     @Enumerated(EnumType.STRING)
     private HealthRecordStatus status;
+
     private float weight;
     private float size;
 
@@ -29,4 +33,11 @@ public class HealthRecordEntity extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "cow_id")
     private CowEntity cowEntity;
+//
+//    @ManyToOne
+//    @JoinColumn(name = "task_id")
+//    private TaskEntity relatedTask;
+
+    private LocalDateTime reportTime;
+
 }
