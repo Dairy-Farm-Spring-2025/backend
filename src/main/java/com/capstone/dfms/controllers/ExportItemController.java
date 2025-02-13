@@ -29,32 +29,38 @@ public class ExportItemController {
     }
     @PreAuthorize("hasRole('MANAGER')")
     @PutMapping("approve/{id}")
-    public CoreApiResponse<ExportItemEntity> approveExportItem(@PathVariable Long id) {
-        return CoreApiResponse.success(exportItemService.approveExportItem(id));
+    public CoreApiResponse<?> approveExportItem(@PathVariable Long id) {
+        return CoreApiResponse.success(exportItemService.approveExportItem(id),"Approve request successfully");
     }
 
     @PreAuthorize("hasRole('MANAGER')")
     @PutMapping("reject/{id}")
-    public CoreApiResponse<ExportItemEntity> rejectExportItem(@PathVariable Long id) {
-        return CoreApiResponse.success(exportItemService.rejectExportItem(id));
+    public CoreApiResponse<?> rejectExportItem(@PathVariable Long id) {
+        return CoreApiResponse.success(exportItemService.rejectExportItem(id),"Reject request successfully");
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("cancel/{id}")
-    public CoreApiResponse<ExportItemEntity> cancelExportItem(@PathVariable Long id) {
-        return CoreApiResponse.success(exportItemService.cancelExportItem(id));
+    public CoreApiResponse<?> cancelExportItem(@PathVariable Long id) {
+        return CoreApiResponse.success(exportItemService.cancelExportItem(id),"Cancel request export successfully");
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("export/{id}")
-    public CoreApiResponse<ExportItemEntity> exportItem(@PathVariable Long id) {
-        return CoreApiResponse.success(exportItemService.exportItem(id));
+    public CoreApiResponse<?> exportItem(@PathVariable Long id) {
+        return CoreApiResponse.success(exportItemService.exportItem(id),"Confirm pick item successfully");
+    }
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PutMapping("/approves")
+    public CoreApiResponse<?> approveMultipleExportItems(@RequestBody List<Long> ids) {
+        List<ExportItemEntity> approvedItems = exportItemService.approveMultipleExportItems(ids);
+        return CoreApiResponse.success("Approve request successfully");
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("update/{id}/{quantity}")
-    public CoreApiResponse<ExportItemEntity> updateExportItem(@PathVariable Long id, @PathVariable float quantity) {
-        return CoreApiResponse.success(exportItemService.updateExportItem(id,quantity));
+    public CoreApiResponse<?> updateExportItem(@PathVariable Long id, @PathVariable float quantity) {
+        return CoreApiResponse.success(exportItemService.updateExportItem(id,quantity),"Update export item successfully");
     }
 
     @GetMapping
