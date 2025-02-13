@@ -63,6 +63,30 @@ public class ExportItemService implements IExportItemService {
     }
 
     @Override
+    public List<ExportItemEntity> approveMultipleExportItems(List<Long> listId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity user = userPrincipal.getUser();
+
+        List<ExportItemEntity> exportItems = exportItemRepository.findAllById(listId);
+
+        if (exportItems.isEmpty()) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "No valid export items found!");
+        }
+
+        for (ExportItemEntity exportItem : exportItems) {
+            if (exportItem.getStatus() != ExportItemStatus.pending) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Only export items with PENDING status can be approved!");
+            }
+            exportItem.setStatus(ExportItemStatus.approved);
+            exportItem.setExporter(user);
+        }
+
+        return exportItemRepository.saveAll(exportItems);
+    }
+
+
+    @Override
     public ExportItemEntity rejectExportItem (Long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
@@ -81,6 +105,9 @@ public class ExportItemService implements IExportItemService {
     public ExportItemEntity cancelExportItem (Long id){
         ExportItemEntity exportItem = exportItemRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This export item is not existed!"));
+       if (exportItem.getStatus() != ExportItemStatus.pending) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Only export items with PENDING status can be canceled!");
+        }
 
         exportItem.setStatus(ExportItemStatus.cancel);
 

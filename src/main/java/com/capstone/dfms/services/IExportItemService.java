@@ -14,6 +14,8 @@ public interface IExportItemService {
 
     ExportItemEntity approveExportItem (Long id);
 
+    List<ExportItemEntity> approveMultipleExportItems(List<Long> listId);
+
     ExportItemEntity rejectExportItem (Long id);
 
     ExportItemEntity cancelExportItem (Long id);
