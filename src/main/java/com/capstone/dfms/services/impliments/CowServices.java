@@ -147,7 +147,7 @@ public class CowServices implements ICowServices {
         CowEntity cow = cowRepository.findById(cowId)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Cow not found"));
 
-        String cowUrl = "http://34.124.196.11:8080/api/v1/cows/" + cowId;
+        String cowUrl = "http://localhost:5173/dairy/cow-management/" + cowId;
         try {
             return QRCodeUtil.generateQRCode(cowUrl, 300, 300);
         } catch (Exception e) {
