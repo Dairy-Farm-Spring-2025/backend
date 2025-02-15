@@ -23,6 +23,8 @@ public class CowResponse {
     private LocalDate dateOfBirth;
     private LocalDate dateOfEnter;
     private LocalDate dateOfOut;
+    private float weight;
+    private float size;
     private String description;
     private CowOrigin cowOrigin;
     private Gender gender;

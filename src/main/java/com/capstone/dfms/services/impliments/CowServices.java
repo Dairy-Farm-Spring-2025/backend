@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -90,6 +87,21 @@ public class CowServices implements ICowServices {
 
         response.setPenResponse(penMapper.toResponse(cowPenRepository.findCurrentPenByCowId(id)));
         response.setHealthInfoResponses(this.getAllHealthInfoOrderedDesc(id));
+        // Fetch the latest health record
+        Optional<HealthRecordEntity> latestHealthRecord = healthRecordRepository.findFirstByCowEntity_CowIdOrderByReportTimeDesc(id);
+
+        // If a health record exists, set cowStatus, weight, and size from it
+        if (latestHealthRecord.isPresent()) {
+            HealthRecordEntity healthRecord = latestHealthRecord.get();
+            response.setCowStatus(healthRecord.getPeriod());
+            response.setWeight(healthRecord.getWeight());
+            response.setSize(healthRecord.getSize());
+        } else {
+            // Default values if no health record exists
+//            response.setCowStatus(null); // Or a default CowStatus
+            response.setWeight(0.0f); // Default weight
+            response.setSize(0.0f); // Default size
+        }
 
         return response;
     }
