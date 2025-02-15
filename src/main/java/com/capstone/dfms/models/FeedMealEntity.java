@@ -3,6 +3,8 @@ package com.capstone.dfms.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "feed_meals")
 @Data
@@ -23,4 +25,7 @@ public class FeedMealEntity extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "cow_type_id")
     private CowTypeEntity cowTypeEntity;
+
+    @OneToMany(mappedBy = "feedMealEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FeedMealDetailEntity> feedMealDetails;
 }
