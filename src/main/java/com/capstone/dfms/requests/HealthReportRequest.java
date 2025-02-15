@@ -22,5 +22,5 @@ public class HealthReportRequest {
     private float size;
     private CowStatus period;
     private Long cowId;
-    private LocalDateTime reportTime;
+//    private LocalDateTime reportTime;
 }

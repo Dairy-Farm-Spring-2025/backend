@@ -32,7 +32,7 @@ public class HealthRecordService implements IHealthRecordService{
         CowEntity cow = cowRepository.findById(request.getCowId())
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found with id " + request.getCowId()));
 
-        LocalDate reportDate = request.getReportTime().toLocalDate();
+        LocalDate reportDate = LocalDate.now();
         LocalDateTime startOfDay = reportDate.atStartOfDay();
         LocalDateTime endOfDay = reportDate.atTime(LocalTime.MAX); // End of the day
 
@@ -45,6 +45,7 @@ public class HealthRecordService implements IHealthRecordService{
         HealthRecordEntity entity = mapper.toModel(request);
 
         entity.setCowEntity(cow);
+        entity.setReportTime(LocalDateTime.now());
 
         return healthRecordRepository.save(entity);
     }
