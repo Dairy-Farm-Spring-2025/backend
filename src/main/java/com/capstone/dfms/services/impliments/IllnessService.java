@@ -104,6 +104,12 @@ public class IllnessService implements IIllnessService {
         return this.updateIllness(id, updateRequest, true);
     }
 
+    @Override
+    public IllnessEntity getIllnessWithDetail(Long id) {
+        return illnessRepository.findByIdWithDetails(id)
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This illness is not existed!"));
+    }
+
 
     //-----------------------------------------------------
     private CowEntity findCowEntity(Long cowId){

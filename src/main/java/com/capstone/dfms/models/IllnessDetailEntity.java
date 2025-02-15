@@ -1,6 +1,7 @@
 package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.IllnessDetailStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,5 +36,6 @@ public class IllnessDetailEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "illness_id")
+    @JsonBackReference
     private IllnessEntity illnessEntity;
 }

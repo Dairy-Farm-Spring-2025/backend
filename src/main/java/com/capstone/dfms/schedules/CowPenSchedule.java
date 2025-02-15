@@ -20,11 +20,12 @@ public class CowPenSchedule {
     private final IPenRepository penRepository;
     private final ICowPenRepository cowPenRepository;
 
-    @Scheduled(fixedRate = 43200000) // Runs every 60 seconds
+    @Scheduled(fixedRate = 60000) // Runs every 60 seconds
     @Transactional
     public void updatePenStatus() {
         this.setEmptyForAvailablePen();
         this.setOccupiedForAssignedPen();
+        this.setAssignerForCowPen();
     }
 
     private void setOccupiedForAssignedPen(){
@@ -55,17 +56,19 @@ public class CowPenSchedule {
                 cowPenRepository.save(cowPen);
             }
         }
+    }
 
+    private void setAssignerForCowPen(){
+        LocalDate currentDate = LocalDate.now(); // Get today's date
+        currentDate.plusDays(1);
+        List<CowPenEntity> planningCowPen = cowPenRepository.findByStatus(PenCowStatus.planning);
 
-//        List<PenEntity> inPlanningPens = penRepository.getPenWithStatus(PenStatus.occupied);
-//        LocalDate currentDate = LocalDate.now(); // Get today's date
-//
-//        for (PenEntity pen : inPlanningPens) {
-//            boolean isOccupied = penRepository.isAvailablePen(pen.getPenId(), currentDate);
-//            if (isOccupied && pen.getPenStatus() != PenStatus.empty) {
-//                pen.setPenStatus(PenStatus.empty);
-//                penRepository.save(pen);
-//            }
-//        }
+        for(CowPenEntity cowPen: planningCowPen){
+            if(cowPen.getId().getFromDate().isBefore(currentDate)){
+                cowPen.setStatus(PenCowStatus.assigned);
+
+                cowPenRepository.save(cowPen);
+            }
+        }
     }
 }

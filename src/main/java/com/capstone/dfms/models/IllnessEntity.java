@@ -1,10 +1,12 @@
 package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.IllnessSeverity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "illnesses")
@@ -36,4 +38,8 @@ public class IllnessEntity extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "veterinarian_id")
     private UserEntity veterinarian;
+
+    @OneToMany(mappedBy = "illnessEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<IllnessDetailEntity> illnessDetails;
 }

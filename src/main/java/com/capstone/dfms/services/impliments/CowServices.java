@@ -4,12 +4,11 @@ import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.utils.QRCodeUtil;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.ICowMapper;
-import com.capstone.dfms.models.AreaEntity;
-import com.capstone.dfms.models.CowEntity;
-import com.capstone.dfms.models.CowTypeEntity;
-import com.capstone.dfms.repositories.ICowRepository;
-import com.capstone.dfms.repositories.ICowTypeRepository;
+import com.capstone.dfms.mappers.IPenMapper;
+import com.capstone.dfms.models.*;
+import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.CowUpdateRequest;
+import com.capstone.dfms.responses.CowHealthInfoResponse;
 import com.capstone.dfms.responses.CowResponse;
 import com.capstone.dfms.services.ICowServices;
 import lombok.AllArgsConstructor;
@@ -18,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
@@ -29,6 +30,11 @@ public class CowServices implements ICowServices {
     private final ICowRepository cowRepository;
     private final ICowTypeRepository cowTypeRepository;
     private final ICowMapper cowMapper;
+    private final IHealthRecordRepository healthRecordRepository;
+    private final IIllnessRepository illnessRepository;
+    private final ICowPenRepository cowPenRepository;
+    private final IPenMapper penMapper;
+
 
 
     @Override
@@ -82,6 +88,9 @@ public class CowServices implements ICowServices {
         boolean isInPen = this.cowIsInPen(cowEntity.getCowId());
         response.setInPen(isInPen);
 
+        response.setPenResponse(penMapper.toResponse(cowPenRepository.findCurrentPenByCowId(id)));
+        response.setHealthInfoResponses(this.getAllHealthInfoOrderedDesc(id));
+
         return response;
     }
 
@@ -132,6 +141,53 @@ public class CowServices implements ICowServices {
         return !cowRepository.isCowNotInAnyPen(cowId, LocalDate.now());
     }
 
+    private List<CowHealthInfoResponse<?>> getAllHealthInfoOrderedDesc(Long cowId) {
+        // Fetch health records for the given cow
+        List<HealthRecordEntity> healthRecords = healthRecordRepository.findByCowEntityCowId(cowId);
+        // Fetch illnesses for the given cow
+        List<IllnessEntity> illnesses = illnessRepository.findByCowEntityCowId(cowId);
+
+        // Create a list to hold the unified response objects
+        List<CowHealthInfoResponse<?>> responses = new ArrayList<>();
+
+        // Map health records to the response type
+        for (HealthRecordEntity record : healthRecords) {
+            // Convert the reportTime to LocalDate (assumes reportTime is not null)
+            LocalDate reportDate = record.getReportTime().toLocalDate();
+            CowHealthInfoResponse<HealthRecordEntity> response = CowHealthInfoResponse.<HealthRecordEntity>builder()
+                    .id(record.getHealthRecordId())
+                    .type("HEALTH_RECORD")
+                    .date(reportDate)
+                    .health(record)
+                    .build();
+            responses.add(response);
+        }
+
+        // Map illnesses to the response type
+        for (IllnessEntity illness : illnesses) {
+            // For illnesses, we use the startDate as the date field
+            LocalDate startDate = illness.getStartDate();
+            CowHealthInfoResponse<IllnessEntity> response = CowHealthInfoResponse.<IllnessEntity>builder()
+                    .id(illness.getIllnessId())
+                    .type("ILLNESS")
+                    .date(startDate)
+                    .health(illness)
+                    .build();
+            responses.add(response);
+        }
+
+        // Ensure a global descending order by date, regardless of type.
+        responses.sort(
+                Comparator.comparing(
+                        (CowHealthInfoResponse<?> r) -> r.getDate(),
+                        Comparator.nullsLast(Comparator.naturalOrder())
+                ).reversed()
+        );
+
+
+        return responses;
+    }
+
 
     //--------------------------------------------------------------------------------
     private <T> void updateField(Supplier<T> getter, Consumer<T> setter) {
@@ -140,6 +196,8 @@ public class CowServices implements ICowServices {
             setter.accept(value);
         }
     }
+
+
 
 
     @Override
@@ -154,4 +212,6 @@ public class CowServices implements ICowServices {
             throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate QR code", e);
         }
     }
+
+
 }
