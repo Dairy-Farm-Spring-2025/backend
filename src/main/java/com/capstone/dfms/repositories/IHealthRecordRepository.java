@@ -6,10 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface IHealthRecordRepository extends JpaRepository<HealthRecordEntity, Long> {
     // In HealthRecordRepository
     boolean existsByCowEntity_CowIdAndReportTimeBetween(Long cowId, LocalDateTime start, LocalDateTime end);
     List<HealthRecordEntity> findByCowEntityCowId(Long cowId);
+    Optional<HealthRecordEntity> findFirstByCowEntity_CowIdOrderByReportTimeDesc(Long cowId);
 
 }
