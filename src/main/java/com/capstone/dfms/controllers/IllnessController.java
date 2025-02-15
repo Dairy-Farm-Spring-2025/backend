@@ -37,7 +37,7 @@ public class IllnessController {
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @GetMapping("/{id}")
     public CoreApiResponse<IllnessEntity> getIllnessById(@PathVariable Long id) {
-        IllnessEntity illness = illnessService.getIllnessById(id);
+        IllnessEntity illness = illnessService.getIllnessWithDetail(id);
         return CoreApiResponse.success(illness);
     }
 

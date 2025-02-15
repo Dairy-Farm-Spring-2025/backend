@@ -20,4 +20,6 @@ public interface IIllnessService{
     void deleteIllness(Long id);
     IllnessEntity reportIllness(IllnessEntity illness);
     IllnessEntity prognosisIllness (Long id, IllnessPrognosisRequest request);
+
+    IllnessEntity getIllnessWithDetail(Long id);
 }

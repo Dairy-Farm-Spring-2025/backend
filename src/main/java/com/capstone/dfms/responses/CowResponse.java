@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -29,4 +30,7 @@ public class CowResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isInPen;
+
+    private PenResponse penResponse;
+    private List<CowHealthInfoResponse<?>> healthInfoResponses;
 }
