@@ -9,6 +9,7 @@ import com.capstone.dfms.responses.AreaResponse;
 import com.capstone.dfms.services.IMilkBatchService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -58,6 +59,8 @@ public class MilkBatchController {
         return CoreApiResponse.success("Delete milk batch successfully");
     }
 
+
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PostMapping("/create")
     public CoreApiResponse<MilkBatchEntity> createMilkBatchWithDailyMilks(@RequestBody @Valid MilkBatchRequest request) {
         MilkBatchEntity milkBatch = milkBatchService.createMilkBatchWithDailyMilks(request);
