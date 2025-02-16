@@ -1,6 +1,8 @@
 package com.capstone.dfms.models;
 
+import com.capstone.dfms.models.enums.FeedMealShift;
 import com.capstone.dfms.models.enums.ItemUnit;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,7 +25,10 @@ public class FeedMealDetailEntity extends BaseEntity{
     @JoinColumn(name = "item_id")
     private ItemEntity itemEntity;
 
+    private FeedMealShift shift;
+
     @ManyToOne
     @JoinColumn(name = "feed_meal_id")
+    @JsonIgnore
     private FeedMealEntity feedMealEntity;
 }
