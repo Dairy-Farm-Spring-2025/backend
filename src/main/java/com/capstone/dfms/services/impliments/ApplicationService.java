@@ -36,6 +36,13 @@ public class ApplicationService implements IApplicationService {
         // Validate requestBy user
         UserEntity requestBy = UserStatic.getCurrentUser();
 
+        boolean applicationExists = applicationRepository.existsByRequestByAndFromDateAndToDateAndType(
+                requestBy, request.getFromDate(), request.getToDate(), type);
+
+        if (applicationExists) {
+            throw new RuntimeException("A similar application already exists. Please modify your request.");
+        }
+
         // Map request to entity
         ApplicationEntity application = applicationMapper.toModel(request);
 
@@ -91,7 +98,8 @@ public class ApplicationService implements IApplicationService {
             throw new AppException(HttpStatus.BAD_REQUEST, "Application was approved/rejected!");
         }
 
-        if(cancelApplication.getRequestBy().getId() != currentUser.getId()){
+        if(!(cancelApplication.getRequestBy().getId() == currentUser.getId()
+                || currentUser.getRoleId().getName().equalsIgnoreCase("MANAGER"))){
             throw new AppException(HttpStatus.BAD_REQUEST, "You don't have permission to cancel application!");
         }
 
