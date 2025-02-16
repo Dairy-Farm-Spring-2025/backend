@@ -25,6 +25,12 @@ public class ApplicationEntity {
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status;
 
+    private LocalDate fromDate;
+    private LocalDate toDate;
+
+    private String commentApprove;
+
+    private LocalDate requestDate;
     private LocalDate approveDate;
 
     @ManyToOne
