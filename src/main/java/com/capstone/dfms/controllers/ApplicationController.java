@@ -48,7 +48,7 @@ public class ApplicationController {
         return CoreApiResponse.success("Delete successfully!");
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('WORKER','VETERINARIANS','MANAGER')")
     @PutMapping("/cancel-request/{id}")
     public CoreApiResponse<ApplicationEntity> cancelApplication(@PathVariable Long id) {
         return CoreApiResponse.success(applicationService.cancelApplication(id));
