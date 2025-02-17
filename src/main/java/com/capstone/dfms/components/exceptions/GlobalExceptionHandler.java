@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
             return CoreApiResponse.error(HttpStatus.valueOf(appException.getCode()), appException.getMessage(),appException.getData());
         }else if(error instanceof BadCredentialsException){
             BadCredentialsException badCredentialsException = (BadCredentialsException) error;
-            return CoreApiResponse.success("Email hoặc password không chính xác");
+            return CoreApiResponse.success("Email or password is incorrect");
         }else if(error instanceof DataNotFoundException){
             DataNotFoundException resourceException = (DataNotFoundException) error;
             return CoreApiResponse.error(HttpStatus.NOT_FOUND, resourceException.getMessage());
