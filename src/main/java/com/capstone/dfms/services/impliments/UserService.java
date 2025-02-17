@@ -207,7 +207,7 @@ public class UserService implements IUserService {
         }
 
         if (!request.getNewPassword().equals(request.getConfirmedPassword())) {
-            throw new AppException(HttpStatus.OK, "New password and confirm password do not match");
+            throw new AppException(HttpStatus.OK, "Confirm password do not match");
         }
         user.setChangePassword(true);
 

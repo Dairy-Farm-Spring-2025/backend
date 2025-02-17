@@ -3,6 +3,8 @@ package com.capstone.dfms.controllers;
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.components.configurations.AppProperties;
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
+import com.capstone.dfms.components.utils.MessageKeys;
 import com.capstone.dfms.models.RoleEntity;
 import com.capstone.dfms.models.UserEntity;
 import com.capstone.dfms.requests.*;
@@ -29,6 +31,9 @@ import static com.capstone.dfms.mappers.UserMapper.INSTANCE;
 public class UserController {
     private final IUserService userService;
 
+    private final LocalizationUtils localizationUtils;
+
+
     @Autowired
     private AppProperties appProperties;
     @PostMapping("/create")
@@ -48,8 +53,9 @@ public class UserController {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
+        String message = localizationUtils.getMessage("user.login.login_successfully");
 
-        return CoreApiResponse.success(signIn);
+        return CoreApiResponse.success(signIn, message);
     }
 
     @GetMapping("/verify")
@@ -113,7 +119,7 @@ public class UserController {
     public CoreApiResponse<UserEntity> updateUser(
             @Valid @ModelAttribute PersonalUpdateRequest updateUserRequest,
             @RequestParam(name = "imageAvatar", required = false) MultipartFile imageAvatar) throws IOException {
-        return CoreApiResponse.success(userService.updatePersonalInformation(updateUserRequest,imageAvatar));
+        return CoreApiResponse.success(userService.updatePersonalInformation(updateUserRequest,imageAvatar),"Succes");
     }
 
     @GetMapping("/all")
@@ -153,7 +159,7 @@ public class UserController {
     @PutMapping("/onleave/{id}")
     public CoreApiResponse<?> updateUser(@PathVariable Long id) {
         userService.updateOnLeave(id);
-        return CoreApiResponse.success("Update status user successfully! ");
+        return CoreApiResponse.success("Update status user successfully!");
     }
 
     @GetMapping("/roles")
