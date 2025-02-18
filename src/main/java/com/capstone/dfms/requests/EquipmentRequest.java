@@ -1,31 +1,20 @@
-package com.capstone.dfms.models;
+package com.capstone.dfms.requests;
 
 import com.capstone.dfms.models.enums.EquipmentStatus;
 import com.capstone.dfms.models.enums.EquipmentType;
-import jakarta.persistence.*;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 
-@Entity
-@Table(name = "equipments")
+@Data
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class EquipmentEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long equipmentId;
-
+public class EquipmentRequest {
     private String name;
-
-    @Enumerated(EnumType.STRING)
     private EquipmentType type;
-
-    @Enumerated(EnumType.STRING)
     private EquipmentStatus status;
-
     private String description;
-
     private Long quantity;
 }
