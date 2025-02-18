@@ -109,6 +109,7 @@ public class CowServices implements ICowServices {
     @Override
     public List<CowResponse> getAllCows() {
         List<CowEntity> cowEntities = cowRepository.findAll();
+
         return cowEntities.stream()
                 .map(cowEntity -> {
                     // Map CowEntity to CowResponse
@@ -117,6 +118,34 @@ public class CowServices implements ICowServices {
                     // Check if the cow is in a pen
                     boolean isInPen = this.cowIsInPen(cowEntity.getCowId());
                     response.setInPen(isInPen);
+
+                    // Set pen response
+                    response.setPenResponse(penMapper.toResponse(cowPenRepository.findCurrentPenByCowId(cowEntity.getCowId())));
+
+                    List<CowHealthInfoResponse<?>> healthInfoResponses = this.getAllHealthInfoOrderedDesc(cowEntity.getCowId());
+                    List<CowHealthInfoResponse<?>> healthInfoResponseTmp = new ArrayList<>();
+
+                    // Set health information responses
+                    if (healthInfoResponses.size() > 0){
+                        healthInfoResponseTmp.add(healthInfoResponses.get(0));
+                        response.setHealthInfoResponses(healthInfoResponseTmp);
+                    }
+
+
+                    // Fetch the latest health record
+                    Optional<HealthRecordEntity> latestHealthRecord = healthRecordRepository.findFirstByCowEntity_CowIdOrderByReportTimeDesc(cowEntity.getCowId());
+
+                    if (latestHealthRecord.isPresent()) {
+                        // Set cow status, weight, and size from the latest health record
+                        HealthRecordEntity healthRecord = latestHealthRecord.get();
+                        response.setCowStatus(healthRecord.getPeriod());
+                        response.setWeight(healthRecord.getWeight());
+                        response.setSize(healthRecord.getSize());
+                    } else {
+                        // Default values if no health record exists
+                        response.setWeight(0.0f);
+                        response.setSize(0.0f);
+                    }
 
                     return response;
                 })
@@ -193,10 +222,8 @@ public class CowServices implements ICowServices {
                 Comparator.comparing(
                         (CowHealthInfoResponse<?> r) -> r.getDate(),
                         Comparator.nullsLast(Comparator.naturalOrder())
-                ).reversed()
+                )
         );
-
-
         return responses;
     }
 
