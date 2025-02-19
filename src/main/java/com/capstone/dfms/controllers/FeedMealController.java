@@ -2,8 +2,10 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.FeedMealEntity;
+import com.capstone.dfms.requests.DryMatterRequest;
 import com.capstone.dfms.requests.FeedMealRequest;
 import com.capstone.dfms.responses.AreaResponse;
+import com.capstone.dfms.responses.DryMatterResponse;
 import com.capstone.dfms.services.IFeedMealService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -40,5 +42,12 @@ public class FeedMealController {
     ){
         feedMealService.deleteFeedMeal(id);
         return CoreApiResponse.success("Delete feed meal successfully");
+    }
+
+    @PostMapping("drymatter")
+    public CoreApiResponse<DryMatterResponse> calculateDryMatter(@RequestBody DryMatterRequest request) {
+        double dryMatter = feedMealService.calculateDryMatter(request.getCowStatus(), request.getCowTypeId());
+        DryMatterResponse response = new DryMatterResponse(dryMatter);
+        return CoreApiResponse.success(response);
     }
 }

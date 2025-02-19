@@ -20,6 +20,8 @@ public class CowTypeEntity extends BaseEntity{
     private String name;
     private String description;
 
+    private Long maxWeight;
+
     @Enumerated(EnumType.STRING)
     private CowTypeStatus status;
 }

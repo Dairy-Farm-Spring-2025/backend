@@ -1,5 +1,7 @@
 package com.capstone.dfms.models;
 
+import com.capstone.dfms.models.enums.CowStatus;
+import com.capstone.dfms.models.enums.FeedMealShift;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +27,11 @@ public class FeedMealEntity extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "cow_type_id")
     private CowTypeEntity cowTypeEntity;
+
+    private CowStatus cowStatus;
+
+    private FeedMealShift shift;
+
 
     @OneToMany(mappedBy = "feedMealEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FeedMealDetailEntity> feedMealDetails;

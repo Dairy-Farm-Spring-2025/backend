@@ -18,5 +18,4 @@ public class FeedMealDetailRequest {
 
     private Long itemId;
 
-    private FeedMealShift shift;
 }
