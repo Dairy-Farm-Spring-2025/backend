@@ -25,7 +25,6 @@ public class FeedMealDetailEntity extends BaseEntity{
     @JoinColumn(name = "item_id")
     private ItemEntity itemEntity;
 
-    private FeedMealShift shift;
 
     @ManyToOne
     @JoinColumn(name = "feed_meal_id")

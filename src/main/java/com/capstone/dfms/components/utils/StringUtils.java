@@ -1,5 +1,7 @@
 package com.capstone.dfms.components.utils;
 
+import java.text.Normalizer;
+
 public class StringUtils {
     public static String NameStandardlizing(String name){
         name = name.trim();
@@ -12,5 +14,13 @@ public class StringUtils {
             }
         }
         return newName.toString().trim();
+    }
+
+    public static String normalizeString(String input) {
+        if (input == null) return "";
+        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+        return normalized.replaceAll("\\p{M}", "")
+                .replaceAll("\\s+", "")
+                .toLowerCase();
     }
 }
