@@ -19,4 +19,5 @@ public class CowTypeResponse {
     private CowTypeStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Long maxWeight;
 }
