@@ -81,7 +81,7 @@ public class UserService implements IUserService {
         user.setStatus(UserStatus.active);
 
         RoleEntity role = roleRepository.findById(user.getRoleId().getId()).orElseThrow(()
-                -> new AppException(HttpStatus.OK,"Role not found"));
+                -> new AppException(HttpStatus.NOT_FOUND,"Role not found"));
         user.setRoleId(role);
 
         String employeeNumber = generateEmployeeNumberByRole(role.getId());
@@ -142,7 +142,7 @@ public class UserService implements IUserService {
     public String refresh(String token) {
         TokenEntity refreshToken = tokenRepository.findByName(token)
                 .orElseThrow(() ->
-                        new AppException(HttpStatus.OK,"Refresh Token not found with token : " + token)
+                        new AppException(HttpStatus.NOT_FOUND,"Refresh Token not found with token : " + token)
                 );
         if(refreshToken.isRevoked()){
             throw new AppException(HttpStatus.UNAUTHORIZED,"Token đã bị thu hồi");
@@ -171,7 +171,7 @@ public class UserService implements IUserService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         else{
-            throw new AppException(HttpStatus.OK, "Confirmed password is wrong");
+            throw new AppException(HttpStatus.BAD_REQUEST, "Confirmed password is wrong");
         }
         userRepository.save(user);
     }
@@ -203,11 +203,11 @@ public class UserService implements IUserService {
 
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            throw new AppException(HttpStatus.OK, "Old password incorrect");
+            throw new AppException(HttpStatus.BAD_REQUEST, "Old password incorrect");
         }
 
         if (!request.getNewPassword().equals(request.getConfirmedPassword())) {
-            throw new AppException(HttpStatus.OK, "Confirm password do not match");
+            throw new AppException(HttpStatus.BAD_REQUEST, "Confirm password do not match");
         }
         user.setChangePassword(true);
 
