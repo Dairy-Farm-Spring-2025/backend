@@ -14,5 +14,7 @@ public enum IllnessDetailStatus {
     ongoing,
 
     // Status when the illness was too severe, and the cow did not survive
-    deceased
+    deceased,
+
+    cancel
 }

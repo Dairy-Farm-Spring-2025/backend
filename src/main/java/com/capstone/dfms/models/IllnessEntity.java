@@ -1,6 +1,8 @@
 package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.IllnessSeverity;
+import com.capstone.dfms.models.enums.IllnessStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,6 +28,7 @@ public class IllnessEntity extends BaseEntity{
     private LocalDate startDate;
     private LocalDate endDate;
     private String prognosis;
+    private IllnessStatus illnessStatus;
 
     @ManyToOne
     @JoinColumn(name = "cow_id")
