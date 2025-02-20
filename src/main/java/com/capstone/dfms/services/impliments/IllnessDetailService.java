@@ -105,7 +105,7 @@ public class IllnessDetailService implements IIllnessDetailService {
             Long tempId = updatedDetail.getItemId();
             itemEntity = iItemRepository.findById(tempId)
                     .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no item have id" + tempId));
-            if(itemEntity.getCategoryEntity().getName().contains("Vaccine"))
+            if(!itemEntity.getCategoryEntity().getName().equalsIgnoreCase("vaccine"))
                 throw new AppException(HttpStatus.BAD_REQUEST, "Item is not vaccine");
         }
 
