@@ -203,7 +203,7 @@ public class UserService implements IUserService {
 
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            throw new AppException(HttpStatus.OK, "Old password incorrect");
+            throw new AppException(HttpStatus.BAD_REQUEST, "Old password incorrect");
         }
 
         if (!request.getNewPassword().equals(request.getConfirmedPassword())) {
