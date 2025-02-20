@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "feed_meal_details")
 @Data
@@ -19,7 +21,7 @@ public class FeedMealDetailEntity extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long feedMealDetailId;
 
-    private Long quantity;
+    private BigDecimal quantity;
 
     @ManyToOne
     @JoinColumn(name = "item_id")

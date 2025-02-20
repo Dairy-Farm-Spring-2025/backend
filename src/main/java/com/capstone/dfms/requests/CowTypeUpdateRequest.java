@@ -14,4 +14,6 @@ public class CowTypeUpdateRequest {
     private String name;
     private String description;
     private CowTypeStatus status;
+    private Long maxWeight;
+
 }

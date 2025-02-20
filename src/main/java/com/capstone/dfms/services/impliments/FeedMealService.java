@@ -13,9 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,25 +34,26 @@ public class FeedMealService implements IFeedMealService {
         CowTypeEntity cowTypeEntity = cowTypeRepository.findById(request.getCowTypeId())
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Cow Type not found"));
 
-        Map<String, Double> requiredPercentages = Map.of(
-                "Cỏ Khô", 35.0,
-                "Thức ăn tinh", 25.0,
-                "Thức ăn ủ chua", 30.0,
-                "Khoáng chất", 10.0
+        Map<String, BigDecimal> requiredPercentages = Map.of(
+                "Cỏ Khô", BigDecimal.valueOf(35.0),
+                "Thức ăn tinh", BigDecimal.valueOf(25.0),
+                "Thức ăn ủ chua", BigDecimal.valueOf(30.0),
+                "Khoáng chất", BigDecimal.valueOf(10.0)
         );
 
-        Map<String, Double> dryMatterRatios = Map.of(
-                "Cỏ Khô", 0.85,
-                "Thức ăn tinh", 0.90,
-                "Thức ăn ủ chua", 0.35,
-                "Khoáng chất", 0.75
+        Map<String, BigDecimal> dryMatterRatios = Map.of(
+                "Cỏ Khô", BigDecimal.valueOf(0.85),
+                "Thức ăn tinh", BigDecimal.valueOf(0.90),
+                "Thức ăn ủ chua", BigDecimal.valueOf(0.35),
+                "Khoáng chất", BigDecimal.valueOf(0.75)
         );
 
-        double totalWeight = request.getDetails().stream()
-                .mapToDouble(FeedMealDetailRequest::getQuantity)
-                .sum();
+        BigDecimal totalWeight = request.getDetails().stream()
+                .map(FeedMealDetailRequest::getQuantity)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        double totalDryMatter = 0.0;
+
+        BigDecimal totalDryMatter = BigDecimal.ZERO;
 
         for (var entry : requiredPercentages.entrySet()) {
             CategoryEntity category = categoryRepository.findAll().stream()
@@ -59,8 +61,8 @@ public class FeedMealService implements IFeedMealService {
                     .findFirst()
                     .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Category '" + entry.getKey() + "' not found"));
 
-            double categoryWeight = getTotalWeightByCategory(request.getDetails(), category);
-            double percentage = (categoryWeight / totalWeight) * 100;
+            BigDecimal categoryWeight = getTotalWeightByCategory(request.getDetails(), category);
+            BigDecimal percentage = calculatePercentage(categoryWeight, totalWeight);
 
             if (!isValidPercentage(percentage, entry.getValue())) {
                 throw new AppException(HttpStatus.BAD_REQUEST,
@@ -68,11 +70,11 @@ public class FeedMealService implements IFeedMealService {
                                 entry.getKey(), entry.getValue(), percentage));
             }
 
-            double dryMatterRatio = dryMatterRatios.getOrDefault(entry.getKey(), 1.0);
-            totalDryMatter += categoryWeight * dryMatterRatio;
+            BigDecimal dryMatterRatio = dryMatterRatios.getOrDefault(entry.getKey(), BigDecimal.ONE);
+            totalDryMatter = totalDryMatter.add(categoryWeight.multiply(dryMatterRatio));
         }
 
-        double requiredDryMatter = calculateDryMatter(request.getCowStatus(), request.getCowTypeId());
+        BigDecimal requiredDryMatter = BigDecimal.valueOf(calculateDryMatter(request.getCowStatus(), request.getCowTypeId()));
 
         if (!isValidPercentage(totalDryMatter, requiredDryMatter)) {
             throw new AppException(HttpStatus.BAD_REQUEST,
@@ -103,21 +105,26 @@ public class FeedMealService implements IFeedMealService {
         return savedFeedMeal;
     }
 
-    private boolean isValidPercentage(double actual, double expected) {
-        return Math.abs(actual - expected) <= 2.0;
+    private boolean isValidPercentage(BigDecimal actual, BigDecimal expected) {
+        return actual.subtract(expected).abs().compareTo(BigDecimal.ONE) <= 2.0;
     }
 
-    private double getTotalWeightByCategory(List<FeedMealDetailRequest> details, CategoryEntity category) {
+    private BigDecimal getTotalWeightByCategory(List<FeedMealDetailRequest> details, CategoryEntity category) {
         return details.stream()
-                .map(detail -> itemRepository.findById(detail.getItemId()).orElse(null))
-                .filter(Objects::nonNull)
-                .filter(item -> item.getCategoryEntity().equals(category))
-                .mapToDouble(item -> details.stream()
-                        .filter(detail -> detail.getItemId().equals(item.getItemId()))
-                        .mapToDouble(FeedMealDetailRequest::getQuantity)
-                        .sum())
-                .sum();
+                .map(detail -> {
+                    ItemEntity item = itemRepository.findById(detail.getItemId()).orElse(null);
+                    return (item != null && item.getCategoryEntity().equals(category)) ? detail.getQuantity() : BigDecimal.ZERO;
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
+    private BigDecimal calculatePercentage(BigDecimal part, BigDecimal total) {
+        if (total.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
+        return part.multiply(BigDecimal.valueOf(100))
+                .divide(total, 10, RoundingMode.HALF_UP)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
 
 
     @Override
