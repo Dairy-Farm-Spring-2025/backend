@@ -102,10 +102,10 @@ public class UserService implements IUserService {
         );
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
-        if(!userPrincipal.getUser().getEmailVerified()){
-            sendVerifyMail(userPrincipal.getUser());
-            throw new AppException(HttpStatus.UNAUTHORIZED, "Email not verified. A verification email has been sent to your registered email address.");
-        }
+//        if(!userPrincipal.getUser().getEmailVerified()){
+//            sendVerifyMail(userPrincipal.getUser());
+//            throw new AppException(HttpStatus.UNAUTHORIZED, "Email not verified. A verification email has been sent to your registered email address.");
+//        }
         if (!userPrincipal.getUser().getIsActive()) {
             throw new AppException(HttpStatus.UNAUTHORIZED, "Your account has been locked. Please contact the Dairy Farm manager for assistance.");
         }
