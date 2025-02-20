@@ -43,11 +43,7 @@ public class WarehouseLocationService implements IWarehouseLocationService {
     public WarehouseLocationEntity updateWarehouse(Long id, WarehouseUpdateRequest request) {
         WarehouseLocationEntity warehouseLocation = warehouseLocationRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Warehouse", "id", id));
-
         warehouseMapper.updateWarehouseFromRequest(request, warehouseLocation);
-
-
-
         return warehouseLocationRepository.save(warehouseLocation);
     }
 
@@ -58,6 +54,4 @@ public class WarehouseLocationService implements IWarehouseLocationService {
 
         warehouseLocationRepository.delete(warehouseLocation);
     }
-
-
 }

@@ -1,5 +1,6 @@
 package com.capstone.dfms.models;
 
+import com.capstone.dfms.models.enums.WarehouseType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,4 +20,7 @@ public class WarehouseLocationEntity extends BaseEntity{
     private String name;
 
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    private WarehouseType type;
 }
