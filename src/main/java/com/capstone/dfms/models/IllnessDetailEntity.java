@@ -2,6 +2,8 @@ package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.IllnessDetailStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 

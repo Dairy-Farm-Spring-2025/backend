@@ -19,7 +19,5 @@ public class IllnessDetailUpdateRequest {
     @Enumerated(EnumType.STRING)
     private IllnessDetailStatus status;
 
-    private Long veterinarianId;
     private Long itemId;
-    private Long illnessId;
 }

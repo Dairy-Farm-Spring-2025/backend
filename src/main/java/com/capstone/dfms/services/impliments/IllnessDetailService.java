@@ -8,6 +8,8 @@ import com.capstone.dfms.models.IllnessDetailEntity;
 import com.capstone.dfms.models.IllnessEntity;
 import com.capstone.dfms.models.ItemEntity;
 import com.capstone.dfms.models.UserEntity;
+import com.capstone.dfms.models.enums.IllnessDetailStatus;
+import com.capstone.dfms.models.enums.IllnessStatus;
 import com.capstone.dfms.repositories.IIllnessDetailRepository;
 import com.capstone.dfms.repositories.IIllnessRepository;
 import com.capstone.dfms.repositories.IItemRepository;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -86,20 +89,16 @@ public class IllnessDetailService implements IIllnessDetailService {
 
     @Override
     public List<IllnessDetailEntity> getIllnessDetailsByIllnessId(Long illnessId) {
-        return illnessDetailRepository.findByIllnessEntityIllnessId(illnessId);
+        List<IllnessDetailEntity> illnessDetailEntities = illnessDetailRepository.findByIllnessEntityIllnessId(illnessId);
+
+        illnessDetailEntities.sort(Comparator.comparing(IllnessDetailEntity::getDate));
+
+        return illnessDetailEntities;
     }
 
     @Override
     public IllnessDetailEntity updateIllnessDetail(Long id, IllnessDetailUpdateRequest updatedDetail) {
-        IllnessEntity illness = null;
         ItemEntity itemEntity = null;
-        UserEntity userEntity = null;
-
-        if(updatedDetail.getIllnessId() != null){
-            Long tempId = updatedDetail.getIllnessId();
-            illness = illnessRepository.findById(tempId)
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no illness have id" + tempId));
-        }
 
         if(updatedDetail.getItemId() != null){
             Long tempId = updatedDetail.getItemId();
@@ -109,19 +108,35 @@ public class IllnessDetailService implements IIllnessDetailService {
                 throw new AppException(HttpStatus.BAD_REQUEST, "Item is not vaccine");
         }
 
-        if(updatedDetail.getVeterinarianId() != null){
-            Long tempId = updatedDetail.getVeterinarianId();
-            userEntity = userRepository.findById(tempId)
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no user have id" + tempId));
-            if(userEntity.getRoleId().getName().equalsIgnoreCase("VETERINARIANS"))
-                throw new AppException(HttpStatus.BAD_REQUEST, "Item is not vaccine");
-        }
-
-
         IllnessDetailEntity oldIllnessDetail = this.getIllnessDetailById(id);
         mapper.updateEntityFromDto(updatedDetail, oldIllnessDetail);
 
+        UserEntity currentUser = UserStatic.getCurrentUser();
+        if(!currentUser.getRoleId().getName().equalsIgnoreCase("VETERINARIANS"))
+            throw new AppException(HttpStatus.BAD_REQUEST, "Veterinarians role is required!");
+
+        oldIllnessDetail.setVeterinarian(currentUser);
+        oldIllnessDetail.setVaccine(itemEntity);
+
         illnessDetailRepository.save(oldIllnessDetail);
+
+        if(oldIllnessDetail.getStatus().equals(IllnessDetailStatus.cured)){
+            List<IllnessDetailEntity> illnessDetailEntities = this.getIllnessDetailsByIllnessId(oldIllnessDetail.getIllnessEntity().getIllnessId());
+
+            for(IllnessDetailEntity illnessDetail : illnessDetailEntities){
+                if(illnessDetail.getDate().isAfter(oldIllnessDetail.getDate())){
+                    illnessDetail.setStatus(IllnessDetailStatus.cancel);
+                    illnessDetailRepository.save(illnessDetail);
+                }
+            }
+
+            IllnessEntity illness = oldIllnessDetail.getIllnessEntity();
+            illness.setEndDate(LocalDate.now());
+            illness.setIllnessStatus(IllnessStatus.complete);
+
+            illnessRepository.save(illness);
+        }
+
         return oldIllnessDetail;
     }
 
@@ -164,6 +179,9 @@ public class IllnessDetailService implements IIllnessDetailService {
                 System.err.println(errorMessage);
             }
         }
+
+        // Sort successes by date in ascending order.
+        successes.sort(Comparator.comparing(IllnessDetailEntity::getDate));
 
         // Return the bulk response with successes and errors.
         return CowPenBulkResponse.<IllnessDetailEntity>builder()
