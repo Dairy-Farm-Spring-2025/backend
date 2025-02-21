@@ -15,7 +15,7 @@ public interface IApplicationService {
 
     void deleteApplication(Long applicationId);
 
-    ApplicationEntity cancelApplication(Long applicationId);
+    ApplicationEntity cancelApplication(Long applicationId, ApplicationApproveRequest request);
     List<ApplicationEntity> getApplicationsByApplicationType(Long applicationTypeId);
     List<ApplicationEntity> getApplicationsByRequestBy();
 }
