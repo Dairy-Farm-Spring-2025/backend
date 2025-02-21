@@ -17,4 +17,5 @@ public class EquipmentRequest {
     private EquipmentStatus status;
     private String description;
     private Long quantity;
+    private Long locationId;
 }
