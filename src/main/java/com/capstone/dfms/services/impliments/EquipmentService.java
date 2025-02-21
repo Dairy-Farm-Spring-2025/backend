@@ -1,10 +1,13 @@
 package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.IEquipmentMapper;
 import com.capstone.dfms.models.EquipmentEntity;
+import com.capstone.dfms.models.WarehouseLocationEntity;
 import com.capstone.dfms.repositories.IEquipmentRepository;
+import com.capstone.dfms.repositories.IWarehouseLocationRepository;
 import com.capstone.dfms.requests.EquipmentRequest;
 import com.capstone.dfms.services.IEquipmentService;
 import lombok.AllArgsConstructor;
@@ -19,6 +22,7 @@ import java.util.Optional;
 public class EquipmentService implements IEquipmentService {
     private final IEquipmentRepository equipmentRepository;
     private final IEquipmentMapper equipmentMapper;
+    private final IWarehouseLocationRepository locationRepository;
 
     @Override
     public EquipmentEntity createEquipment(EquipmentRequest request) {
@@ -55,7 +59,13 @@ public class EquipmentService implements IEquipmentService {
             }
         }
 
+
         EquipmentEntity existingEquipment = getEquipmentById(id);
+        if (request.getLocationId() != null) {
+            WarehouseLocationEntity locationEntity = locationRepository.findById(request.getLocationId())
+                    .orElseThrow(() -> new DataNotFoundException("WarehouseLocation", "id", request.getLocationId()));
+            existingEquipment.setWarehouseLocationEntity(locationEntity);
+        }
         equipmentMapper.updateEntityFromDto(request, existingEquipment);
         return equipmentRepository.save(existingEquipment);
     }

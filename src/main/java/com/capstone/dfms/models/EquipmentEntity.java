@@ -28,4 +28,8 @@ public class EquipmentEntity {
     private String description;
 
     private Long quantity;
+
+    @ManyToOne
+    @JoinColumn(name = "location_id")
+    private WarehouseLocationEntity warehouseLocationEntity;
 }
