@@ -90,7 +90,7 @@ public class ApplicationService implements IApplicationService {
     }
 
     @Override
-    public ApplicationEntity cancelApplication(Long applicationId) {
+    public ApplicationEntity cancelApplication(Long applicationId, ApplicationApproveRequest request) {
         ApplicationEntity cancelApplication = this.getApplicationById(applicationId);
         UserEntity currentUser = UserStatic.getCurrentUser();
 
@@ -104,6 +104,7 @@ public class ApplicationService implements IApplicationService {
         }
 
         cancelApplication.setStatus(ApplicationStatus.cancel);
+        cancelApplication.setCommentApprove(request.getCommentApprove());
 
         return applicationRepository.save(cancelApplication);
     }

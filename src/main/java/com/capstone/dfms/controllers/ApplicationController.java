@@ -50,8 +50,8 @@ public class ApplicationController {
 
     @PreAuthorize("hasAnyRole('WORKER','VETERINARIANS','MANAGER')")
     @PutMapping("/cancel-request/{id}")
-    public CoreApiResponse<ApplicationEntity> cancelApplication(@PathVariable Long id) {
-        return CoreApiResponse.success(applicationService.cancelApplication(id));
+    public CoreApiResponse<ApplicationEntity> cancelApplication(@PathVariable Long id, @RequestBody ApplicationApproveRequest request) {
+        return CoreApiResponse.success(applicationService.cancelApplication(id, request));
     }
 
     @PreAuthorize("hasAnyRole('MANAGER')")
