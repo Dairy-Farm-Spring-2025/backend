@@ -7,7 +7,6 @@ import com.capstone.dfms.mappers.IIllnessMapper;
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.IllnessEntity;
 import com.capstone.dfms.models.UserEntity;
-import com.capstone.dfms.models.enums.IllnessStatus;
 import com.capstone.dfms.repositories.ICowRepository;
 import com.capstone.dfms.repositories.IIllnessRepository;
 import com.capstone.dfms.requests.IllnessPrognosisRequest;
@@ -36,7 +35,6 @@ public class IllnessService implements IIllnessService {
     public IllnessEntity createIllness(IllnessEntity illness) {
         CowEntity cowEntity = this.findCowEntity(illness.getCowEntity().getCowId());
         illness.setCowEntity(cowEntity);
-        illness.setIllnessStatus(IllnessStatus.processing);
         illness.setUserEntity(UserStatic.getCurrentUser());
         return illnessRepository.save(illness);
     }
