@@ -40,6 +40,8 @@ public class IllnessDetailService implements IIllnessDetailService {
 
     @Override
     public IllnessDetailEntity createIllnessDetail(IllnessDetailEntity detail, boolean isVet) {
+
+
         IllnessEntity illness = null;
         ItemEntity itemEntity = null;
         UserEntity userEntity = null;
@@ -48,6 +50,7 @@ public class IllnessDetailService implements IIllnessDetailService {
             Long id = detail.getIllnessEntity().getIllnessId();
             illness = illnessRepository.findById(id)
                     .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no illness have id" + id));
+            this.checkValidateTreatmentPlan(illness);
             detail.setIllnessEntity(illness);
         }
 
@@ -110,6 +113,8 @@ public class IllnessDetailService implements IIllnessDetailService {
 
         IllnessDetailEntity oldIllnessDetail = this.getIllnessDetailById(id);
         mapper.updateEntityFromDto(updatedDetail, oldIllnessDetail);
+
+        this.checkValidateTreatmentPlan(oldIllnessDetail.getIllnessEntity());
 
         UserEntity currentUser = UserStatic.getCurrentUser();
         if(!currentUser.getRoleId().getName().equalsIgnoreCase("VETERINARIANS"))
@@ -199,6 +204,15 @@ public class IllnessDetailService implements IIllnessDetailService {
 
         mapper.updateEntityFromDto(request, oldIllnessDetail);
         return oldIllnessDetail;
+    }
+
+    private void checkValidateTreatmentPlan(IllnessEntity illness){
+        IllnessStatus illnessStatus = illness.getIllnessStatus();
+        if(illnessStatus != null) {
+            if (!illnessStatus.equals(IllnessStatus.processing)) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "No further to report illness treatment or create new plan!");
+            }
+        }
     }
 
 }
