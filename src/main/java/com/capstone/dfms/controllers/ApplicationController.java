@@ -54,7 +54,7 @@ public class ApplicationController {
         return CoreApiResponse.success(applicationService.cancelApplication(id, request));
     }
 
-//    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/by-type/{typeId}")
     public CoreApiResponse<List<ApplicationEntity>> getApplicationsByApplicationType(@PathVariable Long typeId) {
         return CoreApiResponse.success(applicationService.getApplicationsByApplicationType(typeId));
