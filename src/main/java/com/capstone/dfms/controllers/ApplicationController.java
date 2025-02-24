@@ -54,15 +54,15 @@ public class ApplicationController {
         return CoreApiResponse.success(applicationService.cancelApplication(id, request));
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER')")
+//    @PreAuthorize("hasAnyRole('MANAGER')")
     @GetMapping("/by-type/{typeId}")
-    public List<ApplicationEntity> getApplicationsByApplicationType(@PathVariable Long typeId) {
-        return applicationService.getApplicationsByApplicationType(typeId);
+    public CoreApiResponse<List<ApplicationEntity>> getApplicationsByApplicationType(@PathVariable Long typeId) {
+        return CoreApiResponse.success(applicationService.getApplicationsByApplicationType(typeId));
     }
 
     @PreAuthorize("hasAnyRole('WORKER','VETERINARIANS')")
     @GetMapping("/my-request")
-    public List<ApplicationEntity> getApplicationsByRequestBy() {
-        return applicationService.getApplicationsByRequestBy();
+    public CoreApiResponse<List<ApplicationEntity>> getApplicationsByRequestBy() {
+        return CoreApiResponse.success(applicationService.getApplicationsByRequestBy());
     }
 }
