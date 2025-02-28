@@ -90,9 +90,18 @@ public class AreaServices implements IAreaServices {
     @Override
     public List<AreaResponse> getAllAreas() {
         List<AreaEntity> areaEntities = areaRepository.findAll();
-        return areaEntities.stream()
-                .map(areaMapper::toResponse)
-                .toList();
+
+        return areaEntities.stream().map(area -> {
+            long occupied = penRepository.countPensByStatus(area.getAreaId(), PenStatus.occupied);
+            long empty = penRepository.countPensByStatus(area.getAreaId(), PenStatus.empty);
+            long underMaintenance = penRepository.countPensByStatus(area.getAreaId(), PenStatus.underMaintenance);
+
+            AreaResponse response = IAreaMapper.INSTANCE.toResponse(area);
+            response.setOccupiedPens(occupied);
+            response.setEmptyPens(empty);
+            response.setDamagedPens(underMaintenance);
+            return response;
+        }).toList();
     }
 
     //----------------------------------------------------------------
