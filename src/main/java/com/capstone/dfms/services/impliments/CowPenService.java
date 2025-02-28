@@ -168,7 +168,6 @@ public class CowPenService implements ICowPenService {
         List<Long> cowEntities = cowPenBulkRequest.getCowEntities();
         List<Long> penEntities = cowPenBulkRequest.getPenEntities();
         LocalDate fromDate = LocalDate.now();
-        LocalDate toDate = cowPenBulkRequest.getToDate();
 
         if (cowEntities == null || penEntities == null || cowEntities.isEmpty() || penEntities.isEmpty()) {
             throw new AppException(HttpStatus.BAD_REQUEST,"Cow entities and pen entities cannot be null or empty.");
@@ -201,7 +200,6 @@ public class CowPenService implements ICowPenService {
             CowPenPK cowPenPK = new CowPenPK(pen.getPenId(), cow.getCowId(), fromDate);
             CowPenEntity cowPenEntity = new CowPenEntity();
             cowPenEntity.setId(cowPenPK);
-            cowPenEntity.setToDate(toDate);
             cowPenEntity.setCowEntity(cow);
             cowPenEntity.setPenEntity(pen);
             cowPenEntity.setStatus(PenCowStatus.inPen);
@@ -271,7 +269,6 @@ public class CowPenService implements ICowPenService {
             oldPen.setPenStatus(PenStatus.empty);
             penRepository.save(oldPen);
         }
-
 
         if (penEntity.getPenStatus() == PenStatus.occupied) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Pen is not available!");
