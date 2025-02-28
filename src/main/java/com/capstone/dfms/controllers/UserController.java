@@ -41,7 +41,7 @@ public class UserController {
             @Valid @RequestBody CreateAccountRequest accountRequest
     ){
          userService.createAccount(INSTANCE.toModel(accountRequest));
-        return CoreApiResponse.success("Create account successfully");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("user.create.successfully"));
     }
 
     @PostMapping("/signin")
@@ -53,9 +53,8 @@ public class UserController {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
-        String message = localizationUtils.getMessage("user.login.login_successfully");
 
-        return CoreApiResponse.success(signIn, message);
+        return CoreApiResponse.success(signIn, LocalizationUtils.getMessage("user.login.login_successfully"));
     }
 
     @GetMapping("/verify")
@@ -87,7 +86,7 @@ public class UserController {
             @Valid @RequestParam String email
     ){
         userService.sendMailForgotPassword(email);
-        return CoreApiResponse.success("Check your mail");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("user.forgot_password"));
     }
 
     @PutMapping("/setpassword")
@@ -97,7 +96,7 @@ public class UserController {
             @RequestBody UserForgotPasswordRequest request
     ){
         userService.setPassword(userId, token, request);
-        return CoreApiResponse.success("Change password successfully!");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("user.password.change"));
     }
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("/changepassword")
@@ -105,7 +104,7 @@ public class UserController {
             @RequestBody UserChangePasswordRequest request
     ){
         userService.changePassword(request);
-        return CoreApiResponse.success("Change password successfully!");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("user.password.change"));
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
@@ -119,7 +118,7 @@ public class UserController {
     public CoreApiResponse<UserEntity> updateUser(
             @Valid @ModelAttribute PersonalUpdateRequest updateUserRequest,
             @RequestParam(name = "imageAvatar", required = false) MultipartFile imageAvatar) throws IOException {
-        return CoreApiResponse.success(userService.updatePersonalInformation(updateUserRequest,imageAvatar),"Succes");
+        return CoreApiResponse.success(userService.updatePersonalInformation(updateUserRequest,imageAvatar),LocalizationUtils.getMessage("user.update.info"));
     }
 
     @GetMapping("/all")
@@ -147,19 +146,19 @@ public class UserController {
     @PutMapping("/ban/{id}")
     public CoreApiResponse<?> banUser(@PathVariable Long id) {
         userService.banUser(id);
-        return CoreApiResponse.success("Lock account successfully!");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("user.update.lock"));
     }
 
     @PutMapping("/unban/{id}")
     public CoreApiResponse<?> unbanUser(@PathVariable Long id) {
         userService.unbanUser(id);
-        return CoreApiResponse.success("Unlock account successfully!");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("user.update.unlock"));
     }
 
     @PutMapping("/onleave/{id}")
     public CoreApiResponse<?> updateUser(@PathVariable Long id) {
         userService.updateOnLeave(id);
-        return CoreApiResponse.success("Update status user successfully!");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("user.update.status"));
     }
 
     @GetMapping("/roles")
@@ -170,7 +169,7 @@ public class UserController {
     @PutMapping("/changerole/{userId}/{roleId}")
     public CoreApiResponse<?> changeUserRole(@PathVariable Long userId, @PathVariable Long roleId ) {
          userService.changeUserRole(userId,roleId);
-        return CoreApiResponse.success("Update user role successfully");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("user.update.role"));
     }
 
     private boolean isValidToken(String token) {
