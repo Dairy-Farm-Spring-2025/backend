@@ -5,10 +5,12 @@ import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.IPenMapper;
 import com.capstone.dfms.models.AreaEntity;
 import com.capstone.dfms.models.PenEntity;
+import com.capstone.dfms.models.enums.PenStatus;
 import com.capstone.dfms.repositories.IAreaRepository;
 import com.capstone.dfms.repositories.IPenRepository;
 import com.capstone.dfms.requests.PenUpdateRequest;
 import com.capstone.dfms.responses.PenResponse;
+import com.capstone.dfms.responses.PenStatusCountResponse;
 import com.capstone.dfms.services.IPenServices;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -93,6 +95,20 @@ public class PenServices implements IPenServices {
     @Override
     public List<PenEntity> getAvailablePens(LocalDate currentDate) {
         return penRepository.findAvailablePens(currentDate);
+    }
+
+    @Override
+    public List<PenEntity> getPenByArea(Long areaId) {
+        return penRepository.findByArea(areaId);
+    }
+
+    @Override
+    public PenStatusCountResponse getPenStatusCountByArea(Long areaId) {
+        long occupied = penRepository.countPensByStatus(areaId, PenStatus.occupied);
+        long empty = penRepository.countPensByStatus(areaId, PenStatus.empty);
+        long underMaintenance = penRepository.countPensByStatus(areaId, PenStatus.underMaintenance);
+
+        return new PenStatusCountResponse(occupied, empty, underMaintenance);
     }
 
 

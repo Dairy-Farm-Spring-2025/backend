@@ -20,7 +20,7 @@ public class ApplicationController {
     @PreAuthorize("hasAnyRole('WORKER','VETERINARIANS')")
     @PostMapping("/request")
     public CoreApiResponse<ApplicationEntity> requestApplication(@RequestBody ApplicationCreateRequest request) {
-        return CoreApiResponse.success(applicationService.createApplication(request));
+        return CoreApiResponse.success(applicationService.createApplication(request),"");
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")

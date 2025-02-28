@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.MilkBatchEntity;
 import com.capstone.dfms.requests.MilkBatchRequest;
@@ -24,7 +25,7 @@ public class MilkBatchController {
     public CoreApiResponse<?> createMilkBatch(
             @RequestBody @RequestParam(name = "dailyMilkIds", required = false) List<Long> dailyMilkIds) {
         milkBatchService.createMilkBatch(dailyMilkIds);
-        return CoreApiResponse.success("Milk batch created successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("milk.batch.create.success"));
     }
 
     @GetMapping("/dailymilks/{milkBatchId}")
@@ -38,7 +39,7 @@ public class MilkBatchController {
             @PathVariable Long milkBatchId,
             @RequestBody UpdateMilkBatchRequest request) {
         milkBatchService.updateMilkBatch(milkBatchId, request.getDailyMilkIdsToAdd(), request.getDailyMilkIdsToRemove());
-        return CoreApiResponse.success("Milk Batch updated successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("milk.batch.update.success"));
     }
 
     @GetMapping
@@ -56,7 +57,7 @@ public class MilkBatchController {
             @PathVariable Long id
     ){
         milkBatchService.deleteMilkBatch(id);
-        return CoreApiResponse.success("Delete milk batch successfully");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("milk.batch.delete.success"));
     }
 
 
@@ -64,7 +65,7 @@ public class MilkBatchController {
     @PostMapping("/create")
     public CoreApiResponse<MilkBatchEntity> createMilkBatchWithDailyMilks(@RequestBody @Valid MilkBatchRequest request) {
         MilkBatchEntity milkBatch = milkBatchService.createMilkBatchWithDailyMilks(request);
-        return CoreApiResponse.success(milkBatch);
+        return CoreApiResponse.success(milkBatch,LocalizationUtils.getMessage("milk.batch.create.success"));
     }
 
 }

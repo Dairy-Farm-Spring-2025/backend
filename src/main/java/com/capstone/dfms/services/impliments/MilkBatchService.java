@@ -3,6 +3,7 @@ package com.capstone.dfms.services.impliments;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.securities.UserPrincipal;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.MilkBatchEntity;
@@ -31,7 +32,7 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class MilkBatchService implements IMilkBatchService {
-    private  final IMilkBatchRepository milkBatchRepository;
+    private final IMilkBatchRepository milkBatchRepository;
 
     private final IDailyMilkRepository dailyMilkRepository;
 
@@ -55,7 +56,8 @@ public class MilkBatchService implements IMilkBatchService {
         for (Long dailyMilkId : dailyMilkIds) {
             DailyMilkEntity dailyMilk = dailyMilkRepository
                     .findById(dailyMilkId)
-                    .orElseThrow(() -> new DataNotFoundException("Daily Milk", "id", dailyMilkId));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                            LocalizationUtils.getMessage("milk.batch.daily.milk.not.found", dailyMilkId)));
 
             if (referenceDate == null && referenceShift == null) {
                 referenceDate = dailyMilk.getMilkDate();
@@ -63,11 +65,12 @@ public class MilkBatchService implements IMilkBatchService {
             } else {
                 if (!dailyMilk.getMilkDate().equals(referenceDate)) {
                     throw new AppException(HttpStatus.BAD_REQUEST,
-                            "All daily milk entries must have the same milk date.");
+                            LocalizationUtils.getMessage("milk.batch.daily.milk.same.date")
+                    );
                 }
                 if (!dailyMilk.getShift().equals(referenceShift)) {
                     throw new AppException(HttpStatus.BAD_REQUEST,
-                            "All daily milk entries must have the same milk shift.");
+                            LocalizationUtils.getMessage("milk.batch.daily.milk.same.shift"));
                 }
             }
 
@@ -77,11 +80,6 @@ public class MilkBatchService implements IMilkBatchService {
         long totalVolume = dailyMilks.stream()
                 .mapToLong(DailyMilkEntity::getVolume)
                 .sum();
-
-//        if (totalVolume > 20L) {
-//            throw new AppException(HttpStatus.BAD_REQUEST,
-//                    "The total volume of the milk batch must not exceed 20 liters.");
-//        }
 
         milkBatch.setTotalVolume(totalVolume);
         MilkBatchEntity batch = milkBatchRepository.save(milkBatch);
@@ -96,8 +94,8 @@ public class MilkBatchService implements IMilkBatchService {
     @Override
     public List<DailyMilkEntity> getDailyMilksInBatch(Long milkBatchId) {
         MilkBatchEntity milkBatch = milkBatchRepository.findById(milkBatchId)
-                .orElseThrow(() -> new DataNotFoundException("Milk Batch", "id", milkBatchId));
-
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                        LocalizationUtils.getMessage("milk.batch.not.found", milkBatchId)));
         return dailyMilkRepository.findByMilkBatch(milkBatch);
     }
 
@@ -110,13 +108,13 @@ public class MilkBatchService implements IMilkBatchService {
     public MilkBatchEntity getMilkBatchById(Long id) {
         return milkBatchRepository.findById(id)
                 .orElseThrow(()
-                        -> new DataNotFoundException("Milk batch", "id", id));
+                        -> new AppException(HttpStatus.BAD_REQUEST,LocalizationUtils.getMessage("milk.batch.not.found", id)));
     }
 
     @Override
     public void deleteMilkBatch(Long id) {
         MilkBatchEntity existingEntity = milkBatchRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Milk Batch", "id", id));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,LocalizationUtils.getMessage("milk.batch.not.found", id)));
 
         List<DailyMilkEntity> relatedDailyMilks = dailyMilkRepository.findByMilkBatch(existingEntity);
 
@@ -130,17 +128,17 @@ public class MilkBatchService implements IMilkBatchService {
     @Override
     public void updateMilkBatch(Long milkBatchId, List<Long> dailyMilkIdsToAdd, List<Long> dailyMilkIdsToRemove) {
         MilkBatchEntity milkBatch = milkBatchRepository.findById(milkBatchId)
-                .orElseThrow(() -> new DataNotFoundException("Milk Batch", "id", milkBatchId));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,LocalizationUtils.getMessage("milk.batch.not.found", milkBatchId)));
 
         List<DailyMilkEntity> currentDailyMilks = dailyMilkRepository.findByMilkBatch(milkBatch);
 
         if (dailyMilkIdsToRemove != null && !dailyMilkIdsToRemove.isEmpty()) {
             for (Long dailyMilkId : dailyMilkIdsToRemove) {
                 DailyMilkEntity dailyMilk = dailyMilkRepository.findById(dailyMilkId)
-                        .orElseThrow(() -> new DataNotFoundException("Daily Milk", "id", dailyMilkId));
+                        .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,LocalizationUtils.getMessage("milk.batch.not.found", dailyMilkId)));
                 if (!currentDailyMilks.contains(dailyMilk)) {
                     throw new AppException(HttpStatus.BAD_REQUEST,
-                            "Daily Milk ID " + dailyMilkId + " is not part of this Milk Batch.");
+                            LocalizationUtils.getMessage("milk.batch.daily.milk.not.in.batch"));
                 }
                 dailyMilk.setMilkBatch(null);
                 dailyMilk.setStatus(DailyMilkStatus.pending);
@@ -151,10 +149,11 @@ public class MilkBatchService implements IMilkBatchService {
         if (dailyMilkIdsToAdd != null && !dailyMilkIdsToAdd.isEmpty()) {
             for (Long dailyMilkId : dailyMilkIdsToAdd) {
                 DailyMilkEntity dailyMilk = dailyMilkRepository.findById(dailyMilkId)
-                        .orElseThrow(() -> new DataNotFoundException("Daily Milk", "id", dailyMilkId));
+                        .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                                LocalizationUtils.getMessage("milk.batch.daily.milk.not.found", dailyMilkId)));
                 if (dailyMilk.getMilkBatch() != null) {
                     throw new AppException(HttpStatus.BAD_REQUEST,
-                            "Daily Milk ID " + dailyMilkId + " already belongs to another Milk Batch.");
+                            LocalizationUtils.getMessage("milk.batch.daily.milk.already.in.batch"));
                 }
                 dailyMilk.setMilkBatch(milkBatch);
                 dailyMilk.setStatus(DailyMilkStatus.inMilkBatch);
@@ -164,10 +163,7 @@ public class MilkBatchService implements IMilkBatchService {
 
         List<DailyMilkEntity> updatedDailyMilks = dailyMilkRepository.findByMilkBatch(milkBatch);
         long totalVolume = updatedDailyMilks.stream().mapToLong(DailyMilkEntity::getVolume).sum();
-//        if (totalVolume > 20L) {
-//            throw new AppException(HttpStatus.BAD_REQUEST,
-//                    "The total volume of the milk batch must not exceed 20 liters.");
-//        }
+
         milkBatch.setTotalVolume(totalVolume);
         milkBatchRepository.save(milkBatch);
     }

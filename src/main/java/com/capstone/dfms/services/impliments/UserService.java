@@ -6,6 +6,7 @@ import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.securities.TokenProvider;
 import com.capstone.dfms.components.securities.UserPrincipal;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.PasswordUtils;
 import com.capstone.dfms.components.utils.UploadImagesUtils;
 import com.capstone.dfms.mappers.UserMapper;
@@ -68,7 +69,7 @@ public class UserService implements IUserService {
         Optional<UserEntity> userOptional = userRepository.findByEmail(user.getEmail());
 
         if(userOptional.isPresent()) {
-                throw new AppException(HttpStatus.CONFLICT,"Email already exists");
+                throw new AppException(HttpStatus.CONFLICT, LocalizationUtils.getMessage("user.create.exist"));
 
         }
         String defaultPassword = PasswordUtils.generateRandomString(8);
@@ -81,7 +82,7 @@ public class UserService implements IUserService {
         user.setStatus(UserStatus.active);
 
         RoleEntity role = roleRepository.findById(user.getRoleId().getId()).orElseThrow(()
-                -> new AppException(HttpStatus.NOT_FOUND,"Role not found"));
+                -> new AppException(HttpStatus.NOT_FOUND,LocalizationUtils.getMessage("user.login.role_not_exist")));
         user.setRoleId(role);
 
         String employeeNumber = generateEmployeeNumberByRole(role.getId());
@@ -107,7 +108,7 @@ public class UserService implements IUserService {
 //            throw new AppException(HttpStatus.UNAUTHORIZED, "Email not verified. A verification email has been sent to your registered email address.");
 //        }
         if (!userPrincipal.getUser().getIsActive()) {
-            throw new AppException(HttpStatus.UNAUTHORIZED, "Your account has been locked. Please contact the Dairy Farm manager for assistance.");
+            throw new AppException(HttpStatus.UNAUTHORIZED, LocalizationUtils.getMessage("user.login.user_is_locked"));
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -171,7 +172,7 @@ public class UserService implements IUserService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         else{
-            throw new AppException(HttpStatus.BAD_REQUEST, "Confirmed password is wrong");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("user.update.lock"));
         }
         userRepository.save(user);
     }
@@ -203,11 +204,11 @@ public class UserService implements IUserService {
 
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Old password incorrect");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("user.password_not_match"));
         }
 
         if (!request.getNewPassword().equals(request.getConfirmedPassword())) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Confirm password do not match");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("user.password_validate"));
         }
         user.setChangePassword(true);
 
@@ -233,7 +234,7 @@ public class UserService implements IUserService {
             LocalDate now = LocalDate.now();
             int age = Period.between(dob, now).getYears();
             if (age < 18) {
-                throw new AppException(HttpStatus.BAD_REQUEST,"User must be at least 18 years old.");
+                throw new AppException(HttpStatus.BAD_REQUEST,LocalizationUtils.getMessage("user.dob_validate"));
             }
         }
         UserMapper.INSTANCE.updateUserFromRequest(update, user);
@@ -309,10 +310,10 @@ public class UserService implements IUserService {
     @Override
     public UserEntity changeUserRole(Long userId,Long roleId) {
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.not_exist")));
 
         RoleEntity newRole = roleRepository.findById(roleId)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Role not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
 
         user.setRoleId(newRole);
         userRepository.save(user);
