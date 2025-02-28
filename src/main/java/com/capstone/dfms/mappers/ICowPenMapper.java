@@ -16,7 +16,7 @@ public interface ICowPenMapper {
 
     @Mapping(source = "penId", target = "id.penId")
     @Mapping(source = "cowId", target = "id.cowId")
-    @Mapping(source = "fromDate", target = "id.fromDate")
+    //@Mapping(source = "fromDate", target = "id.fromDate")
     CowPenEntity toModel(CowPenCreateRequest request);
 
     CowPenEntity toModel(CowPenUpdateRequest request);
