@@ -25,4 +25,11 @@ public interface IPenRepository extends JpaRepository<PenEntity, Long> {
 
     @Query("SELECT p FROM PenEntity p WHERE p.penStatus = :status")
     List<PenEntity> getPenWithStatus(@Param("status") PenStatus status);
+
+    @Query("SELECT COUNT(p) FROM PenEntity p WHERE p.areaBelongto.areaId = :areaId AND p.penStatus = :status")
+    long countPensByStatus(@Param("areaId") Long areaId, @Param("status") PenStatus status);
+
+    @Query("SELECT p FROM PenEntity p WHERE p.areaBelongto.areaId = :areaId")
+    List<PenEntity> findByArea(@Param("areaId") Long areaId);
+
 }

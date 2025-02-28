@@ -5,6 +5,7 @@ import com.capstone.dfms.models.PenEntity;
 import com.capstone.dfms.requests.PenCreateRequest;
 import com.capstone.dfms.requests.PenUpdateRequest;
 import com.capstone.dfms.responses.PenResponse;
+import com.capstone.dfms.responses.PenStatusCountResponse;
 import com.capstone.dfms.services.IPenServices;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -56,5 +57,16 @@ public class PenController {
 
         // Return the response
         return CoreApiResponse.success(availablePens);
+    }
+
+    @GetMapping("/area/{id}")
+    public CoreApiResponse<List<PenEntity>> getPenByArea(@PathVariable Long id) {
+        return CoreApiResponse.success(penServices.getPenByArea(id));
+    }
+
+    @GetMapping("/status-count/{areaId}")
+    public CoreApiResponse<PenStatusCountResponse> getPenStatusCount(@PathVariable Long areaId) {
+        PenStatusCountResponse result = penServices.getPenStatusCountByArea(areaId);
+        return CoreApiResponse.success(result);
     }
 }
