@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @EnableJpaRepositories
 public interface ICowPenRepository extends JpaRepository<CowPenEntity, CowPenPK> {
@@ -47,5 +48,8 @@ public interface ICowPenRepository extends JpaRepository<CowPenEntity, CowPenPK>
 
     @Query("SELECT cp FROM CowPenEntity cp WHERE cp.status = :status")
     List<CowPenEntity> findByStatus(@Param("status") PenCowStatus status);
+
+    @Query("SELECT c FROM CowPenEntity c WHERE c.id.cowId = :cowId ORDER BY c.id.fromDate DESC LIMIT 1")
+    Optional<CowPenEntity> findLatestCowPenByCowId(@Param("cowId") Long cowId);
 
 }

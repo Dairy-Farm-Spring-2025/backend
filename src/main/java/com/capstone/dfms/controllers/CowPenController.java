@@ -28,6 +28,12 @@ public class CowPenController {
         return CoreApiResponse.success(response);
     }
 
+    @PostMapping("/create")
+    public CoreApiResponse<CowPenResponse> createCowPen(@Valid @RequestBody CowPenCreateRequest request) {
+        CowPenResponse response = cowPenService.createCowPen(INSTANCE.toModel(request));
+        return CoreApiResponse.success(response);
+    }
+
     @GetMapping
     public CoreApiResponse<List<CowPenResponse>> getAll() {
         List<CowPenResponse> responseList = cowPenService.getAll();

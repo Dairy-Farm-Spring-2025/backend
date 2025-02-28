@@ -36,6 +36,7 @@ public class PenServices implements IPenServices {
         AreaEntity area = areaRepository.findById(request.getAreaBelongto().getAreaId())
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Area not found."));
         request.setAreaBelongto(area);
+        request.setPenStatus(PenStatus.empty);
         PenEntity savedPen = penRepository.save(request);
         return penMapper.toResponse(savedPen);
     }

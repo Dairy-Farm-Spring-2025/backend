@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface ICowPenService {
     CowPenResponse create(CowPenEntity request);
+    CowPenResponse createCowPen(CowPenEntity request);
     List<CowPenResponse> getAll();
     CowPenResponse getById(Long penId, Long cowId, LocalDate fromDate);
     CowPenResponse update(Long penId, Long cowId, LocalDate fromDate, CowPenEntity updatedRequest);

@@ -1,8 +1,10 @@
 package com.capstone.dfms.requests;
 
 import com.capstone.dfms.models.enums.PenCowStatus;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +22,7 @@ public class CowPenCreateRequest {
     @NotNull(message = "Cow ID cannot be null")
     private Long cowId;
 
-    @NotNull(message = "From date cannot be null")
-    @Future(message = "From date must be in the future")
-    private LocalDate fromDate;
+    @JsonInclude(JsonInclude.Include.NON_NULL) // Chỉ serialize nếu không null
+    private LocalDate toDate;
+
 }
