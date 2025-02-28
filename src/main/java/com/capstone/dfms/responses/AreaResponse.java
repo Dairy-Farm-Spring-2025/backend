@@ -23,4 +23,7 @@ public class AreaResponse {
     private AreaType areaType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private long occupiedPens;  
+    private long emptyPens;
+    private long damagedPens;
 }

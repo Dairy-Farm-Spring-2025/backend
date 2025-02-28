@@ -4,7 +4,9 @@ import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.IAreaMapper;
 import com.capstone.dfms.models.AreaEntity;
+import com.capstone.dfms.models.enums.PenStatus;
 import com.capstone.dfms.repositories.IAreaRepository;
+import com.capstone.dfms.repositories.IPenRepository;
 import com.capstone.dfms.requests.AreaUpdateRequest;
 import com.capstone.dfms.responses.AreaResponse;
 import com.capstone.dfms.services.IAreaServices;
@@ -20,6 +22,8 @@ import java.util.List;
 public class AreaServices implements IAreaServices {
     private final IAreaRepository areaRepository;
     private final IAreaMapper areaMapper;
+    private final IPenRepository penRepository;
+
 
     @Override
     public AreaResponse createArea(AreaEntity request) {
@@ -68,9 +72,19 @@ public class AreaServices implements IAreaServices {
 
     @Override
     public AreaResponse getAreaById(Long id) {
+
         AreaEntity areaEntity = areaRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Area with ID '" + id + "' not found."));
-        return areaMapper.toResponse(areaEntity);
+
+        long occupied = penRepository.countPensByStatus(id, PenStatus.occupied);
+        long empty = penRepository.countPensByStatus(id, PenStatus.empty);
+        long underMaintenance = penRepository.countPensByStatus(id, PenStatus.underMaintenance);
+        AreaResponse response = IAreaMapper.INSTANCE.toResponse(areaEntity);
+        response.setOccupiedPens(occupied);
+        response.setEmptyPens(empty);
+        response.setDamagedPens(underMaintenance);
+        return response;
+
     }
 
     @Override
