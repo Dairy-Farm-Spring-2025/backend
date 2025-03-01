@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static com.capstone.dfms.mappers.ICowPenMapper.INSTANCE;
@@ -46,7 +48,8 @@ public class CowPenController {
             @PathVariable Long penId,
             @PathVariable Long cowId,
             @PathVariable String fromDate) {
-        LocalDate date = LocalDate.parse(fromDate); // Convert String to LocalDate
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime date = LocalDateTime.parse(fromDate, formatter);
         CowPenResponse response = cowPenService.getById(penId, cowId, date);
         return CoreApiResponse.success(response);
     }
@@ -56,10 +59,10 @@ public class CowPenController {
     public CoreApiResponse<CowPenResponse> update(
             @PathVariable Long penId,
             @PathVariable Long cowId,
-            @PathVariable String fromDate,
+            @PathVariable LocalDateTime fromDate,
             @RequestBody CowPenUpdateRequest request) {
-        LocalDate date = LocalDate.parse(fromDate); // Convert String to LocalDate
-        CowPenResponse response = cowPenService.update(penId, cowId, date, INSTANCE.toModel(request));
+//        LocalDate date = LocalDate.parse(fromDate);
+        CowPenResponse response = cowPenService.update(penId, cowId, fromDate, INSTANCE.toModel(request));
         return CoreApiResponse.success(response);
     }
 
@@ -68,9 +71,8 @@ public class CowPenController {
     public CoreApiResponse<Void> delete(
             @PathVariable Long penId,
             @PathVariable Long cowId,
-            @PathVariable String fromDate) {
-        LocalDate date = LocalDate.parse(fromDate); // Convert String to LocalDate
-        cowPenService.delete(penId, cowId, date);
+            @PathVariable LocalDateTime fromDate) {
+        cowPenService.delete(penId, cowId, fromDate);
         return CoreApiResponse.success("Delete successfully");
     }
 
@@ -88,7 +90,6 @@ public class CowPenController {
         return CoreApiResponse.success(response);
     }
 
-    //===========================================================================================
 //    @GetMapping("/approve")
 //    public CoreApiResponse<CowPenResponse> approve(
 //            @Valid @RequestBody CowPenApproveRequest cowPenApproveRequest) {
@@ -104,10 +105,9 @@ public class CowPenController {
     public CoreApiResponse<CowPenResponse> approve(
             @PathVariable Long penId,
             @PathVariable Long cowId,
-            @PathVariable String fromDate,
+            @PathVariable LocalDateTime fromDate,
             @PathVariable boolean approval) {
-        LocalDate date = LocalDate.parse(fromDate); // Convert String to LocalDate
-        CowPenResponse cowPenResponse = cowPenService.approveOrRejectMovePen(penId, cowId, date, approval);
+        CowPenResponse cowPenResponse = cowPenService.approveOrRejectMovePen(penId, cowId, fromDate, approval);
         return CoreApiResponse.success(cowPenResponse);
     }
 
