@@ -22,12 +22,22 @@ public class CowEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cowId;
     private String name;
+
+    @Enumerated(EnumType.STRING)
     private CowStatus cowStatus;
+
     private LocalDate dateOfBirth;
+
     private LocalDate dateOfEnter;
+
     private LocalDate dateOfOut;
+
     private String description;
+
+    @Enumerated(EnumType.STRING)
     private CowOrigin cowOrigin;
+
+    @Enumerated(EnumType.STRING)
     private Gender gender;
 
     @ManyToOne

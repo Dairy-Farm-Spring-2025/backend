@@ -8,6 +8,7 @@ import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.MilkBatchEntity;
 import com.capstone.dfms.models.UserEntity;
+import com.capstone.dfms.models.enums.CowStatus;
 import com.capstone.dfms.models.enums.DailyMilkStatus;
 import com.capstone.dfms.models.enums.MilkBatchStatus;
 import com.capstone.dfms.models.enums.MilkShift;
@@ -27,7 +28,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -170,6 +173,14 @@ public class MilkBatchService implements IMilkBatchService {
 
     @Override
     public MilkBatchEntity createMilkBatchWithDailyMilks(MilkBatchRequest request) {
+
+        Set<Long> cowIdSet = new HashSet<>();
+        for (DailyMilkRequest dailyMilkRequest : request.getDailyMilks()) {
+            if (!cowIdSet.add(dailyMilkRequest.getCowId())) {
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        "Duplicate cowId found: " + dailyMilkRequest.getCowId());
+            }
+        }
         MilkBatchEntity milkBatch = MilkBatchEntity.builder()
                 .totalVolume(0L)
                 .date(LocalDateTime.now())
@@ -178,7 +189,6 @@ public class MilkBatchService implements IMilkBatchService {
                 .dailyMilks(new ArrayList<>())
                 .build();
 
-        milkBatch = milkBatchRepository.save(milkBatch);
 
         long totalVolume = 0;
 
@@ -186,6 +196,16 @@ public class MilkBatchService implements IMilkBatchService {
             CowEntity cow = cowRepository.findById(dailyMilkRequest.getCowId())
                     .orElseThrow(() -> new DataNotFoundException("Cow", "id", dailyMilkRequest.getCowId()));
 
+            long milkCountToday = dailyMilkRepository.countByCowAndMilkDate(cow, LocalDate.now());
+            if (milkCountToday >= 2) {
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        LocalizationUtils.getMessage("milk.create.error.limit"));
+            }
+
+            if (cow.getCowStatus() != CowStatus.milkingCow) {
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        LocalizationUtils.getMessage("milk.create.error.status"));
+            }
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
             UserEntity user = userPrincipal.getUser();
@@ -200,10 +220,12 @@ public class MilkBatchService implements IMilkBatchService {
                     .milkBatch(milkBatch)
                     .build();
 
+            milkBatch = milkBatchRepository.save(milkBatch);
             totalVolume += dailyMilk.getVolume();
             milkBatch.getDailyMilks().add(dailyMilk);
             dailyMilkRepository.save(dailyMilk);
         }
+
 
         milkBatch.setTotalVolume(totalVolume);
         return milkBatchRepository.save(milkBatch);
