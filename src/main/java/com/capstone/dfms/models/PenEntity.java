@@ -20,7 +20,6 @@ public class PenEntity extends BaseEntity {
 
     private String name;
     private String description;
-    private PenType penType;
 //    private float length;
 //    private float width;
 

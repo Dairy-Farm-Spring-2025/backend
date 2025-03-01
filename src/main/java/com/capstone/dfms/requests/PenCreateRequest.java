@@ -19,9 +19,6 @@ public class PenCreateRequest {
     @NotBlank(message = "Description is required.")
     private String description;
 
-    @NotNull(message = "Pen type is required.")
-    private PenType penType;
-
 //    @Positive(message = "Length must be a positive number.")
 //    private float length;
 //
