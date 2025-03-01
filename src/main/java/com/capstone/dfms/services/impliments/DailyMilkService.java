@@ -3,6 +3,7 @@ package com.capstone.dfms.services.impliments;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.securities.UserPrincipal;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.MilkBatchEntity;
@@ -40,18 +41,18 @@ public class DailyMilkService implements IDailyMilkService {
 
     @Override
     public void createDailyMilk(DailyMilkEntity dailyMilk) {
-
-
         CowEntity cow = cowRepository.findById(dailyMilk.getCow().getCowId()).orElseThrow(()
                 -> new AppException(HttpStatus.OK,"Cow not found"));
 
         long milkCountToday = dailyMilkRepository.countByCowAndMilkDate(cow, LocalDate.now());
         if (milkCountToday >= 2) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "The cow has already reached the daily limit of 2 milk entries.");
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    LocalizationUtils.getMessage("milk.create.error.limit"));
         }
 
         if (cow.getCowStatus() != CowStatus.milkingCow) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "The cow is not in milking state. Please update the cow status to perform the function.");
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    LocalizationUtils.getMessage("milk.create.error.status"));
         }
         dailyMilk.setCow(cow);
         dailyMilk.setMilkDate(LocalDate.now());
@@ -107,7 +108,8 @@ public class DailyMilkService implements IDailyMilkService {
 
         if (dailyMilk.getMilkBatch() != null) {
             throw new AppException(HttpStatus.BAD_REQUEST,
-                    "Cannot delete Daily Milk because it is associated with a Milk Batch.");
+                    LocalizationUtils.getMessage("milk.delete.error.associated")
+            );
         }
 
         dailyMilkRepository.delete(dailyMilk);
@@ -138,8 +140,8 @@ public class DailyMilkService implements IDailyMilkService {
         List<Object[]> result = dailyMilkRepository.getTotalMilkByMonthAndCow(year, cowId);
         return result.stream()
                 .map(obj -> new MonthlyMilkSummaryResponse(
-                        (Integer) obj[1],  // month
-                        (Long) obj[2]  // totalMilk
+                        (Integer) obj[1],
+                        (Long) obj[2]
                 ))
                 .collect(Collectors.toList());
     }

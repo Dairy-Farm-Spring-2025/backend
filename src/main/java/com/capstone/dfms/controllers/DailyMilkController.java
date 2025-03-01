@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.IDailyMilkMapper;
 import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.enums.MilkShift;
@@ -29,7 +30,8 @@ public class DailyMilkController {
             @Valid @RequestBody DailyMilkRequest dailyMilkRequest
     ) {
         dailyMilkService.createDailyMilk(IDailyMilkMapper.INSTANCE.toModel(dailyMilkRequest));
-        return CoreApiResponse.success("Create milk cow successfully!");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("milk.create.success")
+        );
     }
 
     @GetMapping("/cow/{cowId}")
@@ -64,13 +66,15 @@ public class DailyMilkController {
             @PathVariable Long dailyMilkId,
             @RequestParam Long newVolume) {
         dailyMilkService.updateDailyMilkVolume(dailyMilkId, newVolume);
-        return CoreApiResponse.success("Volume updated successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("milk.update.volume.success")
+        );
     }
 
     @DeleteMapping("/{id}")
     public CoreApiResponse<?> deleteDailyMilk(@PathVariable long id) {
         dailyMilkService.deleteDailyMilk(id);
-        return CoreApiResponse.success("Daily Milk deleted successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("milk.delete.success")
+        );
     }
 
     @GetMapping("/total/day")
