@@ -7,6 +7,7 @@ import com.capstone.dfms.models.DailyMilkEntity;
 import com.capstone.dfms.models.enums.MilkShift;
 import com.capstone.dfms.requests.DailyMilkRequest;
 import com.capstone.dfms.responses.MonthlyMilkSummaryResponse;
+import com.capstone.dfms.responses.RangeDailyMilkResponse;
 import com.capstone.dfms.responses.TotalMilkTodayResponse;
 import com.capstone.dfms.services.impliments.DailyMilkService;
 import jakarta.validation.Valid;
@@ -105,6 +106,17 @@ public class DailyMilkController {
             @RequestParam int year,
             @PathVariable Long cowId) {
         List<MonthlyMilkSummaryResponse> response = dailyMilkService.getTotalMilkByMonthAndCow(year, cowId);
+        return CoreApiResponse.success(response);
+    }
+
+    @GetMapping("range/{cowId}")
+    public CoreApiResponse<List<RangeDailyMilkResponse>> getDailyMilkByCowAndDateRange(
+            @PathVariable Long cowId,
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+        List<RangeDailyMilkResponse> response = dailyMilkService.getDailyMilkByCowAndDateRange(cowId, start, end);
         return CoreApiResponse.success(response);
     }
 }

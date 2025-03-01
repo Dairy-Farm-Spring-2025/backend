@@ -16,6 +16,7 @@ import com.capstone.dfms.repositories.IDailyMilkRepository;
 import com.capstone.dfms.repositories.IMilkBatchRepository;
 import com.capstone.dfms.repositories.IUserRepository;
 import com.capstone.dfms.responses.MonthlyMilkSummaryResponse;
+import com.capstone.dfms.responses.RangeDailyMilkResponse;
 import com.capstone.dfms.responses.TotalMilkTodayResponse;
 import com.capstone.dfms.services.IDailyMilkService;
 import lombok.AllArgsConstructor;
@@ -25,7 +26,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -144,6 +147,29 @@ public class DailyMilkService implements IDailyMilkService {
                         (Long) obj[2]
                 ))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RangeDailyMilkResponse> getDailyMilkByCowAndDateRange(Long cowId, LocalDate startDate, LocalDate endDate) {
+        List<DailyMilkEntity> dailyMilks = dailyMilkRepository.findByCowIdAndMilkDateBetween(cowId, startDate, endDate);
+
+        Map<LocalDate, Long> groupedData = dailyMilks.stream()
+                .collect(Collectors.groupingBy(
+                        DailyMilkEntity::getMilkDate,
+                        Collectors.summingLong(DailyMilkEntity::getVolume)
+                ));
+
+        List<RangeDailyMilkResponse> result = new ArrayList<>();
+
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            long volume = groupedData.getOrDefault(date, 0L);
+            result.add(RangeDailyMilkResponse.builder()
+                    .cowId(cowId)
+                    .milkDate(date)
+                    .volume(volume)
+                    .build());
+        }
+        return result;
     }
 
 }

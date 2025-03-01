@@ -80,5 +80,12 @@ public interface IDailyMilkRepository extends JpaRepository<DailyMilkEntity, Lon
             "AND d.milkDate = :date")
     Long getTotalMilkByCowAndDate(@Param("cowId") Long cowId, @Param("date") LocalDate date);
 
+    @Query("SELECT d FROM DailyMilkEntity d WHERE d.cow.cowId = :cowId " +
+            "AND d.milkDate BETWEEN :startDate AND :endDate")
+    List<DailyMilkEntity> findByCowIdAndMilkDateBetween(
+            @Param("cowId") Long cowId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
 
 }
