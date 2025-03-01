@@ -10,6 +10,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Mapper(componentModel = "spring")
 public interface ICowPenMapper {
     ICowPenMapper INSTANCE = Mappers.getMapper(ICowPenMapper.class);
@@ -24,7 +26,7 @@ public interface ICowPenMapper {
     @Mapping(target = "fromDate", source = "id.fromDate")
     CowPenResponse toResponse(CowPenEntity entity);
 
-    default CowPenPK toCowPenPK(Long penId, Long cowId, LocalDate fromDate) {
+    default CowPenPK toCowPenPK(Long penId, Long cowId, LocalDateTime fromDate) {
         return new CowPenPK(penId, cowId, fromDate);
     }
 }

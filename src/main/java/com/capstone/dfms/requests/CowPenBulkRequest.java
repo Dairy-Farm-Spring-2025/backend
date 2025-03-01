@@ -17,5 +17,5 @@ import java.util.List;
 public class CowPenBulkRequest {
     private List<Long> cowEntities;
     private List<Long> penEntities;
-    private LocalDate toDate;
+    //private LocalDate toDate;
 }

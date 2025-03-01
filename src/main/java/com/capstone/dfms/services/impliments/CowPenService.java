@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +49,7 @@ public class CowPenService implements ICowPenService {
 
         List<CowPenEntity> existingCowPenForCow = cowPenRepository.findValidCowPensByCowId(cowEntity.getCowId(), LocalDate.now());
         for (var cowPen : existingCowPenForCow) {
-            LocalDate toDate = cowPen.getToDate();
+            LocalDateTime toDate = cowPen.getToDate();
 
             if (toDate == null || request.getId().getFromDate().isAfter(toDate)) {
                 throw new AppException(HttpStatus.OK, "Cow in another Pen!");
@@ -57,7 +58,7 @@ public class CowPenService implements ICowPenService {
 
         List<CowPenEntity> existingCowPenForPen = cowPenRepository.findValidCowPensByPenId(penEntity.getPenId(), LocalDate.now());
         for (var cowPen : existingCowPenForPen) {
-            LocalDate toDate = cowPen.getToDate();
+            LocalDateTime toDate = cowPen.getToDate();
 
             if (toDate == null || request.getId().getFromDate().isAfter(toDate)) {
                 throw new AppException(HttpStatus.OK, "Pen is not available!");
@@ -76,7 +77,7 @@ public class CowPenService implements ICowPenService {
     }
 
     @Override
-    public CowPenResponse update(Long penId, Long cowId, LocalDate fromDate, CowPenEntity updatedRequest) {
+    public CowPenResponse update(Long penId, Long cowId, LocalDateTime fromDate, CowPenEntity updatedRequest) {
         CowPenPK cowPenPK = new CowPenPK(penId, cowId, fromDate);
 
         CowPenEntity existingEntity = cowPenRepository.findById(cowPenPK)
@@ -99,20 +100,17 @@ public class CowPenService implements ICowPenService {
     }
 
     @Override
-    public CowPenResponse getById(Long penId, Long cowId, LocalDate fromDate) {
-        // Construct the composite key
+    public CowPenResponse getById(Long penId, Long cowId, LocalDateTime fromDate) {
         CowPenPK cowPenPK = new CowPenPK(penId, cowId, fromDate);
 
-        // Find the entity by composite key
         CowPenEntity cowPenEntity = cowPenRepository.findById(cowPenPK)
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow-Pen not found for the provided key."));
 
-        // Convert to response and return
         return mapper.toResponse(cowPenEntity);
     }
 
     @Override
-    public void delete(Long penId, Long cowId, LocalDate fromDate) {
+    public void delete(Long penId, Long cowId, LocalDateTime fromDate) {
         CowPenPK cowPenPK = new CowPenPK(penId, cowId, fromDate);
 
         // Check if the entity exists and delete it
@@ -139,7 +137,7 @@ public class CowPenService implements ICowPenService {
 
 
     @Override
-    public CowPenResponse approveOrRejectMovePen(Long penId, Long cowId, LocalDate fromDate, boolean isApproval) {
+    public CowPenResponse approveOrRejectMovePen(Long penId, Long cowId, LocalDateTime fromDate, boolean isApproval) {
         CowPenPK cowPenPK = new CowPenPK(penId, cowId, fromDate);
         CowPenEntity cowPenEntity = cowPenRepository.findById(cowPenPK)
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow-Pen not found for the provided key."));
@@ -167,8 +165,7 @@ public class CowPenService implements ICowPenService {
     public CowPenBulkResponse<CowPenResponse> createBulkCowPen(CowPenBulkRequest cowPenBulkRequest) {
         List<Long> cowEntities = cowPenBulkRequest.getCowEntities();
         List<Long> penEntities = cowPenBulkRequest.getPenEntities();
-        LocalDate fromDate = LocalDate.now();
-        LocalDate toDate = cowPenBulkRequest.getToDate();
+        LocalDateTime fromDate = LocalDateTime.now();
 
         if (cowEntities == null || penEntities == null || cowEntities.isEmpty() || penEntities.isEmpty()) {
             throw new AppException(HttpStatus.BAD_REQUEST,"Cow entities and pen entities cannot be null or empty.");
@@ -201,7 +198,6 @@ public class CowPenService implements ICowPenService {
             CowPenPK cowPenPK = new CowPenPK(pen.getPenId(), cow.getCowId(), fromDate);
             CowPenEntity cowPenEntity = new CowPenEntity();
             cowPenEntity.setId(cowPenPK);
-            cowPenEntity.setToDate(toDate);
             cowPenEntity.setCowEntity(cow);
             cowPenEntity.setPenEntity(pen);
             cowPenEntity.setStatus(PenCowStatus.inPen);
@@ -225,7 +221,7 @@ public class CowPenService implements ICowPenService {
         CowPenEntity oldCowPenEntity = cowPenRepository.findById(request.getOldCowPen())
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow-Pen not found for the provided key."));
 
-        oldCowPenEntity.setToDate(LocalDate.now());
+        oldCowPenEntity.setToDate(LocalDateTime.now());
         this.update(oldCowPenEntity.getId().getPenId(),
                 oldCowPenEntity.getId().getCowId(),
                 oldCowPenEntity.getId().getFromDate(),
@@ -264,7 +260,7 @@ public class CowPenService implements ICowPenService {
             CowPenEntity cowPen = latestCowPen.get();
             if (cowPen.getToDate() == null) {
                 cowPen.setStatus(PenCowStatus.finished);
-                cowPen.setToDate(LocalDate.now());
+                cowPen.setToDate(LocalDateTime.now());
                 cowPenRepository.save(cowPen);
             }
             oldPen = cowPen.getPenEntity();
@@ -272,14 +268,13 @@ public class CowPenService implements ICowPenService {
             penRepository.save(oldPen);
         }
 
-
         if (penEntity.getPenStatus() == PenStatus.occupied) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Pen is not available!");
         }
         request.setCowEntity(cowEntity);
         request.setPenEntity(penEntity);
         request.setStatus(PenCowStatus.inPen);
-        request.getId().setFromDate(LocalDate.now());
+        request.getId().setFromDate(LocalDateTime.now());
 
         penEntity.setPenStatus(PenStatus.occupied);
         penRepository.save(penEntity);
