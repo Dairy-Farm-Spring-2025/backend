@@ -178,7 +178,7 @@ public class MilkBatchService implements IMilkBatchService {
         for (DailyMilkRequest dailyMilkRequest : request.getDailyMilks()) {
             if (!cowIdSet.add(dailyMilkRequest.getCowId())) {
                 throw new AppException(HttpStatus.BAD_REQUEST,
-                        "Duplicate cowId found: " + dailyMilkRequest.getCowId());
+                        LocalizationUtils.getMessage("milk.batch.daily.milk.duplicate.cow"));
             }
         }
         MilkBatchEntity milkBatch = MilkBatchEntity.builder()
