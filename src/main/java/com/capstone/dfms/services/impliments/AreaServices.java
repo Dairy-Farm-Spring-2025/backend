@@ -4,11 +4,13 @@ import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.IAreaMapper;
 import com.capstone.dfms.models.AreaEntity;
+import com.capstone.dfms.models.PenEntity;
 import com.capstone.dfms.models.enums.PenStatus;
 import com.capstone.dfms.repositories.IAreaRepository;
 import com.capstone.dfms.repositories.IPenRepository;
 import com.capstone.dfms.requests.AreaUpdateRequest;
 import com.capstone.dfms.responses.AreaResponse;
+import com.capstone.dfms.responses.PenResponse;
 import com.capstone.dfms.services.IAreaServices;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -34,8 +36,40 @@ public class AreaServices implements IAreaServices {
 
         this.validateDimensions(request);
         // Save the new area and map the result to a response
-        AreaEntity savedEntity = areaRepository.save(request);
-        return areaMapper.INSTANCE.toResponse(savedEntity);
+        AreaEntity savedArea = areaRepository.save(request);
+
+        int existingPenCount = penRepository.countByAreaBelongto(savedArea);
+
+        // Create and save the PenEntities
+        List<PenEntity> pens = new ArrayList<>();
+        for (int i = 1; i <= request.getMaxPen(); i++) {
+            int penNumber = existingPenCount + i; // New pen number starts from existing count + 1
+            String penName = generatePenAbbreviation(savedArea.getName()) + penNumber;
+
+            PenEntity pen = PenEntity.builder()
+                    .name(penName)
+                    .description("Automatically generated pen " + i)
+                    .penStatus(PenStatus.empty) // Default status
+                    .areaBelongto(savedArea)
+                    .build();
+            pens.add(pen);
+        }
+        penRepository.saveAll(pens);
+
+        // Return the response
+        return areaMapper.INSTANCE.toResponse(savedArea);
+    }
+
+    private String generatePenAbbreviation(String areaName) {
+        // Extract initials from area name (e.g., "Dairy Farm A" -> "DFA")
+        String[] words = areaName.split(" ");
+        StringBuilder abbreviation = new StringBuilder();
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                abbreviation.append(Character.toUpperCase(word.charAt(0)));
+            }
+        }
+        return abbreviation.toString() + "-"; // Example format: DFA-1, DFA-2, etc.
     }
 
     @Override

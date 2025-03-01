@@ -1,5 +1,6 @@
 package com.capstone.dfms.repositories;
 
+import com.capstone.dfms.models.AreaEntity;
 import com.capstone.dfms.models.PenEntity;
 import com.capstone.dfms.models.TokenEntity;
 import com.capstone.dfms.models.enums.PenStatus;
@@ -31,5 +32,7 @@ public interface IPenRepository extends JpaRepository<PenEntity, Long> {
 
     @Query("SELECT p FROM PenEntity p WHERE p.areaBelongto.areaId = :areaId")
     List<PenEntity> findByArea(@Param("areaId") Long areaId);
+
+    int countByAreaBelongto(AreaEntity areaBelongto);
 
 }

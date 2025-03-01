@@ -15,7 +15,6 @@ public class PenResponse {
     private Long penId;
     private String name;
     private String description;
-    private PenType penType;
     private PenStatus penStatus;
     private AreaResponse area;
     private LocalDateTime createdAt;
