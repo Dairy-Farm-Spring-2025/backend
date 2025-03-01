@@ -20,8 +20,8 @@ import java.time.LocalDateTime;
 public class CowPenResponse {
     private PenEntity penEntity;
     private CowEntity cowEntity;
-    private LocalDate fromDate;
-    private LocalDate toDate;
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
     private PenCowStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
