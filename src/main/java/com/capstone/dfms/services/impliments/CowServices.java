@@ -95,7 +95,6 @@ public class CowServices implements ICowServices {
         if (latestHealthRecord.isPresent()) {
             HealthRecordEntity healthRecord = latestHealthRecord.get();
             response.setCowStatus(healthRecord.getPeriod());
-            response.setWeight(healthRecord.getWeight());
             response.setSize(healthRecord.getSize());
         } else {
             // Default values if no health record exists
@@ -140,7 +139,6 @@ public class CowServices implements ICowServices {
                         // Set cow status, weight, and size from the latest health record
                         HealthRecordEntity healthRecord = latestHealthRecord.get();
                         response.setCowStatus(healthRecord.getPeriod());
-                        response.setWeight(healthRecord.getWeight());
                         response.setSize(healthRecord.getSize());
                     } else {
                         // Default values if no health record exists
