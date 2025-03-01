@@ -24,7 +24,6 @@ public class HealthRecordEntity extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private HealthRecordStatus status;
 
-    private float weight;
     private float size;
 
     @Enumerated(EnumType.STRING)

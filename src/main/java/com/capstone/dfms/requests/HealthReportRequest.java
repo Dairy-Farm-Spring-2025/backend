@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class HealthReportRequest {
     private HealthRecordStatus status;
-    private float weight;
     private float size;
     private CowStatus period;
     private Long cowId;
