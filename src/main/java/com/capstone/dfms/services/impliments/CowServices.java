@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Consumer;
@@ -179,7 +180,7 @@ public class CowServices implements ICowServices {
     }
 
     private boolean cowIsInPen(Long cowId){
-        return !cowRepository.isCowNotInAnyPen(cowId, LocalDate.now());
+        return !cowRepository.isCowNotInAnyPen(cowId, LocalDateTime.now());
     }
 
     private List<CowHealthInfoResponse<?>> getAllHealthInfoOrderedDesc(Long cowId) {
