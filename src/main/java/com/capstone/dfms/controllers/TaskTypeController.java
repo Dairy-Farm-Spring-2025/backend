@@ -24,7 +24,7 @@ public class TaskTypeController {
 
     @PostMapping("/create")
     public CoreApiResponse<?> createTaskType(
-            @Valid @RequestBody TaskTypeRequest request
+            @Valid @RequestBody TaskTypeRequest  request
     ){
         taskTypeService.createTaskType(INSTANCE.toModel(request));
         return CoreApiResponse.success("Create task type successfully.");
