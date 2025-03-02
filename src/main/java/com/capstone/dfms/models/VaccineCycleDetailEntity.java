@@ -36,7 +36,6 @@ public class VaccineCycleDetailEntity extends BaseEntity{
 
     @Enumerated(EnumType.STRING)
     private InjectionSite injectionSite;
-    private int ageInMonths;
 
     //2 field to relate the time to inject
     private Integer numberPeriodic;

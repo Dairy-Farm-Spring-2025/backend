@@ -28,8 +28,6 @@ public class VaccineCycleDetailRequest {
 
     private InjectionSite injectionSite;
 
-    private int ageInMonths;
-
     private Long itemId;
 
     private Integer numberPeriodic;

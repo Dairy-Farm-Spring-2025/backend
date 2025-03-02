@@ -119,6 +119,7 @@ public class VaccineCycleService implements IVaccineCycleService {
                 if(updateReq.getItemId() != null) {
                     ItemEntity item = itemRepository.findById(updateReq.getItemId())
                             .orElseThrow(() -> new DataNotFoundException("Item", "id", updateReq.getItemId()));
+                    existingDetail.setItemEntity(item);
                 }
 
                 vaccineCycleDetailMapper.updateEntityFromDto(updateReq, existingDetail);

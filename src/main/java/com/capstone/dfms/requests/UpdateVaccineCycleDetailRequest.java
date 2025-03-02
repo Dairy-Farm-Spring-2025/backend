@@ -30,8 +30,6 @@ public class UpdateVaccineCycleDetailRequest {
 
     private InjectionSite injectionSite;
 
-    private int ageInMonths;
-
     private UnitPeriodic unitPeriodic;
 
     private Integer numberPeriodic;
