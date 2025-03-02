@@ -69,6 +69,15 @@ public class HealthRecordService implements IHealthRecordService{
         }
 
         HealthRecordEntity oldEntity = this.getHealthReportById(id);
+
+        // Check if the update is within 1 day of reportTime
+        if (oldEntity.getReportTime() != null) {
+            LocalDateTime oneDayAfterReport = oldEntity.getReportTime().plusDays(1);
+            if (LocalDateTime.now().isAfter(oneDayAfterReport)) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Health record can only be updated within 1 day of report time.");
+            }
+        }
+
         mapper.updateEntityFromDto(request, oldEntity);
 
         return healthRecordRepository.save(oldEntity);

@@ -2,6 +2,8 @@ package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.InjectionSite;
 import com.capstone.dfms.models.enums.ItemUnit;
+import com.capstone.dfms.models.enums.UnitPeriodic;
+import com.capstone.dfms.models.enums.VaccineType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -26,11 +28,20 @@ public class VaccineCycleDetailEntity extends BaseEntity{
 
     private ItemUnit dosageUnit;
 
+    private String vaccineIngredients;
+
+    private VaccineType vaccineType;
+
     private double dosage;
 
     @Enumerated(EnumType.STRING)
     private InjectionSite injectionSite;
-    private int ageInMonths;
+
+    //2 field to relate the time to inject
+    private Integer numberPeriodic;
+
+    @Enumerated(EnumType.STRING)
+    private UnitPeriodic unitPeriodic;
 
     @ManyToOne
     @JoinColumn(name = "item_id")

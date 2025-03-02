@@ -2,6 +2,8 @@ package com.capstone.dfms.requests;
 
 import com.capstone.dfms.models.enums.InjectionSite;
 import com.capstone.dfms.models.enums.ItemUnit;
+import com.capstone.dfms.models.enums.UnitPeriodic;
+import com.capstone.dfms.models.enums.VaccineType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,11 +20,17 @@ public class VaccineCycleDetailRequest {
 
     private ItemUnit dosageUnit;
 
+    private String vaccineIngredients;
+
+    private VaccineType vaccineType;
+
     private double dosage;
 
     private InjectionSite injectionSite;
 
-    private int ageInMonths;
-
     private Long itemId;
+
+    private Integer numberPeriodic;
+
+    private UnitPeriodic unitPeriodic;
 }
