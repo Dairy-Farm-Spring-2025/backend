@@ -17,6 +17,9 @@ public class TaskTypeEntity {
 
     private String name;
 
-    private String description;
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private RoleEntity roleId;
 
+    private String description;
 }
