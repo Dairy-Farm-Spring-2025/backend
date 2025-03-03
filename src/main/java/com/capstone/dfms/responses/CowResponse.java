@@ -32,7 +32,6 @@ public class CowResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isInPen;
-
     private PenResponse penResponse;
     private List<CowHealthInfoResponse<?>> healthInfoResponses;
 }
