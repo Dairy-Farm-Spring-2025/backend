@@ -24,6 +24,9 @@ public class TaskTypeService implements ITaskTypeService {
         RoleEntity role = roleRepository.findById(taskType.getRoleId().getId()).orElseThrow(()
                 -> new AppException(HttpStatus.NOT_FOUND,
                 LocalizationUtils.getMessage("user.login.role_not_exist")));
+        if (taskTypeRepository.existsByName(taskType.getName())) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Tên loại công việc đã tồn tại.");
+        }
         taskType.setRoleId(role);
         return taskTypeRepository.save(taskType);
     }
