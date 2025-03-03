@@ -33,6 +33,8 @@ public class AreaCreateRequest {
     @Positive(message = "Max of pen must be a positive number.")
     private Integer maxPen;
 
+    private Integer numberInRow;
+
     @NotNull(message = "Area type is required.")
     private AreaType areaType;
 }

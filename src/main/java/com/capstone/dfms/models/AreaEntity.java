@@ -22,11 +22,16 @@ public class AreaEntity extends  BaseEntity{
     private String description;
 
     private Float length;
+
     private Float width;
 
     private Float penLength;
+
     private Float penWidth;
+
     private Integer maxPen;
+
+    private Integer numberInRow;
 
     @Enumerated(EnumType.STRING)
     private AreaType areaType;
