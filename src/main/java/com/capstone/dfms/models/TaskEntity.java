@@ -1,5 +1,7 @@
 package com.capstone.dfms.models;
 
+import com.capstone.dfms.models.enums.PriorityTask;
+import com.capstone.dfms.models.enums.TaskShift;
 import com.capstone.dfms.models.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,13 +26,17 @@ public class TaskEntity {
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
-    private LocalDateTime fromDate;
+    private LocalDate fromDate;
 
-    private LocalDateTime toDate;
+    private LocalDate toDate;
 
     @ManyToOne
     @JoinColumn(name = "area_id")
     private AreaEntity areaId;
+
+    @ManyToOne
+    @JoinColumn(name = "task_type_id")
+    private TaskTypeEntity taskTypeId;
 
     @ManyToOne
     @JoinColumn(name = "assigner_id")
@@ -40,4 +46,11 @@ public class TaskEntity {
     @JoinColumn(name = "assignee_id")
     private UserEntity assignee;
 
+    @Enumerated(EnumType.STRING)
+    private PriorityTask priority;
+
+    @Enumerated(EnumType.STRING)
+    private TaskShift shift;
+
+    private String completionNotes;
 }
