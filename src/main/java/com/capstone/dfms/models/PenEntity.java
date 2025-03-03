@@ -19,9 +19,8 @@ public class PenEntity extends BaseEntity {
     private Long penId;
 
     private String name;
+
     private String description;
-//    private float length;
-//    private float width;
 
     @Enumerated(EnumType.STRING)
     private PenStatus penStatus;

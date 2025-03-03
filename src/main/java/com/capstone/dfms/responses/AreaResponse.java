@@ -20,6 +20,8 @@ public class AreaResponse {
     private float width;
     private float penLength;
     private float penWidth;
+    private Integer numberInRow;
+    private Integer maxPen;
     private AreaType areaType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -82,25 +82,25 @@ public class CowServices implements ICowServices {
 
         CowResponse response = cowMapper.toResponse(cowEntity);
 
-        // Check if the cow is in a pen and set the `isInPen` property
         boolean isInPen = this.cowIsInPen(cowEntity.getCowId());
         response.setInPen(isInPen);
 
-        response.setPenResponse(penMapper.toResponse(cowPenRepository.findCurrentPenByCowId(id)));
-        response.setHealthInfoResponses(this.getAllHealthInfoOrderedDesc(id));
-        // Fetch the latest health record
+        CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(id);
+        if (latestCowPen != null) {
+            response.setPenResponse(penMapper.toResponse(latestCowPen.getPenEntity()));
+        } else {
+            response.setPenResponse(null);
+        }        response.setHealthInfoResponses(this.getAllHealthInfoOrderedDesc(id));
         Optional<HealthRecordEntity> latestHealthRecord = healthRecordRepository.findFirstByCowEntity_CowIdOrderByReportTimeDesc(id);
 
-        // If a health record exists, set cowStatus, weight, and size from it
         if (latestHealthRecord.isPresent()) {
             HealthRecordEntity healthRecord = latestHealthRecord.get();
             response.setCowStatus(healthRecord.getPeriod());
             response.setSize(healthRecord.getSize());
         } else {
-            // Default values if no health record exists
-//            response.setCowStatus(null); // Or a default CowStatus
-            response.setWeight(0.0f); // Default weight
-            response.setSize(0.0f); // Default size
+
+            response.setWeight(0.0f);
+            response.setSize(0.0f);
         }
 
         return response;
@@ -119,9 +119,12 @@ public class CowServices implements ICowServices {
                     boolean isInPen = this.cowIsInPen(cowEntity.getCowId());
                     response.setInPen(isInPen);
 
-                    // Set pen response
-                    response.setPenResponse(penMapper.toResponse(cowPenRepository.findCurrentPenByCowId(cowEntity.getCowId())));
-
+                    CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cowEntity.getCowId());
+                    if (latestCowPen != null) {
+                        response.setPenResponse(penMapper.toResponse(latestCowPen.getPenEntity()));
+                    } else {
+                        response.setPenResponse(null);
+                    }
                     List<CowHealthInfoResponse<?>> healthInfoResponses = this.getAllHealthInfoOrderedDesc(cowEntity.getCowId());
                     List<CowHealthInfoResponse<?>> healthInfoResponseTmp = new ArrayList<>();
 
@@ -203,9 +206,7 @@ public class CowServices implements ICowServices {
             responses.add(response);
         }
 
-        // Map illnesses to the response type
         for (IllnessEntity illness : illnesses) {
-            // For illnesses, we use the startDate as the date field
             LocalDate startDate = illness.getStartDate();
             CowHealthInfoResponse<IllnessEntity> response = CowHealthInfoResponse.<IllnessEntity>builder()
                     .id(illness.getIllnessId())
