@@ -25,4 +25,6 @@ public interface ITaskRepository extends JpaRepository<TaskEntity, Long> {
                                                                   @Param("endDate") LocalDate endDate);
 
 
+    @Query("SELECT t FROM TaskEntity t WHERE t.fromDate <= :toDate AND t.toDate >= :fromDate")
+    List<TaskEntity> findTasksInDateRange(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 }

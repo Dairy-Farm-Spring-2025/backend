@@ -254,8 +254,8 @@ public class CowPenService implements ICowPenService {
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Pen not found with ID: " + request.getId().getPenId()));
 
         Optional<CowPenEntity> latestCowPen = cowPenRepository.findLatestCowPenByCowId(cowEntity.getCowId());
-
         PenEntity oldPen = null;
+
         if (latestCowPen.isPresent()) {
             CowPenEntity cowPen = latestCowPen.get();
             if (cowPen.getToDate() == null) {
@@ -268,20 +268,36 @@ public class CowPenService implements ICowPenService {
             penRepository.save(oldPen);
         }
 
-        if (penEntity.getPenStatus() == PenStatus.occupied) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Pen is not available!");
+        Optional<CowPenEntity> existingCowInNewPen = cowPenRepository.findCurrentCowInPen(penEntity.getPenId());
+        boolean isWaiting = existingCowInNewPen.isPresent();
+
+        request.setStatus(isWaiting ? PenCowStatus.waiting : PenCowStatus.inPen);
+        penEntity.setPenStatus(PenStatus.occupied);
+
+        if (oldPen != null) {
+            Optional<CowPenEntity> waitingCow = cowPenRepository.findFirstWaitingCowInPen(oldPen.getPenId());
+            if (waitingCow.isPresent()) {
+                CowPenEntity cowToEnter = waitingCow.get();
+                cowToEnter.setStatus(PenCowStatus.inPen);
+                cowPenRepository.save(cowToEnter);
+            } else {
+                oldPen.setPenStatus(PenStatus.empty);
+                penRepository.save(oldPen);
+            }
         }
+
         request.setCowEntity(cowEntity);
         request.setPenEntity(penEntity);
-        request.setStatus(PenCowStatus.inPen);
         request.getId().setFromDate(LocalDateTime.now());
-
         penEntity.setPenStatus(PenStatus.occupied);
         penRepository.save(penEntity);
-
         CowPenEntity savedEntity = cowPenRepository.save(request);
-        return mapper.toResponse(savedEntity);
-    }
 
+        String message = isWaiting ? "Bò phải chờ trước khi vào chuồng!" : "Chuyển vào chuồng thành công!";
+        CowPenResponse response = mapper.toResponse(savedEntity);
+        response.setMessage(message);
+
+        return response;
+    }
 
 }

@@ -33,7 +33,7 @@ public class CowPenController {
     @PostMapping("/create")
     public CoreApiResponse<CowPenResponse> createCowPen(@Valid @RequestBody CowPenCreateRequest request) {
         CowPenResponse response = cowPenService.createCowPen(INSTANCE.toModel(request));
-        return CoreApiResponse.success(response);
+        return CoreApiResponse.success(response,response.getMessage());
     }
 
     @GetMapping

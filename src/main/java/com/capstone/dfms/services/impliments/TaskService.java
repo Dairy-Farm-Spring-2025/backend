@@ -3,6 +3,7 @@ package com.capstone.dfms.services.impliments;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.securities.UserPrincipal;
+import com.capstone.dfms.mappers.ITaskMapper;
 import com.capstone.dfms.models.AreaEntity;
 import com.capstone.dfms.models.TaskEntity;
 import com.capstone.dfms.models.TaskTypeEntity;
@@ -13,6 +14,7 @@ import com.capstone.dfms.repositories.ITaskRepository;
 import com.capstone.dfms.repositories.ITaskTypeRepository;
 import com.capstone.dfms.repositories.IUserRepository;
 import com.capstone.dfms.requests.TaskRequest;
+import com.capstone.dfms.responses.TaskResponse;
 import com.capstone.dfms.services.ITaskService;
 import com.capstone.dfms.services.ITaskTypeService;
 import lombok.AllArgsConstructor;
@@ -23,10 +25,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -35,6 +35,7 @@ public class TaskService implements ITaskService {
     private final IAreaRepository areaRepository;
     private final IUserRepository userRepository;
     private final ITaskTypeRepository taskTypeRepository;
+    private final ITaskMapper taskMapper;
 
     @Override
     public List<TaskEntity> createMultipleTasks(TaskRequest request) {
@@ -143,5 +144,30 @@ public class TaskService implements ITaskService {
         List<TaskEntity> existingTasks = taskRepository.findByAssigneeAndTaskTypeAndAreaAndDateRange(assigneeId, taskTypeId, areaId, fromDate, toDate);
         return !existingTasks.isEmpty();
     }
+
+    @Override
+    public Map<LocalDate, List<TaskResponse>> getTasksByDateRange(LocalDate startDate, LocalDate endDate) {
+        List<TaskEntity> taskEntities = taskRepository.findTasksInDateRange(startDate, endDate);
+
+        Map<LocalDate, List<TaskResponse>> taskMap = new LinkedHashMap<>();
+
+        LocalDate currentDate = startDate;
+        while (!currentDate.isAfter(endDate)) {
+            final LocalDate dateToCheck = currentDate;
+
+            List<TaskResponse> tasksForDay = taskEntities.stream()
+                    .filter(task -> !task.getFromDate().isAfter(dateToCheck) && !task.getToDate().isBefore(dateToCheck))
+                    .map(taskMapper::toResponse)
+                    .collect(Collectors.toList());
+
+            taskMap.put(currentDate, tasksForDay.isEmpty() ? null : tasksForDay);
+
+            currentDate = currentDate.plusDays(1);
+        }
+
+        return taskMap;
+    }
+
+
 
 }

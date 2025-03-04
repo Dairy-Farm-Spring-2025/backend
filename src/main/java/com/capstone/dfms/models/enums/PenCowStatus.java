@@ -6,6 +6,7 @@ public enum PenCowStatus {
     cancel, //manager reject
     expired,// expired time of pen for Cow
     inPen,
-    finished
+    finished,
+    waiting
 
 }
