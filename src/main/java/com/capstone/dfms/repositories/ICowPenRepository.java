@@ -55,4 +55,10 @@ public interface ICowPenRepository extends JpaRepository<CowPenEntity, CowPenPK>
     @Query("SELECT c FROM CowPenEntity c WHERE c.id.cowId = :cowId AND c.toDate IS NULL AND c.status = 'inPen'")
     CowPenEntity latestCowPenByCowId(@Param("cowId") Long cowId);
 
+    @Query("SELECT c FROM CowPenEntity c WHERE c.id.penId = :penId AND c.toDate IS NULL AND c.status = 'inPen'")
+    Optional<CowPenEntity> findCurrentCowInPen(@Param("penId") Long penId);
+
+    @Query("SELECT c FROM CowPenEntity c WHERE c.id.penId = :penId AND c.status = 'waiting' ORDER BY c.id.fromDate ASC")
+    Optional<CowPenEntity> findFirstWaitingCowInPen(@Param("penId") Long penId);
+
 }
