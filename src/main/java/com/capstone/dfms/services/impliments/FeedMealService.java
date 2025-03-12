@@ -126,27 +126,6 @@ public class FeedMealService implements IFeedMealService {
     }
 
 
-
-    @Override
-    public FeedMealEntity getFeedMealById(long id) {
-        return feedMealRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This feed meal is not existed!"));
-    }
-
-    @Override
-    public List<FeedMealEntity> getAllFeedMeals() {
-        return feedMealRepository.findAll();
-    }
-
-
-    @Override
-    public void deleteFeedMeal(long id) {
-        FeedMealEntity vaccineCycle = feedMealRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Feed Meal", "id", id));
-
-        feedMealRepository.delete(vaccineCycle);
-    }
-
     @Override
     public double calculateDryMatter(CowStatus cowStatus, Long cowTypeId) {
         CowTypeEntity cowTypeEntity = cowTypeRepository.findById(cowTypeId)
@@ -177,8 +156,23 @@ public class FeedMealService implements IFeedMealService {
         return dryMatter;
     }
 
+    @Override
+    public FeedMealEntity getFeedMealById(long id) {
+        return feedMealRepository.findById(id)
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This feed meal is not existed!"));
+    }
+
+    @Override
+    public List<FeedMealEntity> getAllFeedMeals() {
+        return feedMealRepository.findAll();
+    }
 
 
+    @Override
+    public void deleteFeedMeal(long id) {
+        FeedMealEntity vaccineCycle = feedMealRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Feed Meal", "id", id));
 
-
+        feedMealRepository.delete(vaccineCycle);
+    }
 }

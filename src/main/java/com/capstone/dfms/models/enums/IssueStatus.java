@@ -6,6 +6,4 @@ public enum IssueStatus {
     inProgress,
 
     complete
-
-
-    }
+}
