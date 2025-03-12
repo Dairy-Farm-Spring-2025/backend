@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ITaskRepository extends JpaRepository<TaskEntity, Long> {
@@ -27,4 +28,15 @@ public interface ITaskRepository extends JpaRepository<TaskEntity, Long> {
 
     @Query("SELECT t FROM TaskEntity t WHERE t.fromDate <= :toDate AND t.toDate >= :fromDate")
     List<TaskEntity> findTasksInDateRange(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+
+    @Query("SELECT t FROM TaskEntity t WHERE t.assignee.id = :userId AND t.fromDate <= :toDate AND t.toDate >= :fromDate")
+    List<TaskEntity> findMyTasksInDateRange(@Param("userId") Long userId,
+                                            @Param("fromDate") LocalDate fromDate,
+                                            @Param("toDate") LocalDate toDate);
+
+    @Query("SELECT t FROM TaskEntity t WHERE t.taskId = :taskId AND t.assignee.id = :userId")
+    Optional<TaskEntity> findMyTaskById(@Param("taskId") Long taskId, @Param("userId") Long userId);
+
+    @Query("SELECT t FROM TaskEntity t WHERE t.assignee.id = :userId")
+    List<TaskEntity> findMyTasks(@Param("userId") Long userId);
 }

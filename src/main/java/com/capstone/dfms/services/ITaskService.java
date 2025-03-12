@@ -18,4 +18,10 @@ public interface ITaskService {
     void deleteTask(long id);
 
     Map<LocalDate, List<TaskResponse>> getTasksByDateRange(LocalDate startDate, LocalDate endDate);
+
+    Map<LocalDate, List<TaskResponse>> getMyTasksByDateRange(LocalDate startDate, LocalDate endDate);
+
+    TaskEntity getMyTaskById(Long taskId);
+
+    List<TaskEntity> getMyTasks();
 }

@@ -148,26 +148,60 @@ public class TaskService implements ITaskService {
     @Override
     public Map<LocalDate, List<TaskResponse>> getTasksByDateRange(LocalDate startDate, LocalDate endDate) {
         List<TaskEntity> taskEntities = taskRepository.findTasksInDateRange(startDate, endDate);
+        return mapTasksByDateRange(taskEntities, startDate, endDate);
+    }
 
+    @Override
+    public Map<LocalDate, List<TaskResponse>> getMyTasksByDateRange(LocalDate startDate, LocalDate endDate) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Long userId = userPrincipal.getUser().getId();
+
+        List<TaskEntity> taskEntities = taskRepository.findMyTasksInDateRange(userId, startDate, endDate);
+        return mapTasksByDateRange(taskEntities, startDate, endDate);
+    }
+
+
+
+    @Override
+    public List<TaskEntity> getMyTasks() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity assignee = userPrincipal.getUser();
+        return taskRepository.findMyTasks(assignee.getId());
+    }
+
+
+    @Override
+    public TaskEntity getMyTaskById(Long taskId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity assignee = userPrincipal.getUser();
+        return taskRepository.findMyTaskById(taskId, assignee.getId())
+                .orElseThrow(() -> new AppException(HttpStatus.FORBIDDEN,"Bạn không có quyền truy cập task này!"));
+    }
+
+
+    private Map<LocalDate, List<TaskResponse>> mapTasksByDateRange(List<TaskEntity> taskEntities, LocalDate startDate, LocalDate endDate) {
         Map<LocalDate, List<TaskResponse>> taskMap = new LinkedHashMap<>();
-
         LocalDate currentDate = startDate;
+
         while (!currentDate.isAfter(endDate)) {
             final LocalDate dateToCheck = currentDate;
 
             List<TaskResponse> tasksForDay = taskEntities.stream()
-                    .filter(task -> !task.getFromDate().isAfter(dateToCheck) && !task.getToDate().isBefore(dateToCheck))
+                    .filter(task ->
+                            (task.getFromDate().isEqual(dateToCheck) || task.getFromDate().isBefore(dateToCheck)) &&
+                                    (task.getToDate().isEqual(dateToCheck) || task.getToDate().isAfter(dateToCheck)))
                     .map(taskMapper::toResponse)
                     .collect(Collectors.toList());
 
             taskMap.put(currentDate, tasksForDay.isEmpty() ? null : tasksForDay);
-
             currentDate = currentDate.plusDays(1);
         }
 
         return taskMap;
     }
-
 
 
 }
