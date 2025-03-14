@@ -1,6 +1,7 @@
 package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.IllnessDetailStatus;
+import com.capstone.dfms.models.enums.InjectionSite;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -24,6 +25,11 @@ public class IllnessDetailEntity extends BaseEntity {
 
     private LocalDate date;
     private String description;
+
+    private double dosage;
+
+    @Enumerated(EnumType.STRING)
+    private InjectionSite injectionSite;
 
     @Enumerated(EnumType.STRING)
     private IllnessDetailStatus status;
