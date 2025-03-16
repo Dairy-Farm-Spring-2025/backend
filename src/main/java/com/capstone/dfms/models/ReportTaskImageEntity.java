@@ -1,5 +1,6 @@
 package com.capstone.dfms.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,6 +18,7 @@ public class ReportTaskImageEntity {
 
     private String url;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "report_id ")
     private ReportTaskEntity reportTask;
