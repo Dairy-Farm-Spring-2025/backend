@@ -7,6 +7,7 @@ import com.capstone.dfms.mappers.IIllnessMapper;
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.IllnessEntity;
 import com.capstone.dfms.models.UserEntity;
+import com.capstone.dfms.models.enums.IllnessSeverity;
 import com.capstone.dfms.models.enums.IllnessStatus;
 import com.capstone.dfms.repositories.ICowRepository;
 import com.capstone.dfms.repositories.IIllnessRepository;
@@ -37,7 +38,7 @@ public class IllnessService implements IIllnessService {
         CowEntity cowEntity = this.findCowEntity(illness.getCowEntity().getCowId());
         illness.setCowEntity(cowEntity);
         illness.setUserEntity(UserStatic.getCurrentUser());
-        illness.setIllnessStatus(IllnessStatus.processing);
+        illness.setIllnessStatus(IllnessStatus.pending);
         return illnessRepository.save(illness);
     }
 
@@ -74,10 +75,22 @@ public class IllnessService implements IIllnessService {
             cowEntity = this.findCowEntity(updatedIllness.getCowId());
         IllnessEntity oldIllness = this.getIllnessById(id);
 
+        if(!(oldIllness.getIllnessStatus() == IllnessStatus.pending)){
+            throw new AppException(HttpStatus.BAD_REQUEST, "No further update");
+        }
+
         iIllnessMapper.updateIllnessEntityFromDto(updatedIllness, oldIllness);
 
         if(isPrognosis){
             oldIllness.setVeterinarian(UserStatic.getCurrentUser());
+        }
+
+        if(updatedIllness.getSeverity() == IllnessSeverity.none){
+            oldIllness.setIllnessStatus(IllnessStatus.cancel);
+            oldIllness.setEndDate(LocalDate.now());
+        }
+        else{
+            oldIllness.setIllnessStatus(IllnessStatus.processing);
         }
 
         return illnessRepository.save(oldIllness);

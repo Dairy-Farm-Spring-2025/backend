@@ -4,16 +4,11 @@ import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.statics.UserStatic;
 import com.capstone.dfms.mappers.IIllnessDetailMapper;
 import com.capstone.dfms.mappers.IIllnessMapper;
-import com.capstone.dfms.models.IllnessDetailEntity;
-import com.capstone.dfms.models.IllnessEntity;
-import com.capstone.dfms.models.ItemEntity;
-import com.capstone.dfms.models.UserEntity;
+import com.capstone.dfms.models.*;
+import com.capstone.dfms.models.enums.CowStatus;
 import com.capstone.dfms.models.enums.IllnessDetailStatus;
 import com.capstone.dfms.models.enums.IllnessStatus;
-import com.capstone.dfms.repositories.IIllnessDetailRepository;
-import com.capstone.dfms.repositories.IIllnessRepository;
-import com.capstone.dfms.repositories.IItemRepository;
-import com.capstone.dfms.repositories.IUserRepository;
+import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.*;
 import com.capstone.dfms.responses.CowPenBulkResponse;
 import com.capstone.dfms.services.IIllnessDetailService;
@@ -35,6 +30,7 @@ public class IllnessDetailService implements IIllnessDetailService {
     private final IUserRepository userRepository;
     private final IItemRepository iItemRepository;
     private final IIllnessRepository illnessRepository;
+    private final ICowRepository cowRepository;
 
     private final IIllnessDetailMapper mapper;
 
@@ -76,6 +72,8 @@ public class IllnessDetailService implements IIllnessDetailService {
             detail.setVeterinarian(UserStatic.getCurrentUser());
         }
 
+        detail.setStatus(IllnessDetailStatus.pending);
+
         return illnessDetailRepository.save(detail);
     }
 
@@ -101,45 +99,47 @@ public class IllnessDetailService implements IIllnessDetailService {
 
     @Override
     public IllnessDetailEntity updateIllnessDetail(Long id, IllnessDetailUpdateRequest updatedDetail) {
-        ItemEntity itemEntity = null;
-
-        if(updatedDetail.getItemId() != null){
-            Long tempId = updatedDetail.getItemId();
-            itemEntity = iItemRepository.findById(tempId)
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no item have id" + tempId));
-            if(!itemEntity.getCategoryEntity().getName().equalsIgnoreCase("vaccine"))
-                throw new AppException(HttpStatus.BAD_REQUEST, "Item is not vaccine");
-        }
-
+        //Get updated Illness Detail
         IllnessDetailEntity oldIllnessDetail = this.getIllnessDetailById(id);
         mapper.updateEntityFromDto(updatedDetail, oldIllnessDetail);
 
         this.checkValidateTreatmentPlan(oldIllnessDetail.getIllnessEntity());
 
         UserEntity currentUser = UserStatic.getCurrentUser();
-        if(!currentUser.getRoleId().getName().equalsIgnoreCase("VETERINARIANS"))
-            throw new AppException(HttpStatus.BAD_REQUEST, "Veterinarians role is required!");
-
         oldIllnessDetail.setVeterinarian(currentUser);
-        oldIllnessDetail.setVaccine(itemEntity);
 
-        illnessDetailRepository.save(oldIllnessDetail);
+        if(updatedDetail.getItemId() != null){
+            Long tempId = updatedDetail.getItemId();
+            ItemEntity itemEntity = iItemRepository.findById(tempId)
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no item have id" + tempId));
+            if(!itemEntity.getCategoryEntity().getName().equalsIgnoreCase("vaccine"))
+                throw new AppException(HttpStatus.BAD_REQUEST, "Item is not vaccine");
+            oldIllnessDetail.setVaccine(itemEntity);
+        }
+
+        oldIllnessDetail = illnessDetailRepository.save(oldIllnessDetail);
 
         if(oldIllnessDetail.getStatus().equals(IllnessDetailStatus.cured)){
-            List<IllnessDetailEntity> illnessDetailEntities = this.getIllnessDetailsByIllnessId(oldIllnessDetail.getIllnessEntity().getIllnessId());
-
-            for(IllnessDetailEntity illnessDetail : illnessDetailEntities){
-                if(illnessDetail.getDate().isAfter(oldIllnessDetail.getDate())){
-                    illnessDetail.setStatus(IllnessDetailStatus.cancel);
-                    illnessDetailRepository.save(illnessDetail);
-                }
-            }
+            cancelNextIllnessDetail(oldIllnessDetail.getIllnessEntity().getIllnessId(), oldIllnessDetail.getDate());
 
             IllnessEntity illness = oldIllnessDetail.getIllnessEntity();
             illness.setEndDate(LocalDate.now());
             illness.setIllnessStatus(IllnessStatus.complete);
-
             illnessRepository.save(illness);
+        }
+
+        if(oldIllnessDetail.getStatus().equals(IllnessDetailStatus.deceased)){
+            cancelNextIllnessDetail(oldIllnessDetail.getIllnessEntity().getIllnessId(), oldIllnessDetail.getDate());
+
+            IllnessEntity illness = oldIllnessDetail.getIllnessEntity();
+            illness.setEndDate(LocalDate.now());
+            illness.setIllnessStatus(IllnessStatus.fail);
+            illnessRepository.save(illness);
+
+            CowEntity cowEntity = illness.getCowEntity();
+            cowEntity.setCowStatus(CowStatus.culling);
+            cowEntity.setDateOfOut(LocalDate.now());
+            cowRepository.save(cowEntity);
         }
 
         return oldIllnessDetail;
@@ -201,8 +201,36 @@ public class IllnessDetailService implements IIllnessDetailService {
         if(!oldIllnessDetail.getDate().equals(LocalDate.now())){
             throw new AppException(HttpStatus.BAD_REQUEST, "No time to report!");
         }
-
         mapper.updateEntityFromDto(request, oldIllnessDetail);
+
+        UserEntity currentUser = UserStatic.getCurrentUser();
+        oldIllnessDetail.setVeterinarian(currentUser);
+
+        oldIllnessDetail = illnessDetailRepository.save(oldIllnessDetail);
+
+        if(oldIllnessDetail.getStatus().equals(IllnessDetailStatus.cured)){
+            cancelNextIllnessDetail(oldIllnessDetail.getIllnessEntity().getIllnessId(), oldIllnessDetail.getDate());
+
+            IllnessEntity illness = oldIllnessDetail.getIllnessEntity();
+            illness.setEndDate(LocalDate.now());
+            illness.setIllnessStatus(IllnessStatus.complete);
+            illnessRepository.save(illness);
+        }
+
+        if(oldIllnessDetail.getStatus().equals(IllnessDetailStatus.deceased)){
+            cancelNextIllnessDetail(oldIllnessDetail.getIllnessEntity().getIllnessId(), oldIllnessDetail.getDate());
+
+            IllnessEntity illness = oldIllnessDetail.getIllnessEntity();
+            illness.setEndDate(LocalDate.now());
+            illness.setIllnessStatus(IllnessStatus.fail);
+            illnessRepository.save(illness);
+
+            CowEntity cowEntity = illness.getCowEntity();
+            cowEntity.setCowStatus(CowStatus.culling);
+            cowEntity.setDateOfOut(LocalDate.now());
+            cowRepository.save(cowEntity);
+        }
+
         return oldIllnessDetail;
     }
 
@@ -211,6 +239,17 @@ public class IllnessDetailService implements IIllnessDetailService {
         if(illnessStatus != null) {
             if (!illnessStatus.equals(IllnessStatus.processing)) {
                 throw new AppException(HttpStatus.BAD_REQUEST, "No further to report illness treatment or create new plan!");
+            }
+        }
+    }
+
+    private void cancelNextIllnessDetail(Long illnessId, LocalDate date){
+        List<IllnessDetailEntity> illnessDetailEntities = this.getIllnessDetailsByIllnessId(illnessId);
+
+        for(IllnessDetailEntity illnessDetail : illnessDetailEntities){
+            if(illnessDetail.getDate().isAfter(date)){
+                illnessDetail.setStatus(IllnessDetailStatus.cancel);
+                illnessDetailRepository.save(illnessDetail);
             }
         }
     }
