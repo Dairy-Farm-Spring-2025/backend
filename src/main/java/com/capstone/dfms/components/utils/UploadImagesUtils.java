@@ -7,11 +7,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
@@ -58,4 +56,23 @@ public class UploadImagesUtils {
         graphics.dispose();
         return resizedImage;
     }
+
+    public static void deleteFile(String fileName, String path) {
+        try {
+            Path filePath = Paths.get(path).resolve(fileName);
+            File file = filePath.toFile();
+
+            if (file.exists()) {
+                if (!file.delete()) {
+                    throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete file: " + fileName);
+                }
+            } else {
+                throw new AppException(HttpStatus.NOT_FOUND, "File not found: " + fileName);
+            }
+
+        } catch (Exception e) {
+            throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while deleting file: " + e.getMessage());
+        }
+    }
+
 }

@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "report_tasks")
@@ -23,6 +25,10 @@ public class ReportTaskEntity {
     @Enumerated(EnumType.STRING)
     private ReportStatus status;
 
+    private LocalDateTime startTime;
+
+    private LocalDateTime endTime;
+
     private LocalDate date;
 
     private String comment;
@@ -30,4 +36,7 @@ public class ReportTaskEntity {
     @ManyToOne
     @JoinColumn(name = "task_id ")
     private TaskEntity taskId;
+
+    @OneToMany(mappedBy = "reportTask", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ReportTaskImageEntity> reportImages;
 }
