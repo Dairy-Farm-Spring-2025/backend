@@ -2,6 +2,7 @@ package com.capstone.dfms.services;
 
 import com.capstone.dfms.models.ReportTaskEntity;
 import com.capstone.dfms.requests.ReportTaskUpdateRequest;
+import com.capstone.dfms.requests.ReviewReportTaskRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -24,4 +25,6 @@ public interface IReportTaskService {
     List<ReportTaskEntity> getReportsByTask(Long taskId);
 
     List<ReportTaskEntity> getReportsByTaskAndDate(Long taskId, LocalDate date);
+
+    ReportTaskEntity reviewReportTask(Long id, ReviewReportTaskRequest request);
 }

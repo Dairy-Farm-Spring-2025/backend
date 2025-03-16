@@ -14,6 +14,7 @@ import com.capstone.dfms.repositories.IReportTaskImageRepository;
 import com.capstone.dfms.repositories.IReportTaskRepository;
 import com.capstone.dfms.repositories.ITaskRepository;
 import com.capstone.dfms.requests.ReportTaskUpdateRequest;
+import com.capstone.dfms.requests.ReviewReportTaskRequest;
 import com.capstone.dfms.requests.SupplierRequest;
 import com.capstone.dfms.services.IReportTaskService;
 import lombok.AllArgsConstructor;
@@ -179,5 +180,20 @@ public class ReportTaskService implements IReportTaskService {
         TaskEntity task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new DataNotFoundException("Task", "id", taskId));
         return reportTaskRepository.findByTaskIdAndDate(task, date);
+    }
+
+    @Override
+    public ReportTaskEntity reviewReportTask(Long id, ReviewReportTaskRequest request){
+        ReportTaskEntity reportTask = reportTaskRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("ReportTask", "id", id));
+
+        reportTask.setComment(request.getComment());
+        reportTask.setStatus(ReportStatus.closed);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity user = userPrincipal.getUser();
+        reportTask.setReviewer_id(user);
+
+        return reportTaskRepository.save(reportTask);
     }
 }

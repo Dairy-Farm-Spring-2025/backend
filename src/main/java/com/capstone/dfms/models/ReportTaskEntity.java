@@ -34,6 +34,10 @@ public class ReportTaskEntity {
     private String comment;
 
     @ManyToOne
+    @JoinColumn(name = "reviewer_id")
+    private UserEntity reviewer_id;
+
+    @ManyToOne
     @JoinColumn(name = "task_id ")
     private TaskEntity taskId;
 

@@ -4,6 +4,7 @@ import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.ReportTaskEntity;
 import com.capstone.dfms.requests.ReportTaskRequest;
 import com.capstone.dfms.requests.ReportTaskUpdateRequest;
+import com.capstone.dfms.requests.ReviewReportTaskRequest;
 import com.capstone.dfms.services.IReportTaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,14 @@ public class ReportTaskController {
             @RequestParam(name = "newImages", required = false) List<MultipartFile> newImages) throws IOException {
         reportTaskService.updateReportTask(id, request, newImages);
         return CoreApiResponse.success("Report task updated successfully.");
+    }
+
+    @PutMapping("/review/{id}")
+    public CoreApiResponse<?> reviewReportTask(
+            @PathVariable Long id,
+            @Valid @RequestBody ReviewReportTaskRequest request)  {
+        reportTaskService.reviewReportTask(id, request);
+        return CoreApiResponse.success("Report task review successfully.");
     }
 
     @GetMapping
