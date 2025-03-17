@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.CategoryEntity;
 import com.capstone.dfms.requests.CategoryRequest;
 import com.capstone.dfms.services.ICategoryServices;
@@ -22,7 +23,7 @@ public class CategoryController {
             @Valid @RequestBody CategoryRequest request
     ){
         categoryServices.createCategory(request.getName());
-        return CoreApiResponse.success("Create category successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("category.create.success"));
     }
 
     @GetMapping
@@ -40,7 +41,7 @@ public class CategoryController {
             @PathVariable Long id
     ){
         categoryServices.deleteCategory(id);
-        return CoreApiResponse.success("Delete category successfully");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("category.delete.success"));
     }
 
     @PutMapping("/{id}")
@@ -48,6 +49,6 @@ public class CategoryController {
             @PathVariable Long id,
             @RequestBody CategoryRequest request) {
         categoryServices.updateCategory(id,request.getName());
-        return CoreApiResponse.success("Category updated successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("category.update.success"));
     }
 }

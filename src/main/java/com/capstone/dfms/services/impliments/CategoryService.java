@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.models.CategoryEntity;
 import com.capstone.dfms.repositories.ICategoryRepository;
@@ -17,7 +18,6 @@ import java.util.List;
 public class CategoryService implements ICategoryServices {
     private final ICategoryRepository categoryRepository;
 
-
     @Override
     public CategoryEntity createCategory(String name ) {
         CategoryEntity category = new CategoryEntity();
@@ -28,7 +28,7 @@ public class CategoryService implements ICategoryServices {
     @Override
     public CategoryEntity getCategoryById(long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This category is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("category.not_exist")));
     }
 
     @Override
@@ -39,7 +39,7 @@ public class CategoryService implements ICategoryServices {
     @Override
     public CategoryEntity updateCategory(Long id, String name) {
         CategoryEntity category = categoryRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Category", "id", id));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("category.not_exist")));
         category.setName(name);
         return categoryRepository.save(category);
     }
@@ -47,7 +47,7 @@ public class CategoryService implements ICategoryServices {
     @Override
     public void deleteCategory(long id) {
         CategoryEntity category = categoryRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Category", "id", id));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("category.not_exist")));
         categoryRepository.delete(category);
     }
 }

@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.securities.UserPrincipal;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.ExportItemEntity;
 import com.capstone.dfms.models.ItemBatchEntity;
 import com.capstone.dfms.models.UserEntity;
@@ -34,10 +35,10 @@ public class ExportItemService implements IExportItemService {
         UserEntity user = userPrincipal.getUser();
 
         ItemBatchEntity itemBatch = itemBatchRepository.findById(exportItem.getItemBatchEntity().getItemBatchId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This export item is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist")));
 
         if (exportItem.getQuantity() > itemBatch.getQuantity()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Export quantity cannot exceed available item batch quantity.");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.quantity.exceed"));
         }
 
         exportItem.setPicker(user);
@@ -54,7 +55,7 @@ public class ExportItemService implements IExportItemService {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         UserEntity user = userPrincipal.getUser();
         ExportItemEntity exportItem = exportItemRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This export item is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist")));
 
         exportItem.setStatus(ExportItemStatus.approved);
         exportItem.setExporter(user);
@@ -71,12 +72,12 @@ public class ExportItemService implements IExportItemService {
         List<ExportItemEntity> exportItems = exportItemRepository.findAllById(listId);
 
         if (exportItems.isEmpty()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "No valid export items found!");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.no.valid.items"));
         }
 
         for (ExportItemEntity exportItem : exportItems) {
             if (exportItem.getStatus() != ExportItemStatus.pending) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Only export items with PENDING status can be approved!");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.approve.invalid.status"));
             }
             exportItem.setStatus(ExportItemStatus.approved);
             exportItem.setExporter(user);
@@ -92,7 +93,7 @@ public class ExportItemService implements IExportItemService {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         UserEntity user = userPrincipal.getUser();
         ExportItemEntity exportItem = exportItemRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This export item is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist")));
 
         exportItem.setStatus(ExportItemStatus.reject);
         exportItem.setExporter(user);
@@ -106,7 +107,7 @@ public class ExportItemService implements IExportItemService {
         ExportItemEntity exportItem = exportItemRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This export item is not existed!"));
        if (exportItem.getStatus() != ExportItemStatus.pending) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Only export items with PENDING status can be canceled!");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.cancel.invalid.status"));
         }
 
         exportItem.setStatus(ExportItemStatus.cancel);
@@ -119,7 +120,7 @@ public class ExportItemService implements IExportItemService {
         ExportItemEntity exportItem = exportItemRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This export item is not existed!"));
         if (exportItem.getStatus() != ExportItemStatus.pending) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Can not update export item");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.update.invalid.status"));
         }
         exportItem.setQuantity(quantiy);
 
@@ -133,16 +134,16 @@ public class ExportItemService implements IExportItemService {
         UserEntity user = userPrincipal.getUser();
 
         ExportItemEntity exportItem = exportItemRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This export item does not exist!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist")));
 
         if (!exportItem.getPicker().getId().equals(user.getId())) {
-            throw new AppException(HttpStatus.FORBIDDEN, "You are not authorized to approve this export item.");
+            throw new AppException(HttpStatus.FORBIDDEN, LocalizationUtils.getMessage("export.item.not.authorized"));
         }
         ItemBatchEntity itemBatch = exportItem.getItemBatchEntity();
         float exportQuantity = exportItem.getQuantity();
 
         if (itemBatch.getQuantity() < exportQuantity) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Not enough quantity in the batch!");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.batch.not.enough"));
         }
 
         itemBatch.setQuantity(itemBatch.getQuantity() - exportQuantity);
@@ -163,7 +164,7 @@ public class ExportItemService implements IExportItemService {
     @Override
     public ExportItemEntity getExportItemById(long id) {
         return exportItemRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This export item is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist")));
     }
 
     @Override

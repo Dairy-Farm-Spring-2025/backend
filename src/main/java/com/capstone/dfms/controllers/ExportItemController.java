@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.ExportItemEntity;
 import com.capstone.dfms.requests.ExportItemRequest;
 import com.capstone.dfms.services.IExportItemService;
@@ -25,42 +26,42 @@ public class ExportItemController {
             @Valid @RequestBody ExportItemRequest request
     ){
         exportItemService.createExportItem(INSTANCE.toModel(request));
-        return CoreApiResponse.success("Create export item successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("exportitem.create.success"));
     }
     @PreAuthorize("hasRole('MANAGER')")
     @PutMapping("approve/{id}")
     public CoreApiResponse<?> approveExportItem(@PathVariable Long id) {
-        return CoreApiResponse.success(exportItemService.approveExportItem(id),"Approve request successfully");
+        return CoreApiResponse.success(exportItemService.approveExportItem(id),LocalizationUtils.getMessage("export.item.create.success"));
     }
 
     @PreAuthorize("hasRole('MANAGER')")
     @PutMapping("reject/{id}")
     public CoreApiResponse<?> rejectExportItem(@PathVariable Long id) {
-        return CoreApiResponse.success(exportItemService.rejectExportItem(id),"Reject request successfully");
+        return CoreApiResponse.success(exportItemService.rejectExportItem(id),LocalizationUtils.getMessage("export.item.reject.success"));
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("cancel/{id}")
     public CoreApiResponse<?> cancelExportItem(@PathVariable Long id) {
-        return CoreApiResponse.success(exportItemService.cancelExportItem(id),"Cancel request export successfully");
+        return CoreApiResponse.success(exportItemService.cancelExportItem(id),LocalizationUtils.getMessage("export.item.cancel.success"));
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("export/{id}")
     public CoreApiResponse<?> exportItem(@PathVariable Long id) {
-        return CoreApiResponse.success(exportItemService.exportItem(id),"Confirm pick item successfully");
+        return CoreApiResponse.success(exportItemService.exportItem(id),LocalizationUtils.getMessage("export.item.confirm.success"));
     }
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("/approves")
     public CoreApiResponse<?> approveMultipleExportItems(@RequestBody List<Long> ids) {
         List<ExportItemEntity> approvedItems = exportItemService.approveMultipleExportItems(ids);
-        return CoreApiResponse.success("Approve request successfully");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("export.item.approve.multiple.success"));
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("update/{id}/{quantity}")
     public CoreApiResponse<?> updateExportItem(@PathVariable Long id, @PathVariable float quantity) {
-        return CoreApiResponse.success(exportItemService.updateExportItem(id,quantity),"Update export item successfully");
+        return CoreApiResponse.success(exportItemService.updateExportItem(id,quantity),LocalizationUtils.getMessage("export.item.update.success"));
     }
 
     @GetMapping
@@ -72,6 +73,4 @@ public class ExportItemController {
     public CoreApiResponse<ExportItemEntity> getById(@PathVariable Long id) {
         return CoreApiResponse.success(exportItemService.getExportItemById(id));
     }
-
-
 }
