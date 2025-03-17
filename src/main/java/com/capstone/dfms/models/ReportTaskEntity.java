@@ -1,6 +1,7 @@
 package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.ReportStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,6 +39,7 @@ public class ReportTaskEntity {
     private UserEntity reviewer_id;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "task_id ")
     private TaskEntity taskId;
 
