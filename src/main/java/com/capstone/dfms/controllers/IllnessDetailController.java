@@ -47,7 +47,7 @@ public class IllnessDetailController {
         return CoreApiResponse.success(illnessDetailService.getIllnessDetailsByIllnessId(illnessId));
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('VETERINARIANS')")
     @PutMapping("/{id}")
     public CoreApiResponse<IllnessDetailEntity> updateIllnessDetail(@PathVariable Long id, @RequestBody IllnessDetailUpdateRequest updatedDetail) {
         return CoreApiResponse.success(illnessDetailService.updateIllnessDetail(id, updatedDetail));

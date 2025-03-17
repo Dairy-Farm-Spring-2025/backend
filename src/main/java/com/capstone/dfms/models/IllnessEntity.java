@@ -24,10 +24,14 @@ public class IllnessEntity extends BaseEntity{
     private Long illnessId;
 
     private String symptoms;
+
+    @Enumerated(EnumType.STRING)
     private IllnessSeverity severity;
     private LocalDate startDate;
     private LocalDate endDate;
     private String prognosis;
+
+    @Enumerated(EnumType.STRING)
     private IllnessStatus illnessStatus;
 
     @ManyToOne

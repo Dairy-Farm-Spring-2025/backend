@@ -14,4 +14,6 @@ public interface IHealthRecordRepository extends JpaRepository<HealthRecordEntit
     List<HealthRecordEntity> findByCowEntityCowId(Long cowId);
     Optional<HealthRecordEntity> findFirstByCowEntity_CowIdOrderByReportTimeDesc(Long cowId);
 
+    List<HealthRecordEntity> findByCowEntityCowIdOrderByReportTimeDesc(Long cowId);
+
 }
