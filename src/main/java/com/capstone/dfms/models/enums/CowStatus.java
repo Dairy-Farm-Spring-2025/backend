@@ -5,5 +5,6 @@ public enum CowStatus {
     dryCow, //temporarily end cycle milking
     sickCow,
     seriousSickcow,
-    youngCow//Cows identified for removal from the herd due to age, low productivity, or health
+    youngCow,
+    culling//Cows identified for removal from the herd due to age, low productivity, or health
 }

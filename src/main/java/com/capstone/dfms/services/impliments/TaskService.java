@@ -3,16 +3,11 @@ package com.capstone.dfms.services.impliments;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.securities.UserPrincipal;
+import com.capstone.dfms.mappers.IReportTaskMapper;
 import com.capstone.dfms.mappers.ITaskMapper;
-import com.capstone.dfms.models.AreaEntity;
-import com.capstone.dfms.models.TaskEntity;
-import com.capstone.dfms.models.TaskTypeEntity;
-import com.capstone.dfms.models.UserEntity;
+import com.capstone.dfms.models.*;
 import com.capstone.dfms.models.enums.TaskStatus;
-import com.capstone.dfms.repositories.IAreaRepository;
-import com.capstone.dfms.repositories.ITaskRepository;
-import com.capstone.dfms.repositories.ITaskTypeRepository;
-import com.capstone.dfms.repositories.IUserRepository;
+import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.TaskRequest;
 import com.capstone.dfms.responses.TaskResponse;
 import com.capstone.dfms.services.ITaskService;
@@ -35,7 +30,9 @@ public class TaskService implements ITaskService {
     private final IAreaRepository areaRepository;
     private final IUserRepository userRepository;
     private final ITaskTypeRepository taskTypeRepository;
+    private final IReportTaskRepository reportTaskRepository;
     private final ITaskMapper taskMapper;
+    private final IReportTaskMapper reportTaskMapper;
 
     @Override
     public List<TaskEntity> createMultipleTasks(TaskRequest request) {
@@ -87,10 +84,8 @@ public class TaskService implements ITaskService {
                     .priority(request.getPriority())
                     .shift(request.getShift())
                     .build();
-
             tasks.add(task);
         }
-
         return taskRepository.saveAll(tasks);
     }
 
@@ -148,7 +143,8 @@ public class TaskService implements ITaskService {
     @Override
     public Map<LocalDate, List<TaskResponse>> getTasksByDateRange(LocalDate startDate, LocalDate endDate) {
         List<TaskEntity> taskEntities = taskRepository.findTasksInDateRange(startDate, endDate);
-        return mapTasksByDateRange(taskEntities, startDate, endDate);
+        List<ReportTaskEntity> reportTaskEntities = reportTaskRepository.findByDateRange(startDate, endDate);
+        return mapTasksByDateRange(taskEntities, reportTaskEntities, startDate, endDate);
     }
 
     @Override
@@ -158,7 +154,8 @@ public class TaskService implements ITaskService {
         Long userId = userPrincipal.getUser().getId();
 
         List<TaskEntity> taskEntities = taskRepository.findMyTasksInDateRange(userId, startDate, endDate);
-        return mapTasksByDateRange(taskEntities, startDate, endDate);
+        List<ReportTaskEntity> reportTaskEntities = reportTaskRepository.findReportTasksByUserIdAndDateRange(userId, startDate, endDate);
+        return mapTasksByDateRange(taskEntities, reportTaskEntities, startDate, endDate);
     }
 
 
@@ -182,7 +179,12 @@ public class TaskService implements ITaskService {
     }
 
 
-    private Map<LocalDate, List<TaskResponse>> mapTasksByDateRange(List<TaskEntity> taskEntities, LocalDate startDate, LocalDate endDate) {
+    private Map<LocalDate, List<TaskResponse>> mapTasksByDateRange(
+            List<TaskEntity> taskEntities,
+            List<ReportTaskEntity> reportTaskEntities,
+            LocalDate startDate,
+            LocalDate endDate) {
+
         Map<LocalDate, List<TaskResponse>> taskMap = new LinkedHashMap<>();
         LocalDate currentDate = startDate;
 
@@ -193,7 +195,18 @@ public class TaskService implements ITaskService {
                     .filter(task ->
                             (task.getFromDate().isEqual(dateToCheck) || task.getFromDate().isBefore(dateToCheck)) &&
                                     (task.getToDate().isEqual(dateToCheck) || task.getToDate().isAfter(dateToCheck)))
-                    .map(taskMapper::toResponse)
+                    .map(task -> {
+                        // Lọc report task theo task và ngày
+                        List<ReportTaskEntity> reportTasks = reportTaskEntities.stream()
+                                .filter(reportTask -> reportTask.getTaskId().getTaskId().equals(task.getTaskId()) &&
+                                        reportTask.getDate().isEqual(dateToCheck))
+                                .collect(Collectors.toList());
+
+                        TaskResponse taskResponse = ITaskMapper.INSTANCE.toResponse(task);
+                        taskResponse.setReportTasks(reportTasks); // Set thêm reportTasks
+
+                        return taskResponse;
+                    })
                     .collect(Collectors.toList());
 
             taskMap.put(currentDate, tasksForDay.isEmpty() ? null : tasksForDay);
@@ -202,6 +215,7 @@ public class TaskService implements ITaskService {
 
         return taskMap;
     }
+
 
 
 }

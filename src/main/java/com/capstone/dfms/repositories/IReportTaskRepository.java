@@ -19,6 +19,10 @@ public interface IReportTaskRepository extends JpaRepository<ReportTaskEntity, L
     @Query("SELECT r FROM ReportTaskEntity r WHERE r.taskId = :task AND r.date = :date")
     List<ReportTaskEntity> findByTaskIdAndDate(@Param("task") TaskEntity task, @Param("date") LocalDate date);
 
+    @Query("SELECT r FROM ReportTaskEntity r WHERE r.taskId.assignee.id = :userId AND r.date BETWEEN :startDate AND :endDate")
+    List<ReportTaskEntity> findReportTasksByUserIdAndDateRange(@Param("userId") Long userId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
+    @Query("SELECT r FROM ReportTaskEntity r WHERE r.date BETWEEN :startDate AND :endDate")
+    List<ReportTaskEntity> findByDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
 }

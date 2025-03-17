@@ -1,11 +1,13 @@
 package com.capstone.dfms.responses;
 
+import com.capstone.dfms.models.ReportTaskEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -24,4 +26,6 @@ public class TaskResponse {
     private String priority;
     private String shift;
     private String completionNotes;
+    private List<ReportTaskEntity> reportTasks;
+
 }
