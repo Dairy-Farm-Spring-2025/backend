@@ -7,6 +7,7 @@ import com.capstone.dfms.mappers.IIllnessMapper;
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.IllnessEntity;
 import com.capstone.dfms.models.UserEntity;
+import com.capstone.dfms.models.enums.CowStatus;
 import com.capstone.dfms.models.enums.IllnessSeverity;
 import com.capstone.dfms.models.enums.IllnessStatus;
 import com.capstone.dfms.repositories.ICowRepository;
@@ -70,7 +71,7 @@ public class IllnessService implements IIllnessService {
 
     @Override
     public IllnessEntity updateIllness(Long id, IllnessUpdateRequest updatedIllness, Boolean isPrognosis) {
-        CowEntity cowEntity;
+        CowEntity cowEntity = null;
         if(updatedIllness.getCowId() != null)
             cowEntity = this.findCowEntity(updatedIllness.getCowId());
         IllnessEntity oldIllness = this.getIllnessById(id);
@@ -91,6 +92,11 @@ public class IllnessService implements IIllnessService {
         }
         else{
             oldIllness.setIllnessStatus(IllnessStatus.processing);
+
+            cowEntity = oldIllness.getCowEntity();
+            cowEntity.setCowStatus(CowStatus.sickCow);
+            cowEntity.setDateOfOut(LocalDate.now());
+            cowRepository.save(cowEntity);
         }
 
         return illnessRepository.save(oldIllness);

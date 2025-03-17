@@ -6,6 +6,7 @@ import com.capstone.dfms.mappers.IIllnessDetailMapper;
 import com.capstone.dfms.mappers.IIllnessMapper;
 import com.capstone.dfms.models.*;
 import com.capstone.dfms.models.enums.CowStatus;
+import com.capstone.dfms.models.enums.HealthRecordStatus;
 import com.capstone.dfms.models.enums.IllnessDetailStatus;
 import com.capstone.dfms.models.enums.IllnessStatus;
 import com.capstone.dfms.repositories.*;
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -31,6 +33,8 @@ public class IllnessDetailService implements IIllnessDetailService {
     private final IItemRepository iItemRepository;
     private final IIllnessRepository illnessRepository;
     private final ICowRepository cowRepository;
+
+    private final IHealthRecordRepository healthRecordRepository;
 
     private final IIllnessDetailMapper mapper;
 
@@ -126,6 +130,8 @@ public class IllnessDetailService implements IIllnessDetailService {
             illness.setEndDate(LocalDate.now());
             illness.setIllnessStatus(IllnessStatus.complete);
             illnessRepository.save(illness);
+
+            //return latest health record not sick
         }
 
         if(oldIllnessDetail.getStatus().equals(IllnessDetailStatus.deceased)){
@@ -215,6 +221,11 @@ public class IllnessDetailService implements IIllnessDetailService {
             illness.setEndDate(LocalDate.now());
             illness.setIllnessStatus(IllnessStatus.complete);
             illnessRepository.save(illness);
+
+            CowEntity cowEntity = illness.getCowEntity();
+            cowEntity.setCowStatus(getLatestHealthRecordByCowId(cowEntity.getCowId()));
+            cowEntity.setDateOfOut(LocalDate.now());
+            cowRepository.save(cowEntity);
         }
 
         if(oldIllnessDetail.getStatus().equals(IllnessDetailStatus.deceased)){
@@ -252,6 +263,19 @@ public class IllnessDetailService implements IIllnessDetailService {
                 illnessDetailRepository.save(illnessDetail);
             }
         }
+    }
+
+    private CowStatus getLatestHealthRecordByCowId(Long cowId) {
+        List<HealthRecordEntity> healthRecords = healthRecordRepository
+                .findByCowEntityCowIdOrderByReportTimeDesc(cowId); // Ensure ordering by latest first
+
+        for (HealthRecordEntity record : healthRecords) {
+            if (record.getPeriod() != CowStatus.sickCow) {
+                return record.getPeriod(); // Return the first non-sickCow record (which is the latest one)
+            }
+        }
+
+        return CowStatus.youngCow;
     }
 
 }
