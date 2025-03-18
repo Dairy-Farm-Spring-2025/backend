@@ -5,6 +5,7 @@ import com.capstone.dfms.models.ReportTaskEntity;
 import com.capstone.dfms.requests.ReportTaskRequest;
 import com.capstone.dfms.requests.ReportTaskUpdateRequest;
 import com.capstone.dfms.requests.ReviewReportTaskRequest;
+import com.capstone.dfms.responses.ReportTaskResponse;
 import com.capstone.dfms.services.IReportTaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -86,6 +87,14 @@ public class ReportTaskController {
             @PathVariable Long taskId,
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<ReportTaskEntity> reports = reportTaskService.getReportsByTaskAndDate(taskId, date);
+        return CoreApiResponse.success(reports);
+    }
+
+    @GetMapping("/by-date")
+    public CoreApiResponse<List<ReportTaskResponse>> getReportTasksByDate(
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        List<ReportTaskResponse> reports = reportTaskService.getReportTasksByDate(date);
         return CoreApiResponse.success(reports);
     }
 }

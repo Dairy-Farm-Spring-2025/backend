@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public interface IReportTaskRepository extends JpaRepository<ReportTaskEntity, Long> {
     @Query("SELECT COUNT(r) > 0 FROM ReportTaskEntity r WHERE r.taskId.taskId = :taskId AND r.date = :date")
@@ -24,5 +23,8 @@ public interface IReportTaskRepository extends JpaRepository<ReportTaskEntity, L
 
     @Query("SELECT r FROM ReportTaskEntity r WHERE r.date BETWEEN :startDate AND :endDate")
     List<ReportTaskEntity> findByDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    List<ReportTaskEntity> findByDate(LocalDate date);
+
 
 }
