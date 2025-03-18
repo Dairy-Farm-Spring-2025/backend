@@ -53,4 +53,12 @@ public class TaskEntity {
     private TaskShift shift;
 
     private String completionNotes;
+
+    @ManyToOne
+    @JoinColumn(name = "illness_detail_id")
+    private IllnessDetailEntity illness;
+
+    @ManyToOne
+    @JoinColumn(name = "vaccine_injection_id")
+    private VaccineInjectionEntity vaccineInjection;
 }

@@ -5,10 +5,7 @@ import com.capstone.dfms.components.statics.UserStatic;
 import com.capstone.dfms.mappers.IIllnessDetailMapper;
 import com.capstone.dfms.mappers.IIllnessMapper;
 import com.capstone.dfms.models.*;
-import com.capstone.dfms.models.enums.CowStatus;
-import com.capstone.dfms.models.enums.HealthRecordStatus;
-import com.capstone.dfms.models.enums.IllnessDetailStatus;
-import com.capstone.dfms.models.enums.IllnessStatus;
+import com.capstone.dfms.models.enums.*;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.*;
 import com.capstone.dfms.responses.CowPenBulkResponse;
@@ -33,6 +30,9 @@ public class IllnessDetailService implements IIllnessDetailService {
     private final IItemRepository iItemRepository;
     private final IIllnessRepository illnessRepository;
     private final ICowRepository cowRepository;
+    private final ITaskRepository taskRepository;
+    private final ITaskTypeRepository taskTypeRepository;
+    private final ICowPenRepository cowPenRepository;
 
     private final IHealthRecordRepository healthRecordRepository;
 
@@ -181,6 +181,32 @@ public class IllnessDetailService implements IIllnessDetailService {
                 // Call the create function of IllnessDetailService.
                 IllnessDetailEntity createdEntity = this.createIllnessDetail(mapper.toModel(request), true);
                 successes.add(createdEntity);
+
+                TaskTypeEntity treatmentTaskType = taskTypeRepository.findByName("Chữa bệnh")
+                        .orElseGet(() -> {
+                            TaskTypeEntity newTaskType = new TaskTypeEntity();
+                            newTaskType.setName("Chữa bệnh");
+                            newTaskType.setDescription("Công việc điều trị bệnh cho bò");
+                            return taskTypeRepository.save(newTaskType);
+                        });
+                CowEntity cow = createdEntity.getIllnessEntity().getCowEntity();
+                CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
+
+
+                TaskEntity task = new TaskEntity();
+
+                task.setDescription("Điều trị bệnh: " + createdEntity.getDescription());
+                task.setStatus(TaskStatus.pending);
+                task.setFromDate(createdEntity.getDate());
+                task.setToDate(createdEntity.getDate());
+                task.setIllness(createdEntity);
+                task.setShift(TaskShift.dayShift);
+                task.setTaskTypeId(treatmentTaskType);
+                task.setAreaId(latestCowPen.getPenEntity().getAreaBelongto());
+
+                taskRepository.save(task);
+
+
             } catch (Exception ex) {
                 // Collect error messages but continue processing.
                 String errorMessage = "Failed to create illness detail for date " + request.getDate()
@@ -261,6 +287,9 @@ public class IllnessDetailService implements IIllnessDetailService {
             if(illnessDetail.getDate().isAfter(date)){
                 illnessDetail.setStatus(IllnessDetailStatus.cancel);
                 illnessDetailRepository.save(illnessDetail);
+                TaskEntity task = taskRepository.findByIllness(illnessDetail);
+                task.setStatus(TaskStatus.canceled);
+                taskRepository.save(task);
             }
         }
     }

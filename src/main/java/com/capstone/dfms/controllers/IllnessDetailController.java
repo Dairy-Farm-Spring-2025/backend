@@ -66,7 +66,7 @@ public class IllnessDetailController {
         return CoreApiResponse.success(illnessDetailService.createTreatmentPlan(detail));
     }
 
-    @PreAuthorize("hasAnyRole('VETERINARIANS')")
+    //@PreAuthorize("hasAnyRole('VETERINARIANS')")
     @PutMapping("/report-treatment/{id}")
     public CoreApiResponse<IllnessDetailEntity> reportTreatment(@PathVariable Long id, @RequestBody IllnessDetailReportRequest detail) {
         return CoreApiResponse.success(illnessDetailService.reportTreatment(id, detail));
