@@ -26,12 +26,12 @@ public class ExportItemController {
             @Valid @RequestBody ExportItemRequest request
     ){
         exportItemService.createExportItem(INSTANCE.toModel(request));
-        return CoreApiResponse.success(LocalizationUtils.getMessage("exportitem.create.success"));
+        return CoreApiResponse.success(LocalizationUtils.getMessage("export.item.create.success"));
     }
     @PreAuthorize("hasRole('MANAGER')")
     @PutMapping("approve/{id}")
     public CoreApiResponse<?> approveExportItem(@PathVariable Long id) {
-        return CoreApiResponse.success(exportItemService.approveExportItem(id),LocalizationUtils.getMessage("export.item.create.success"));
+        return CoreApiResponse.success(exportItemService.approveExportItem(id),LocalizationUtils.getMessage("export.item.approve.success"));
     }
 
     @PreAuthorize("hasRole('MANAGER')")

@@ -35,7 +35,7 @@ public class ExportItemService implements IExportItemService {
         UserEntity user = userPrincipal.getUser();
 
         ItemBatchEntity itemBatch = itemBatchRepository.findById(exportItem.getItemBatchEntity().getItemBatchId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist")));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item_batch.not_exist")));
 
         if (exportItem.getQuantity() > itemBatch.getQuantity()) {
             throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.quantity.exceed"));

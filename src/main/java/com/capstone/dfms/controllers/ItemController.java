@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.ItemEntity;
 import com.capstone.dfms.models.WarehouseLocationEntity;
 import com.capstone.dfms.requests.ItemCreateRequest;
@@ -25,7 +26,7 @@ public class ItemController {
             @Valid @RequestBody ItemCreateRequest request
     ){
         itemServices.createItem(INSTANCE.toModel(request));
-        return CoreApiResponse.success("Create item successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("item.create.success"));
     }
 
     @GetMapping
@@ -43,7 +44,7 @@ public class ItemController {
             @PathVariable Long id
     ){
         itemServices.deleteItem(id);
-        return CoreApiResponse.success("Delete item successfully");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("item.delete.success"));
     }
 
     @PutMapping("/{id}")
@@ -51,7 +52,7 @@ public class ItemController {
             @PathVariable Long id,
             @RequestBody ItemCreateRequest request) {
         itemServices.updateItem(id,request );
-        return CoreApiResponse.success("Item updated successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("item.update.success"));
     }
 
     @GetMapping("/category/{categoryId}")

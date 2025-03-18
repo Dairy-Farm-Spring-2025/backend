@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.ItemMapper;
 import com.capstone.dfms.models.CategoryEntity;
 import com.capstone.dfms.models.ItemEntity;
@@ -29,14 +30,13 @@ public class ItemServices implements IItemServices {
     private final ItemMapper itemMapper;
     @Override
     public ItemEntity createItem(ItemEntity itemEntity) {
-
         CategoryEntity category = categoryRepository.findById(itemEntity.getCategoryEntity().getCategoryId())
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Category not found."));
+                .orElseThrow(() -> new AppException(HttpStatus.OK, LocalizationUtils.getMessage("category.not_exist")));
         itemEntity.setCategoryEntity(category);
 
         WarehouseLocationEntity warehouseLocation =
                 locationRepository.findById(itemEntity.getWarehouseLocationEntity().getWarehouseLocationId())
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Warehouse not found."));
+                .orElseThrow(() -> new AppException(HttpStatus.OK, LocalizationUtils.getMessage("warehouse.not_exist")));
         itemEntity.setWarehouseLocationEntity(warehouseLocation);
 
         return itemRepository.save(itemEntity);
@@ -45,7 +45,7 @@ public class ItemServices implements IItemServices {
     @Override
     public ItemEntity getItemById(long id) {
          return itemRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This  is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not_exist")));
     }
 
     @Override
@@ -56,18 +56,18 @@ public class ItemServices implements IItemServices {
     @Override
     public ItemEntity updateItem(Long id, ItemCreateRequest request) {
         ItemEntity itemEntity = itemRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Item", "id", id));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not_exist")));
         itemMapper.updateItemFromRequest(request, itemEntity);
 
         if (request.getLocationId() != null) {
             WarehouseLocationEntity locationEntity = locationRepository.findById(request.getLocationId())
-                    .orElseThrow(() -> new DataNotFoundException("WarehouseLocation", "id", request.getLocationId()));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("warehouse.not_exist")));
             itemEntity.setWarehouseLocationEntity(locationEntity);
         }
 
         if (request.getCategoryId() != null) {
             CategoryEntity categoryEntity = categoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new DataNotFoundException("Category", "id", request.getCategoryId()));
+                    .orElseThrow(() -> new  AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("category.not_exist")));
             itemEntity.setCategoryEntity(categoryEntity);
         }
         return itemRepository.save(itemEntity);
@@ -76,7 +76,7 @@ public class ItemServices implements IItemServices {
     @Override
     public void deleteItem(long id) {
         ItemEntity itemEntity = itemRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Item", "id", id));
+                .orElseThrow(() -> new  AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not_exist")));
         itemRepository.delete(itemEntity);
 
     }
