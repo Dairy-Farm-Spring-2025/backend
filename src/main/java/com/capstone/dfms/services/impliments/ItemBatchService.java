@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.IItemBatchMapper;
 import com.capstone.dfms.models.ItemBatchEntity;
 import com.capstone.dfms.models.ItemEntity;
@@ -33,13 +34,13 @@ public class ItemBatchService implements IItemBatchService {
     @Override
     public ItemBatchEntity createItemBatch(ItemBatchEntity itemBatch) {
         ItemEntity item = itemRepository.findById(itemBatch.getItemEntity().getItemId())
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Item not found."));
+                .orElseThrow(() -> new AppException(HttpStatus.OK, LocalizationUtils.getMessage("item.not_exist")));
 
         SupplierEntity supplier = supplierRepository.findById(itemBatch.getSupplierEntity().getSupplierId())
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Supplier not found."));
+                .orElseThrow(() -> new AppException(HttpStatus.OK, LocalizationUtils.getMessage("supplier.not_exist")));
 
         if (itemBatch.getExpiryDate() != null && itemBatch.getExpiryDate().isBefore(LocalDate.now())) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Expiry date must be in the future.");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item_batch.expiry_date.invalid"));
         }
 
         itemBatch.setItemEntity(item);
@@ -52,7 +53,8 @@ public class ItemBatchService implements IItemBatchService {
     @Override
     public ItemBatchEntity getItemBatchById(long id) {
         return itemBatchRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This item batch is not existed!"));
+                .orElseThrow(() -> new AppException
+                        (HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item_batch.not_exist")));
     }
 
     @Override
@@ -63,7 +65,8 @@ public class ItemBatchService implements IItemBatchService {
     @Override
     public ItemBatchEntity updateItemBatch(Long id, BatchStatus status) {
         ItemBatchEntity itemBatch = itemBatchRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Item batch", "id", id));
+                .orElseThrow(() -> new AppException
+                        (HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item_batch.not_exist")));
         itemBatch.setStatus(status);
         return itemBatchRepository.save(itemBatch);
     }
@@ -71,7 +74,8 @@ public class ItemBatchService implements IItemBatchService {
     @Override
     public void deleteItemBatch(long id) {
         ItemBatchEntity itemBatch = itemBatchRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Item batch", "id", id));
+                .orElseThrow(() -> new AppException
+                        (HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item_batch.not_exist")));
 
         itemBatchRepository.delete(itemBatch);
     }

@@ -5,6 +5,7 @@ import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.securities.UserPrincipal;
 import com.capstone.dfms.components.utils.UploadImagesUtils;
+import com.capstone.dfms.mappers.IReportTaskMapper;
 import com.capstone.dfms.models.ReportTaskEntity;
 import com.capstone.dfms.models.ReportTaskImageEntity;
 import com.capstone.dfms.models.TaskEntity;
@@ -16,6 +17,7 @@ import com.capstone.dfms.repositories.ITaskRepository;
 import com.capstone.dfms.requests.ReportTaskUpdateRequest;
 import com.capstone.dfms.requests.ReviewReportTaskRequest;
 import com.capstone.dfms.requests.SupplierRequest;
+import com.capstone.dfms.responses.ReportTaskResponse;
 import com.capstone.dfms.services.IReportTaskService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,6 +39,7 @@ public class ReportTaskService implements IReportTaskService {
     private final IReportTaskRepository reportTaskRepository;
     private final ITaskRepository taskRepository;
     private final IReportTaskImageRepository reportTaskImageRepository;
+    private final IReportTaskMapper reportTaskMapper;
 
     @Override
     public ReportTaskEntity createReportTask(long reportTaskId,ReportTaskEntity updatedReportTask,List<MultipartFile> images) throws IOException {
@@ -195,5 +198,11 @@ public class ReportTaskService implements IReportTaskService {
         reportTask.setReviewer_id(user);
 
         return reportTaskRepository.save(reportTask);
+    }
+
+    @Override
+    public List<ReportTaskResponse> getReportTasksByDate(LocalDate date) {
+        List<ReportTaskEntity> reportTasks = reportTaskRepository.findByDate(date);
+        return reportTaskMapper.toResponseList(reportTasks);
     }
 }

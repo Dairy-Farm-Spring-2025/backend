@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.ItemBatchEntity;
 import com.capstone.dfms.models.enums.BatchStatus;
 import com.capstone.dfms.requests.ItemBatchRequest;
@@ -24,7 +25,7 @@ public class ItemBatchController {
             @Valid @RequestBody ItemBatchRequest request
     ){
         itemBatchService.createItemBatch(INSTANCE.toModel(request));
-        return CoreApiResponse.success("Create item batch successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("item_batch.create.success"));
     }
 
     @GetMapping
@@ -42,7 +43,7 @@ public class ItemBatchController {
             @PathVariable Long id
     ){
         itemBatchService.deleteItemBatch(id);
-        return CoreApiResponse.success("Delete item batch successfully");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("item_batch.delete.success"));
     }
 
     @PutMapping("update/{id}/{status}")
@@ -50,6 +51,6 @@ public class ItemBatchController {
             @PathVariable Long id,
             @PathVariable BatchStatus status) {
         itemBatchService.updateItemBatch(id, status);
-        return CoreApiResponse.success("Item batch updated successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("item_batch.update.success"));
     }
 }
