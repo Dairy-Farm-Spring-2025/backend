@@ -33,4 +33,6 @@ public class VaccineCycleDetailRequest {
     private Integer numberPeriodic;
 
     private UnitPeriodic unitPeriodic;
+
+    private Integer firstInjectionMonth;
 }

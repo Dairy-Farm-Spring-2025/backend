@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface ICowRepository extends JpaRepository<CowEntity, Long> {
     boolean existsByName(String name);
@@ -17,4 +18,6 @@ public interface ICowRepository extends JpaRepository<CowEntity, Long> {
 
     @Query("SELECT COUNT(c) FROM CowEntity c WHERE c.name LIKE %:substring%")
     long countByNameContains(@Param("substring") String substring);
+
+    List<CowEntity> findByCowTypeEntity_CowTypeId(Long cowTypeId);
 }
