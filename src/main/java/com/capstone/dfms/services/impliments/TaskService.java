@@ -196,14 +196,14 @@ public class TaskService implements ITaskService {
                             (task.getFromDate().isEqual(dateToCheck) || task.getFromDate().isBefore(dateToCheck)) &&
                                     (task.getToDate().isEqual(dateToCheck) || task.getToDate().isAfter(dateToCheck)))
                     .map(task -> {
-                        // Lọc report task theo task và ngày
-                        List<ReportTaskEntity> reportTasks = reportTaskEntities.stream()
-                                .filter(reportTask -> reportTask.getTaskId().getTaskId().equals(task.getTaskId()) &&
-                                        reportTask.getDate().isEqual(dateToCheck))
-                                .collect(Collectors.toList());
+                        ReportTaskEntity reportTask = reportTaskEntities.stream()
+                                .filter(report -> report.getTaskId().getTaskId().equals(task.getTaskId()) &&
+                                        report.getDate().isEqual(dateToCheck))
+                                .findFirst()
+                                .orElse(null);
 
                         TaskResponse taskResponse = ITaskMapper.INSTANCE.toResponse(task);
-                        taskResponse.setReportTasks(reportTasks); // Set thêm reportTasks
+                        taskResponse.setReportTask(reportTask);
 
                         return taskResponse;
                     })
@@ -215,7 +215,4 @@ public class TaskService implements ITaskService {
 
         return taskMap;
     }
-
-
-
 }

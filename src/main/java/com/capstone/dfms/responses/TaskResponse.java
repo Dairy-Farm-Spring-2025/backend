@@ -27,6 +27,6 @@ public class TaskResponse {
     private String priority;
     private String shift;
     private String completionNotes;
-    private List<ReportTaskEntity> reportTasks;
+    private ReportTaskEntity reportTask;
 
 }
