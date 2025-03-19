@@ -15,7 +15,7 @@ public interface ITaskMapper {
 //    @Mapping(target = "taskTypeName", source = "taskTypeId.name")
     @Mapping(target = "assignerName", source = "assigner.name")
     @Mapping(target = "assigneeName", source = "assignee.name")
-    @Mapping(target = "reportTasks", ignore = true) // Ignore vì sẽ set thủ công
+    @Mapping(target = "reportTask", ignore = true) // Ignore vì sẽ set thủ công
     TaskResponse toResponse(TaskEntity entity);
 
     @Mapping(target = "areaName", source = "areaId.name")
