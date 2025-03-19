@@ -35,4 +35,6 @@ public class UpdateVaccineCycleDetailRequest {
     private Integer numberPeriodic;
 
     private Long itemId;
+
+    private Integer firstInjectionMonth;
 }

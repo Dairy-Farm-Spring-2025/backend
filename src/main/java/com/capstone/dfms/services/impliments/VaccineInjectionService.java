@@ -3,13 +3,8 @@ package com.capstone.dfms.services.impliments;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.statics.UserStatic;
 import com.capstone.dfms.mappers.IVaccineInjectionMapper;
-import com.capstone.dfms.models.CowEntity;
-import com.capstone.dfms.models.UserEntity;
-import com.capstone.dfms.models.VaccineCycleDetailEntity;
-import com.capstone.dfms.models.VaccineInjectionEntity;
-import com.capstone.dfms.repositories.ICowRepository;
-import com.capstone.dfms.repositories.IVaccineCycleDetailRepository;
-import com.capstone.dfms.repositories.IVaccineInjectionRepository;
+import com.capstone.dfms.models.*;
+import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.VaccineInjectionRequest;
 import com.capstone.dfms.services.IVaccineInjectionService;
 import lombok.RequiredArgsConstructor;
@@ -76,5 +71,4 @@ public class VaccineInjectionService implements IVaccineInjectionService {
 
         vaccineInjectionRepository.delete(entity);
     }
-
 }
