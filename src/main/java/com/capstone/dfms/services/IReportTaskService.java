@@ -25,7 +25,7 @@ public interface IReportTaskService {
 
     List<ReportTaskEntity> getReportsByTask(Long taskId);
 
-    List<ReportTaskEntity> getReportsByTaskAndDate(Long taskId, LocalDate date);
+    ReportTaskEntity getReportsByTaskAndDate(Long taskId, LocalDate date);
 
     ReportTaskEntity reviewReportTask(Long id, ReviewReportTaskRequest request);
 

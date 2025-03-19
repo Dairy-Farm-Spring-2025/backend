@@ -10,6 +10,7 @@ import com.capstone.dfms.services.IReportTaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +26,7 @@ import static com.capstone.dfms.mappers.IReportTaskMapper.INSTANCE;
 public class ReportTaskController {
     private final IReportTaskService reportTaskService;
 
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PostMapping("/joinTask/{taskId}")
     public CoreApiResponse<?> joinTask(
             @PathVariable Long taskId){
@@ -86,8 +88,8 @@ public class ReportTaskController {
     public CoreApiResponse<?> getReportsByTaskAndDate(
             @PathVariable Long taskId,
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        List<ReportTaskEntity> reports = reportTaskService.getReportsByTaskAndDate(taskId, date);
-        return CoreApiResponse.success(reports);
+        ReportTaskEntity report = reportTaskService.getReportsByTaskAndDate(taskId, date);
+        return CoreApiResponse.success(report);
     }
 
     @GetMapping("/by-date")

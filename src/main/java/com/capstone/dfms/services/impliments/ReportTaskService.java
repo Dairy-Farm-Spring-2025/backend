@@ -59,16 +59,20 @@ public class ReportTaskService implements IReportTaskService {
         existingReport.setEndTime(LocalDateTime.now());
 
         if (images != null && !images.isEmpty()) {
-            List<ReportTaskImageEntity> reportTaskImagesList = new ArrayList<>();
+            if (existingReport.getReportImages() != null) {
+                existingReport.getReportImages().clear();
+            } else {
+                existingReport.setReportImages(new ArrayList<>());
+            }
+
             for (MultipartFile image : images) {
                 if (!image.isEmpty()) {
                     ReportTaskImageEntity reportTaskImage = new ReportTaskImageEntity();
                     reportTaskImage.setReportTask(existingReport);
                     reportTaskImage.setUrl(UploadImagesUtils.storeFile(image, ImageContants.REPORT_IMAGE_PATH));
-                    reportTaskImagesList.add(reportTaskImage);
+                    existingReport.getReportImages().add(reportTaskImage);
                 }
             }
-            existingReport.setReportImages(reportTaskImagesList);
         }
 
         return reportTaskRepository.save(existingReport);
@@ -179,7 +183,7 @@ public class ReportTaskService implements IReportTaskService {
     }
 
     @Override
-    public List<ReportTaskEntity> getReportsByTaskAndDate(Long taskId, LocalDate date) {
+    public ReportTaskEntity getReportsByTaskAndDate(Long taskId, LocalDate date) {
         TaskEntity task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new DataNotFoundException("Task", "id", taskId));
         return reportTaskRepository.findByTaskIdAndDate(task, date);
