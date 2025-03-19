@@ -1,6 +1,7 @@
 package com.capstone.dfms.responses;
 
 import com.capstone.dfms.models.ReportTaskEntity;
+import com.capstone.dfms.models.TaskTypeEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +21,7 @@ public class TaskResponse {
     private LocalDate fromDate;
     private LocalDate toDate;
     private String areaName;
-    private String taskTypeName;
+    private TaskTypeEntity taskTypeId;
     private String assignerName;
     private String assigneeName;
     private String priority;
