@@ -1,5 +1,6 @@
 package com.capstone.dfms.repositories;
 
+import com.capstone.dfms.models.IllnessDetailEntity;
 import com.capstone.dfms.models.TaskEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -39,4 +40,7 @@ public interface ITaskRepository extends JpaRepository<TaskEntity, Long> {
 
     @Query("SELECT t FROM TaskEntity t WHERE t.assignee.id = :userId")
     List<TaskEntity> findMyTasks(@Param("userId") Long userId);
+
+    TaskEntity findByIllness(IllnessDetailEntity illness);
+
 }
