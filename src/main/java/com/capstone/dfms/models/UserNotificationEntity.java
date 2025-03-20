@@ -1,6 +1,7 @@
 package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.compositeKeys.UserNotificationPK;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,7 +23,10 @@ public class UserNotificationEntity {
     private UserEntity user;
 
     @ManyToOne
+    @JsonIgnore
     @MapsId("notificationId")
     @JoinColumn(name = "notification_id")
     private NotificationEntity notification;
+
+    private boolean isRead;
 }

@@ -1,0 +1,53 @@
+package com.capstone.dfms.controllers;
+
+import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.models.NotificationEntity;
+import com.capstone.dfms.requests.NotificationRequest;
+import com.capstone.dfms.services.INotificationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("${app.api.version.v1}/notifications")
+@RequiredArgsConstructor
+public class NotificationController {
+    private final INotificationService notificationService;
+
+    @PostMapping("/create")
+    public CoreApiResponse<NotificationEntity> createNotification(
+            @RequestBody NotificationRequest notification) {
+        NotificationEntity notificationEntity = notificationService.createNotification(notification);
+        return CoreApiResponse.success("Create notification successfully");
+    }
+
+    @GetMapping("")
+    public CoreApiResponse<List<NotificationEntity>> getAllNotifications() {
+        return CoreApiResponse.success(notificationService.getAllNotifications());
+    }
+
+    @GetMapping("/{id}")
+    public CoreApiResponse<NotificationEntity> getNotificationById(@PathVariable Long id) {
+        return CoreApiResponse.success(notificationService.getNotificationById(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public CoreApiResponse<?> deleteNotification(@PathVariable Long id) {
+        notificationService.deleteNotification(id);
+        return CoreApiResponse.success("Deleted successfully");
+    }
+
+    @PutMapping("/{notificationId}/mark-read/{userId}")
+    public CoreApiResponse<?> markAsRead(@PathVariable Long notificationId, @PathVariable Long userId) {
+        notificationService.markAsRead(notificationId, userId);
+        return CoreApiResponse.success("Read notification success");
+    }
+
+    @GetMapping("/myNotification/")
+    public CoreApiResponse<List<NotificationEntity>> getUserNotifications() {
+        List<NotificationEntity> notifications = notificationService.getUserNotifications();
+        return CoreApiResponse.success(notifications);
+    }
+
+}
