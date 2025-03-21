@@ -84,8 +84,19 @@ public class NotificationService implements INotificationService {
     @Override
     public List<NotificationEntity> getUserNotifications() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User is not authenticated");
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof UserPrincipal)) {
+            throw new RuntimeException("Invalid user principal: " + principal);
+        }
+
+        UserPrincipal userPrincipal = (UserPrincipal) principal;
         UserEntity user = userPrincipal.getUser();
+
 
         List<UserNotificationEntity> userNotifications = userNotificationRepository.findNotificationsByUserId(user.getId());
 
