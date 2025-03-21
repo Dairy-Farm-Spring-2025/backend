@@ -15,7 +15,7 @@ public class WebSocketController {
     public void sendListNotificationUpdate(Long userId, List<NotificationEntity> notifications) {
         messagingTemplate.convertAndSendToUser(
                 String.valueOf(userId),
-                "/queue/notification",
+                "/my/notification",
                 notifications
         );
     }
