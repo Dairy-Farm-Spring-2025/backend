@@ -20,7 +20,7 @@ public class WebSocketController {
             return;
         }
         messagingTemplate.convertAndSendToUser(
-                userId.toString(),
+                String.valueOf(userId),
                 "/queue/notifications",
                 notifications
         );
