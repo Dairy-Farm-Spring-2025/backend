@@ -12,11 +12,21 @@ public class WebSocketController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
+//    public void sendListNotificationUpdate(Long userId, List<NotificationEntity> notifications) {
+//        messagingTemplate.convertAndSendToUser(
+//                String.valueOf(userId),
+//                "/user/my/notification",
+//                notifications
+//        );
+//    }
+
     public void sendListNotificationUpdate(Long userId, List<NotificationEntity> notifications) {
         messagingTemplate.convertAndSendToUser(
                 String.valueOf(userId),
-                "/user/my/notification",
+                "/queue/notification/" + userId,
                 notifications
         );
     }
+
+
 }
