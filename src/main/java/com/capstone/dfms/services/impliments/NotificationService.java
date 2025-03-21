@@ -81,6 +81,7 @@ public class NotificationService implements INotificationService {
         userNotificationRepository.save(userNotification);
     }
 
+    @Override
     public List<NotificationEntity> getUserNotifications() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
