@@ -44,9 +44,9 @@ public class NotificationController {
         return CoreApiResponse.success("Read notification success");
     }
 
-    @GetMapping("/myNotification/")
-    public CoreApiResponse<List<NotificationEntity>> getUserNotifications() {
-        List<NotificationEntity> notifications = notificationService.getUserNotifications();
+    @GetMapping("/myNotification/{userId}")
+    public CoreApiResponse<List<NotificationEntity>> getUserNotifications(@PathVariable Long userId) {
+        List<NotificationEntity> notifications = notificationService.getUserNotifications(userId);
         return CoreApiResponse.success(notifications);
     }
 

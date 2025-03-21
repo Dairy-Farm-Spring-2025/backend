@@ -81,18 +81,32 @@ public class NotificationService implements INotificationService {
         userNotificationRepository.save(userNotification);
     }
 
+//    @Override
+//    public List<NotificationEntity> getUserNotifications() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+//        UserEntity user = userPrincipal.getUser();
+//        List<UserNotificationEntity> userNotifications = userNotificationRepository.findNotificationsByUserId(user.getId());
+//
+//        List<NotificationEntity> list = userNotifications.stream()
+//                .map(UserNotificationEntity::getNotification)
+//                .distinct()
+//                .toList();
+//        webSocketController.sendListNotificationUpdate(user.getId(),list);
+//        return list;
+//    }
+
     @Override
-    public List<NotificationEntity> getUserNotifications() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        UserEntity user = userPrincipal.getUser();
-        List<UserNotificationEntity> userNotifications = userNotificationRepository.findNotificationsByUserId(user.getId());
+    public List<NotificationEntity> getUserNotifications(Long userId) {
+        List<UserNotificationEntity> userNotifications = userNotificationRepository.findNotificationsByUserId(userId);
 
         List<NotificationEntity> list = userNotifications.stream()
                 .map(UserNotificationEntity::getNotification)
                 .distinct()
                 .toList();
-        webSocketController.sendListNotificationUpdate(user.getId(),list);
+
+        webSocketController.sendListNotificationUpdate(userId, list);
         return list;
     }
+
 }

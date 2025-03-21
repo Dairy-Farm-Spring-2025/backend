@@ -16,5 +16,5 @@ public interface INotificationService {
 
     void markAsRead(Long notificationId, Long userId);
 
-    List<NotificationEntity> getUserNotifications();
+    List<NotificationEntity> getUserNotifications(Long userId);
 }
