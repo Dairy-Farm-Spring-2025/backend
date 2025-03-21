@@ -15,6 +15,10 @@ public class WebSocketController {
     private SimpMessagingTemplate messagingTemplate;
 
     public void sendListNotificationUpdate(Long userId, List<NotificationEntity> notifications) {
+        if (userId == null) {
+            System.out.println("Invalid userId: " + userId);
+            return;
+        }
         messagingTemplate.convertAndSendToUser(
                 userId.toString(),
                 "/queue/notifications",
