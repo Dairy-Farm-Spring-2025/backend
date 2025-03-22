@@ -26,34 +26,26 @@ public class WebSocketEventListener {
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        Map<String, Object> sessionAttributes = headerAccessor.getSessionAttributes();
 
-        if (sessionAttributes != null && sessionAttributes.containsKey("token")) {
-            String token = (String) sessionAttributes.get("token");
-            String userId = jwtUtil.extractUserId(token);
+        String token = headerAccessor.getFirstNativeHeader("Authorization");
+        if (token == null) {
+            token = (String) headerAccessor.getSessionAttributes().get("token");
+        }
 
-            if (userId != null) {
-                sessionAttributes.put("userId", userId);
-                System.out.println("📢 WebSocket kết nối - UserID: " + userId);
+        System.out.println("🔍 Token nhận được trong WebSocketEventListener: " + token);
 
-                UserEntity user = userRepository.findById(Long.parseLong(userId)).orElse(null);
-
-                if (user != null) {
-                    UserPrincipal userPrincipal = new UserPrincipal(user);
-
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
-
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    System.out.println("✅ Đã xác thực người dùng thành công!");
-                } else {
-                    System.out.println("⚠ Không tìm thấy UserEntity trong database!");
-                }
-            } else {
-                System.out.println("⚠ Token không hợp lệ!");
-            }
-        } else {
+        if (token == null || token.isEmpty()) {
             System.out.println("⚠ Không tìm thấy token trong session!");
+            return;
+        }
+
+        String userId = jwtUtil.extractUserId(token);
+        if (userId != null) {
+            headerAccessor.getSessionAttributes().put("userId", userId);
+            System.out.println("📢 WebSocket kết nối - UserID: " + userId);
+        } else {
+            System.out.println("⚠ Token không hợp lệ!");
         }
     }
+
 }
