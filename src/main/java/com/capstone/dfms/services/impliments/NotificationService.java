@@ -93,9 +93,7 @@ public class NotificationService implements INotificationService {
                 .map(UserNotificationEntity::getNotification)
                 .distinct()
                 .toList();
-
-        webSocketController.sendListNotificationUpdate(user.getId(), list);
-
+        webSocketController.sendListNotificationUpdate(list);
         return list;
     }
 
