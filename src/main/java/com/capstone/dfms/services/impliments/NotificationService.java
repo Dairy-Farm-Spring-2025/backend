@@ -81,16 +81,11 @@ public class NotificationService implements INotificationService {
         userNotificationRepository.save(userNotification);
     }
 
+    @Override
     public List<NotificationEntity> getUserNotifications() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal)) {
-            System.out.println("⚠ Người dùng chưa đăng nhập!");
-            throw new RuntimeException("Người dùng chưa đăng nhập!");
-        }
-
-        UserEntity user = ((UserPrincipal) authentication.getPrincipal()).getUser();
-        System.out.println("📢 Lấy thông báo cho User ID: " + user.getId());
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity user = userPrincipal.getUser();
 
         List<UserNotificationEntity> userNotifications = userNotificationRepository.findNotificationsByUserId(user.getId());
 
@@ -99,11 +94,7 @@ public class NotificationService implements INotificationService {
                 .distinct()
                 .toList();
 
-        if (user.getId() == null) {
-            System.out.println("❌ User ID bị null khi gửi thông báo!");
-        } else {
-            webSocketController.sendListNotificationUpdate(user.getId(), list);
-        }
+        webSocketController.sendListNotificationUpdate(user.getId(), list);
 
         return list;
     }

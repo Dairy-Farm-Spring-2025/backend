@@ -23,8 +23,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Value("${app.cors.allowedOrigins}")
     private String[] allowedOrigins;
 
+
     @Autowired
-    private WebSocketInterceptor webSocketInterceptor;
+    private WebSocketAuthInterceptor webSocketAuthInterceptor;
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(webSocketAuthInterceptor);
+    }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -37,30 +43,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry stompEndpointRegistry) {
         stompEndpointRegistry.addEndpoint("/ws").
                 setAllowedOriginPatterns("*").
-                addInterceptors(webSocketInterceptor).
                 withSockJS();
-    }
-    @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new ChannelInterceptor() {
-            @Override
-            public Message<?> preSend(Message<?> message, MessageChannel channel) {
-                StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-                if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
-                    if (sessionAttributes != null) {
-                        String token = accessor.getFirstNativeHeader("Authorization");
-                        if (token != null && token.startsWith("Bearer ")) {
-                            sessionAttributes.put("token", token.substring(7));
-                            System.out.println("✅ Token lưu vào sessionAttributes: " + token);
-                        } else {
-                            System.out.println("⚠ Không có token hợp lệ!");
-                        }
-                    }
-                }
-                return message;
-            }
-        });
     }
 
 }
