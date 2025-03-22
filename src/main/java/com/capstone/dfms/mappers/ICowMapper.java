@@ -3,6 +3,7 @@ package com.capstone.dfms.mappers;
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.UserEntity;
 import com.capstone.dfms.requests.CowCreateRequest;
+import com.capstone.dfms.requests.CowExcelCreateRequest;
 import com.capstone.dfms.requests.CowUpdateRequest;
 import com.capstone.dfms.requests.PersonalUpdateRequest;
 import com.capstone.dfms.responses.CowResponse;
@@ -22,6 +23,12 @@ public interface ICowMapper {
     @Mapping(source = "dateOfEnter", target = "dateOfEnter") // Make sure it's correctly mapped
     @Mapping(source = "cowTypeId", target = "cowTypeEntity.cowTypeId")
     CowEntity toModel(CowUpdateRequest request);
+
+    @Mapping(source = "cowStatus", target = "cowStatus")  // Ensure correct mapping
+    @Mapping(source = "cowOrigin", target = "cowOrigin")
+    @Mapping(source = "gender", target = "gender")
+    @Mapping(source = "cowTypeId", target = "cowTypeEntity.cowTypeId")
+    CowEntity toModel(CowExcelCreateRequest row); // ✅ Add this line
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateCowFromRequest(CowUpdateRequest updateRequest, @MappingTarget CowEntity cowEntity);
