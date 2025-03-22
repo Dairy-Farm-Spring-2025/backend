@@ -16,8 +16,14 @@ public class WebSocketInterceptor implements HandshakeInterceptor {
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) {
         if (request instanceof ServletServerHttpRequest servletRequest) {
             String authHeader = servletRequest.getServletRequest().getHeader("Authorization");
+            System.out.println("🔍 Header Authorization nhận được: " + authHeader); // Kiểm tra header
+
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                attributes.put("token", authHeader.substring(7));
+                String token = authHeader.substring(7);
+                attributes.put("token", token);
+                System.out.println("✅ Token lưu vào session: " + token);
+            } else {
+                System.out.println("⚠ Không có token hợp lệ!");
             }
         }
         return true;
@@ -27,3 +33,5 @@ public class WebSocketInterceptor implements HandshakeInterceptor {
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                WebSocketHandler wsHandler, Exception exception) {}
 }
+
+
