@@ -1,5 +1,8 @@
 package com.capstone.dfms.services.impliments;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.context.AnalysisContext;
+import com.alibaba.excel.read.listener.ReadListener;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.utils.QRCodeUtil;
 import com.capstone.dfms.components.utils.StringUtils;
@@ -7,20 +10,26 @@ import com.capstone.dfms.mappers.ICowMapper;
 import com.capstone.dfms.mappers.IPenMapper;
 import com.capstone.dfms.models.*;
 import com.capstone.dfms.repositories.*;
+import com.capstone.dfms.requests.CowCreateRequest;
+import com.capstone.dfms.requests.CowExcelCreateRequest;
 import com.capstone.dfms.requests.CowUpdateRequest;
 import com.capstone.dfms.responses.CowHealthInfoResponse;
+import com.capstone.dfms.responses.CowPenBulkResponse;
 import com.capstone.dfms.responses.CowResponse;
 import com.capstone.dfms.services.ICowServices;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -265,5 +274,38 @@ public class CowServices implements ICowServices {
         }
     }
 
+    @Override
+    public CowPenBulkResponse<CowResponse> saveCowsFromExcel(MultipartFile file) throws IOException {
+        List<CowExcelCreateRequest> cowList = new ArrayList<>();
+        List<CowResponse> savedCows = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
 
+        EasyExcel.read(file.getInputStream(), CowExcelCreateRequest.class, new ReadListener<CowExcelCreateRequest>() {
+            @Override
+            public void invoke(CowExcelCreateRequest cow, AnalysisContext analysisContext) {
+                cowList.add(cow);
+            }
+
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext analysisContext) {
+                System.out.println("Excel parsing completed!");
+            }
+        }).sheet().doRead();
+
+        int rowNum = 2; // Excel starts at row 1
+        for (CowExcelCreateRequest row : cowList) {
+            try {
+                CowEntity cowEntity = cowMapper.toModel(row); // ✅ Use Mapper
+                CowResponse response = createCow(cowEntity);
+                savedCows.add(response);
+            } catch (AppException e) {
+                errors.add("Error at row " + rowNum + ": " + e.getMessage());
+            } catch (Exception e) {
+                errors.add("Error at row " + rowNum + ": " + e.getMessage());
+            }
+            rowNum++;
+        }
+
+        return new CowPenBulkResponse<>(savedCows, errors);
+    }
 }
