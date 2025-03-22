@@ -1,6 +1,7 @@
 package com.capstone.dfms.models;
 
 
+import com.capstone.dfms.models.enums.InjectionStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,4 +33,7 @@ public class VaccineInjectionEntity  extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "vet_id")
     private UserEntity administeredBy;
+
+    @Enumerated(EnumType.STRING)
+    private InjectionStatus status;
 }

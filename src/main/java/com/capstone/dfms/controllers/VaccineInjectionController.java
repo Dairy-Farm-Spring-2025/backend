@@ -2,6 +2,7 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.VaccineInjectionEntity;
+import com.capstone.dfms.models.enums.InjectionStatus;
 import com.capstone.dfms.requests.VaccineInjectionRequest;
 import com.capstone.dfms.services.IVaccineInjectionService;
 import com.capstone.dfms.services.impliments.VaccineInjectionService;
@@ -44,5 +45,15 @@ public class VaccineInjectionController {
     public ResponseEntity<Void> deleteVaccineInjection(@PathVariable Long id) {
         vaccineInjectionService.deleteVaccineInjection(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/report-injection")
+    @PreAuthorize("hasAnyRole('VETERINARIANS')")
+    public ResponseEntity<VaccineInjectionEntity> reportVaccineInjection(
+            @PathVariable Long id,
+            @RequestParam InjectionStatus status) { // Accept status as a query param
+
+        VaccineInjectionEntity updatedEntity = vaccineInjectionService.reportVaccineInjection(id, status);
+        return ResponseEntity.ok(updatedEntity);
     }
 }
