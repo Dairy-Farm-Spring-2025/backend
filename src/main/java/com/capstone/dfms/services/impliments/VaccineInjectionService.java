@@ -4,6 +4,7 @@ import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.statics.UserStatic;
 import com.capstone.dfms.mappers.IVaccineInjectionMapper;
 import com.capstone.dfms.models.*;
+import com.capstone.dfms.models.enums.InjectionStatus;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.VaccineInjectionRequest;
 import com.capstone.dfms.services.IVaccineInjectionService;
@@ -71,4 +72,16 @@ public class VaccineInjectionService implements IVaccineInjectionService {
 
         vaccineInjectionRepository.delete(entity);
     }
+
+    @Override
+    public VaccineInjectionEntity reportVaccineInjection(Long id, InjectionStatus status) {
+        VaccineInjectionEntity entity = vaccineInjectionRepository.findById(id)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Vaccine Injection not found"));
+
+        entity.setAdministeredBy(UserStatic.getCurrentUser());
+        entity.setStatus(status);
+        return vaccineInjectionRepository.save(entity);
+    }
+
+
 }

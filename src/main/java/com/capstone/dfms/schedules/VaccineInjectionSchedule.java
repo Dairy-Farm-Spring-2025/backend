@@ -2,6 +2,7 @@ package com.capstone.dfms.schedules;
 
 import com.capstone.dfms.mappers.IVaccineInjectionMapper;
 import com.capstone.dfms.models.*;
+import com.capstone.dfms.models.enums.InjectionStatus;
 import com.capstone.dfms.models.enums.PriorityTask;
 import com.capstone.dfms.models.enums.TaskShift;
 import com.capstone.dfms.models.enums.TaskStatus;
@@ -68,6 +69,7 @@ public class VaccineInjectionSchedule {
                                     .injectionDate(nextInjectionDate)
                                     .cowEntity(cow)
                                     .vaccineCycleDetail(details)
+                                    .status(InjectionStatus.pending)
                                     .build();
 
                             newVaccineInjectionEntities.add(newInjection);
