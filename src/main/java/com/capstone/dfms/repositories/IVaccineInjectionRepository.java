@@ -20,4 +20,6 @@ public interface IVaccineInjectionRepository extends JpaRepository<VaccineInject
             @Param("vaccineCycleDetailId") Long vaccineCycleDetailId
     );
 
+    List<VaccineInjectionEntity> findByCowEntity_CowId(Long cowId);
+
 }

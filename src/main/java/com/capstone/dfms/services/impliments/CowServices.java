@@ -31,6 +31,7 @@ public class CowServices implements ICowServices {
     private final IHealthRecordRepository healthRecordRepository;
     private final IIllnessRepository illnessRepository;
     private final ICowPenRepository cowPenRepository;
+    private final IVaccineInjectionRepository vaccineInjectionRepository;
     private final IPenMapper penMapper;
 
 
@@ -90,7 +91,8 @@ public class CowServices implements ICowServices {
             response.setPenResponse(penMapper.toResponse(latestCowPen.getPenEntity()));
         } else {
             response.setPenResponse(null);
-        }        response.setHealthInfoResponses(this.getAllHealthInfoOrderedDesc(id));
+        }
+        response.setHealthInfoResponses(this.getAllHealthInfoOrderedDesc(id));
         Optional<HealthRecordEntity> latestHealthRecord = healthRecordRepository.findFirstByCowEntity_CowIdOrderByReportTimeDesc(id);
 
         if (latestHealthRecord.isPresent()) {
@@ -98,7 +100,6 @@ public class CowServices implements ICowServices {
             response.setCowStatus(healthRecord.getPeriod());
             response.setSize(healthRecord.getSize());
         } else {
-
             response.setWeight(0.0f);
             response.setSize(0.0f);
         }
@@ -190,6 +191,8 @@ public class CowServices implements ICowServices {
         // Fetch illnesses for the given cow
         List<IllnessEntity> illnesses = illnessRepository.findByCowEntityCowId(cowId);
 
+        List<VaccineInjectionEntity> injectionEntities = vaccineInjectionRepository.findByCowEntity_CowId(cowId);
+
         // Create a list to hold the unified response objects
         List<CowHealthInfoResponse<?>> responses = new ArrayList<>();
 
@@ -213,6 +216,16 @@ public class CowServices implements ICowServices {
                     .type("ILLNESS")
                     .date(startDate)
                     .health(illness)
+                    .build();
+            responses.add(response);
+        }
+
+        for (VaccineInjectionEntity injectionEntity : injectionEntities){
+            CowHealthInfoResponse<VaccineInjectionEntity> response = CowHealthInfoResponse.<VaccineInjectionEntity>builder()
+                    .id(injectionEntity.getId())
+                    .type("INJECTIONS")
+                    .date(injectionEntity.getInjectionDate())
+                    .health(injectionEntity)
                     .build();
             responses.add(response);
         }
