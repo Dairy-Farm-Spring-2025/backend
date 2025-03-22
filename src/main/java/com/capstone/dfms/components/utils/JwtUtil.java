@@ -17,10 +17,15 @@ public class JwtUtil {
                     .setSigningKey(tokenSecret)
                     .parseClaimsJws(token)
                     .getBody();
-            return claims.getSubject();
+
+            String userId = claims.getSubject();
+            System.out.println("🔍 UserID từ token: " + userId); // Kiểm tra userId
+
+            return userId;
         } catch (Exception e) {
             System.out.println("❌ Lỗi khi giải mã token: " + e.getMessage());
             return null;
         }
     }
 }
+
