@@ -23,7 +23,6 @@ public class UserNotificationEntity {
     private UserEntity user;
 
     @ManyToOne
-    @JsonIgnore
     @MapsId("notificationId")
     @JoinColumn(name = "notification_id")
     private NotificationEntity notification;

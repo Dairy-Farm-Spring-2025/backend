@@ -2,6 +2,7 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.NotificationEntity;
+import com.capstone.dfms.models.UserNotificationEntity;
 import com.capstone.dfms.requests.NotificationRequest;
 import com.capstone.dfms.services.INotificationService;
 import lombok.RequiredArgsConstructor;
@@ -45,8 +46,8 @@ public class NotificationController {
     }
 
     @GetMapping("/myNotification")
-    public CoreApiResponse<List<NotificationEntity>> getUserNotifications() {
-        List<NotificationEntity> notifications = notificationService.getUserNotifications();
+    public CoreApiResponse<List<UserNotificationEntity>> getUserNotifications() {
+        List<UserNotificationEntity> notifications = notificationService.getUserNotifications();
         return CoreApiResponse.success(notifications);
     }
 

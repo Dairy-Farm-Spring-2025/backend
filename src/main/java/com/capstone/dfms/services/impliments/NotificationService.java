@@ -10,6 +10,7 @@ import com.capstone.dfms.repositories.INotificationRepository;
 import com.capstone.dfms.repositories.IUserNotificationRepository;
 import com.capstone.dfms.repositories.IUserRepository;
 import com.capstone.dfms.requests.NotificationRequest;
+import com.capstone.dfms.responses.NotificationResponse;
 import com.capstone.dfms.services.INotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -25,7 +26,7 @@ public class NotificationService implements INotificationService {
     private final INotificationRepository notificationRepository;
     private final IUserRepository userRepository;
     private final IUserNotificationRepository userNotificationRepository;
-    private final WebSocketController webSocketController;
+//    private final WebSocketController webSocketController;
 
 
     @Override
@@ -82,19 +83,28 @@ public class NotificationService implements INotificationService {
     }
 
     @Override
-    public List<NotificationEntity> getUserNotifications() {
+    public List<UserNotificationEntity> getUserNotifications() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         UserEntity user = userPrincipal.getUser();
+        return userNotificationRepository.findNotificationsByUserId(user.getId());
+    }
 
-        List<UserNotificationEntity> userNotifications = userNotificationRepository.findNotificationsByUserId(user.getId());
+    public List<NotificationResponse> getNotificationsForUser(Long userId) {
+        List<UserNotificationEntity> userNotifications = userNotificationRepository.findNotificationsByUserId(userId);
 
-        List<NotificationEntity> list = userNotifications.stream()
-                .map(UserNotificationEntity::getNotification)
-                .distinct()
-                .toList();
-        webSocketController.sendListNotificationUpdate(user.getId(),list);
-        return list;
+        return userNotifications.stream()
+                .map(userNotification -> {
+                    NotificationEntity notification = userNotification.getNotification();
+                    NotificationResponse notificationDTO = new NotificationResponse();
+                    notificationDTO.setNotificationId(notification.getNotificationId());
+                    notificationDTO.setTitle(notification.getTitle());
+                    notificationDTO.setDescription(notification.getDescription());
+                    notificationDTO.setLink(notification.getLink());
+                    notificationDTO.setCategory(notification.getCategory().name());
+                    return notificationDTO;
+                })
+                .collect(Collectors.toList());
     }
 
 
