@@ -2,8 +2,10 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.requests.CowCreateRequest;
 import com.capstone.dfms.requests.CowUpdateRequest;
+import com.capstone.dfms.responses.CowPenBulkResponse;
 import com.capstone.dfms.responses.CowResponse;
 import com.capstone.dfms.services.ICowServices;
 import jakarta.validation.Valid;
@@ -11,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.capstone.dfms.mappers.ICowMapper.INSTANCE;
@@ -52,6 +56,21 @@ public class CowController {
             return ResponseEntity.ok()
                     .contentType(MediaType.IMAGE_PNG)
                     .body(qrCodeImage);
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<?> importCows(@RequestParam("file") MultipartFile file) {
+        try {
+            CowPenBulkResponse<CowResponse> result = cowServices.saveCowsFromExcel(file);
+
+            if (!result.getErrors().isEmpty()) {
+                return ResponseEntity.status(400).body(result);
+            }
+
+            return ResponseEntity.ok(result);
+        } catch (IOException e) {
+            return (ResponseEntity<CowPenBulkResponse<CowResponse>>) ResponseEntity.badRequest();
+        }
     }
 
 }
