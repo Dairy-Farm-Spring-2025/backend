@@ -1,5 +1,6 @@
 package com.capstone.dfms.components.configurations;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -15,19 +16,22 @@ public class WebSocketInterceptor implements HandshakeInterceptor {
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) {
         if (request instanceof ServletServerHttpRequest servletRequest) {
-            String authHeader = servletRequest.getServletRequest().getHeader("Authorization");
-            System.out.println("🔍 Header Authorization nhận được: " + authHeader); // Kiểm tra header
+            HttpServletRequest httpServletRequest = servletRequest.getServletRequest();
+            String authHeader = httpServletRequest.getHeader("Authorization");
+
+            System.out.println("🔍 Header Authorization nhận được: " + authHeader);
 
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String token = authHeader.substring(7);
                 attributes.put("token", token);
-                System.out.println("✅ Token lưu vào session: " + token);
+                System.out.println("✅ Token lưu vào sessionAttributes: " + token);
             } else {
                 System.out.println("⚠ Không có token hợp lệ!");
             }
         }
         return true;
     }
+
 
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
