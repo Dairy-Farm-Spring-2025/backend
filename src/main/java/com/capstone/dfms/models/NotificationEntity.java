@@ -1,8 +1,11 @@
 package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.CategoryNotification;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "notifications")
@@ -16,10 +19,15 @@ public class NotificationEntity extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long notificationId;
 
+    private String title;
+
     private String description;
 
     private String link;
 
     private CategoryNotification category;
+
+    @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserNotificationEntity> userNotifications;
 
 }

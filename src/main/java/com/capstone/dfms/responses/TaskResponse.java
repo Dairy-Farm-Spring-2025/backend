@@ -1,7 +1,9 @@
 package com.capstone.dfms.responses;
 
+import com.capstone.dfms.models.IllnessDetailEntity;
 import com.capstone.dfms.models.ReportTaskEntity;
 import com.capstone.dfms.models.TaskTypeEntity;
+import com.capstone.dfms.models.VaccineInjectionEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,5 +30,8 @@ public class TaskResponse {
     private String shift;
     private String completionNotes;
     private ReportTaskEntity reportTask;
+    private IllnessDetailEntity illness;
+    private VaccineInjectionEntity vaccineInjection;
+
 
 }
