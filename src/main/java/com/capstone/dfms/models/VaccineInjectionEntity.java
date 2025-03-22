@@ -1,6 +1,7 @@
 package com.capstone.dfms.models;
 
 
+import com.capstone.dfms.models.enums.InjectionStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class VaccineInjectionEntity {
+public class VaccineInjectionEntity  extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,4 +33,7 @@ public class VaccineInjectionEntity {
     @ManyToOne
     @JoinColumn(name = "vet_id")
     private UserEntity administeredBy;
+
+    @Enumerated(EnumType.STRING)
+    private InjectionStatus status;
 }
