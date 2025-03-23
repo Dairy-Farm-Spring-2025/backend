@@ -2,6 +2,7 @@ package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.Gender;
 import com.capstone.dfms.models.enums.UserStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -44,6 +45,7 @@ public class UserEntity extends BaseEntity {
 
     private String profilePhoto;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dob;
 
     @Enumerated(EnumType.STRING)
