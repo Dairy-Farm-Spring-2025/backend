@@ -19,11 +19,10 @@ public class WebSocketController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
-
     public void sendListNotificationUpdate(Long userId, List<UserNotificationEntity> notifications) {
         messagingTemplate.convertAndSendToUser(
                 String.valueOf(userId),
-                "/notifications",
+                "/queue/notifications",
                 notifications
         );
     }
