@@ -26,7 +26,7 @@ public class NotificationService implements INotificationService {
     private final INotificationRepository notificationRepository;
     private final IUserRepository userRepository;
     private final IUserNotificationRepository userNotificationRepository;
-//    private final WebSocketController webSocketController;
+    private final WebSocketController webSocketController;
 
 
     @Override
@@ -87,7 +87,9 @@ public class NotificationService implements INotificationService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         UserEntity user = userPrincipal.getUser();
-        return userNotificationRepository.findNotificationsByUserId(user.getId());
+        List<UserNotificationEntity> list = userNotificationRepository.findNotificationsByUserId(user.getId());
+        webSocketController.sendListNotificationUpdate(user.getId(),list);
+        return list;
     }
 
     public List<NotificationResponse> getNotificationsForUser(Long userId) {

@@ -19,22 +19,19 @@ public class WebSocketController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
-    @Autowired
-    private  INotificationService notificationService;
 
-//    public void sendListNotificationUpdate(List<UserNotificationEntity> notifications) {
-//
-//        messagingTemplate.convertAndSendToUser(
-//                String.valueOf(),
-//                "/queue/notifications/"+ userId,
-//                notifications
-//        );
-//    }
-
-    @MessageMapping("/user/{userId}/notifications")
-    public void sendNotifications(@DestinationVariable Long userId) {
-        List<NotificationResponse> notifications = notificationService.getNotificationsForUser(userId);
-        messagingTemplate.convertAndSendToUser(userId.toString(), "/queue/notifications", notifications);
+    public void sendListNotificationUpdate(Long userId, List<UserNotificationEntity> notifications) {
+        messagingTemplate.convertAndSendToUser(
+                String.valueOf(userId),
+                "/notifications",
+                notifications
+        );
     }
+
+//    @MessageMapping("/user/{userId}/notifications")
+//    public void sendNotifications(@DestinationVariable Long userId) {
+//        List<NotificationResponse> notifications = notificationService.getNotificationsForUser(userId);
+//        messagingTemplate.convertAndSendToUser(userId.toString(), "/queue/notifications", notifications);
+//    }
 
 }
