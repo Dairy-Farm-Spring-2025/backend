@@ -26,6 +26,9 @@ spring:
       max-request-size: 20MB
   jackson:
     time-zone: Asia/Ho_Chi_Minh
+    date-format: yyyy-MM-dd
+    serialization:
+      write-dates-as-timestamps: false
 
 app:
   fe:

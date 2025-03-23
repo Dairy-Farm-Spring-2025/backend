@@ -1,13 +1,7 @@
 package com.capstone.dfms.controllers;
 
-import com.capstone.dfms.models.NotificationEntity;
 import com.capstone.dfms.models.UserNotificationEntity;
-import com.capstone.dfms.requests.NotificationRequest;
-import com.capstone.dfms.responses.NotificationResponse;
-import com.capstone.dfms.services.INotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
@@ -27,10 +21,12 @@ public class WebSocketController {
         );
     }
 
-//    @MessageMapping("/user/{userId}/notifications")
-//    public void sendNotifications(@DestinationVariable Long userId) {
-//        List<NotificationResponse> notifications = notificationService.getNotificationsForUser(userId);
-//        messagingTemplate.convertAndSendToUser(userId.toString(), "/queue/notifications", notifications);
-//    }
+    public void sendNotification(UserNotificationEntity notification) {
+        messagingTemplate.convertAndSendToUser(
+                String.valueOf(notification.getUser().getId()),
+                "/notifications",
+                notification
+        );
+    }
 
 }

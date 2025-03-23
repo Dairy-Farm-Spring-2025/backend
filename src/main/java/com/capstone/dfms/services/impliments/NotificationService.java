@@ -46,6 +46,8 @@ public class NotificationService implements INotificationService {
                     .orElseThrow(() -> new RuntimeException("User not found")));
             userNotification.setNotification(savedNotification);
             userNotification.setRead(false);
+            webSocketController.sendNotification(userNotification);
+
             return userNotification;
         }).collect(Collectors.toList());
 
