@@ -32,7 +32,7 @@ spring:
 
 app:
   firebase:
-    service-account-file: src/main/resources/dfms-268e0-firebase-adminsdk-fbsvc-6aa204ff29.json
+    service-account-file: src/main/resources/dfms-268e0-firebase-adminsdk-fbsvc-5f06c29698.json
   fe:
     verify_url: ${VERIFY_URL:http://localhost:8080/api/v1/users/verify}
     forgot_password_url: ${FORGOT_PASSWORD_URL:http://localhost:8080/api/v1/users/setpassword}
