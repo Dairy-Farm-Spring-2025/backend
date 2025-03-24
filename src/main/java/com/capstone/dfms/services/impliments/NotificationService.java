@@ -1,7 +1,6 @@
 package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.securities.UserPrincipal;
-import com.capstone.dfms.controllers.WebSocketController;
 import com.capstone.dfms.models.NotificationEntity;
 import com.capstone.dfms.models.UserEntity;
 import com.capstone.dfms.models.UserNotificationEntity;
@@ -12,12 +11,18 @@ import com.capstone.dfms.repositories.IUserRepository;
 import com.capstone.dfms.requests.NotificationRequest;
 import com.capstone.dfms.responses.NotificationResponse;
 import com.capstone.dfms.services.INotificationService;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,7 +31,7 @@ public class NotificationService implements INotificationService {
     private final INotificationRepository notificationRepository;
     private final IUserRepository userRepository;
     private final IUserNotificationRepository userNotificationRepository;
-    private final WebSocketController webSocketController;
+    private final FirebaseMessaging firebaseMessaging;
 
 
     @Override
@@ -42,12 +47,12 @@ public class NotificationService implements INotificationService {
         List<UserNotificationEntity> userNotifications = request.getUserIds().stream().map(userId -> {
             UserNotificationEntity userNotification = new UserNotificationEntity();
             userNotification.setId(new UserNotificationPK(userId, savedNotification.getNotificationId()));
-            userNotification.setUser(userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found")));
+            UserEntity user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            userNotification.setUser(user);
             userNotification.setNotification(savedNotification);
             userNotification.setRead(false);
-            webSocketController.sendNotification(userNotification);
-
+            sendFirebaseNotification(user, savedNotification);
             return userNotification;
         }).collect(Collectors.toList());
 
@@ -90,26 +95,51 @@ public class NotificationService implements INotificationService {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         UserEntity user = userPrincipal.getUser();
         List<UserNotificationEntity> list = userNotificationRepository.findNotificationsByUserId(user.getId());
-        webSocketController.sendListNotificationUpdate(user.getId(),list);
         return list;
     }
 
-    public List<NotificationResponse> getNotificationsForUser(Long userId) {
-        List<UserNotificationEntity> userNotifications = userNotificationRepository.findNotificationsByUserId(userId);
+    private void sendFirebaseNotification(UserEntity user, NotificationEntity notification) {
+        Notification fcmNotification = Notification.builder()
+                .setTitle(notification.getTitle())
+                .setBody(notification.getDescription())
+                .build();
 
-        return userNotifications.stream()
-                .map(userNotification -> {
-                    NotificationEntity notification = userNotification.getNotification();
-                    NotificationResponse notificationDTO = new NotificationResponse();
-                    notificationDTO.setNotificationId(notification.getNotificationId());
-                    notificationDTO.setTitle(notification.getTitle());
-                    notificationDTO.setDescription(notification.getDescription());
-                    notificationDTO.setLink(notification.getLink());
-                    notificationDTO.setCategory(notification.getCategory().name());
-                    return notificationDTO;
-                })
-                .collect(Collectors.toList());
+        Map<String, String> data = new HashMap<>();
+        data.put("notificationId", notification.getNotificationId().toString());
+        if (notification.getLink() != null) {
+            data.put("link", notification.getLink());
+        }
+
+        // Gửi cho mobile
+        if (user.getFcmTokenMobile() != null && !user.getFcmTokenMobile().isEmpty()) {
+            Message mobileMessage = Message.builder()
+                    .setNotification(fcmNotification)
+                    .putAllData(data)
+                    .setToken(user.getFcmTokenMobile())
+                    .build();
+
+            sendFcmMessage(mobileMessage, "mobile", user.getId());
+        }
+
+        // Gửi cho web
+        if (user.getFcmTokenWeb() != null && !user.getFcmTokenWeb().isEmpty()) {
+            Message webMessage = Message.builder()
+                    .setNotification(fcmNotification)
+                    .putAllData(data)
+                    .setToken(user.getFcmTokenWeb())
+                    .build();
+
+            sendFcmMessage(webMessage, "web", user.getId());
+        }
     }
 
+    private void sendFcmMessage(Message message, String deviceType, Long userId) {
+        try {
+            String messageId = firebaseMessaging.send(message);
+            System.out.println("Notification sent to " + deviceType + " for user " + userId + ": " + messageId);
+        } catch (FirebaseMessagingException e) {
+            System.err.println("Failed to send FCM to " + deviceType + " for user " + userId + ": " + e.getMessage());
+        }
+    }
 
 }

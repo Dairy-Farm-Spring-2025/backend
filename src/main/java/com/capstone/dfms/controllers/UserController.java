@@ -180,5 +180,13 @@ public class UserController {
         return parts.length == 3;
     }
 
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PutMapping("/update/fcmToken")
+    public CoreApiResponse<String> updateFcmToken(
+            @RequestBody FcmTokenRequest request) {
+        userService.updateFcmToken(request);
+        return CoreApiResponse.success("FCM token updated successfully");
+    }
+
 
 }

@@ -17,10 +17,7 @@ import com.capstone.dfms.models.enums.UserStatus;
 import com.capstone.dfms.repositories.IRoleRepository;
 import com.capstone.dfms.repositories.ITokenRepository;
 import com.capstone.dfms.repositories.IUserRepository;
-import com.capstone.dfms.requests.PersonalUpdateRequest;
-import com.capstone.dfms.requests.UserChangePasswordRequest;
-import com.capstone.dfms.requests.UserForgotPasswordRequest;
-import com.capstone.dfms.requests.UserSignInRequest;
+import com.capstone.dfms.requests.*;
 import com.capstone.dfms.responses.SignInResponse;
 import com.capstone.dfms.services.IUserService;
 import lombok.RequiredArgsConstructor;
@@ -335,5 +332,21 @@ public class UserService implements IUserService {
             employeeNumberPrefix = "WO";
         }
         return employeeNumberPrefix + String.format("%03d", count + 1);
+    }
+
+    @Override
+    public void updateFcmToken(FcmTokenRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity user = userPrincipal.getUser();
+
+        if (request.getFcmTokenMobile() != null) {
+            user.setFcmTokenMobile(request.getFcmTokenMobile());
+        }
+        if (request.getFcmTokenWeb() != null) {
+            user.setFcmTokenWeb(request.getFcmTokenWeb());
+        }
+
+        userRepository.save(user);
     }
 }
