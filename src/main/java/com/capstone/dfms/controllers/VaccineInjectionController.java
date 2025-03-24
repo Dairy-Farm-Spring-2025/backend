@@ -27,13 +27,13 @@ public class VaccineInjectionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<VaccineInjectionEntity>> getAllVaccineInjections() {
-        return ResponseEntity.ok(vaccineInjectionService.getAllVaccineInjections());
+    public CoreApiResponse<List<VaccineInjectionEntity>> getAllVaccineInjections() {
+        return CoreApiResponse.success(vaccineInjectionService.getAllVaccineInjections());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<VaccineInjectionEntity> getVaccineInjectionById(@PathVariable Long id) {
-        return ResponseEntity.ok(vaccineInjectionService.getVaccineInjectionById(id));
+    public CoreApiResponse<VaccineInjectionEntity> getVaccineInjectionById(@PathVariable Long id) {
+        return CoreApiResponse.success(vaccineInjectionService.getVaccineInjectionById(id));
     }
 
 //    @PutMapping("/{id}")
@@ -42,18 +42,18 @@ public class VaccineInjectionController {
 //    }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteVaccineInjection(@PathVariable Long id) {
+    public CoreApiResponse<Void> deleteVaccineInjection(@PathVariable Long id) {
         vaccineInjectionService.deleteVaccineInjection(id);
-        return ResponseEntity.noContent().build();
+        return CoreApiResponse.success("");
     }
 
     @PutMapping("/{id}/report-injection")
     @PreAuthorize("hasAnyRole('VETERINARIANS')")
-    public ResponseEntity<VaccineInjectionEntity> reportVaccineInjection(
+    public CoreApiResponse<VaccineInjectionEntity> reportVaccineInjection(
             @PathVariable Long id,
             @RequestParam InjectionStatus status) { // Accept status as a query param
 
         VaccineInjectionEntity updatedEntity = vaccineInjectionService.reportVaccineInjection(id, status);
-        return ResponseEntity.ok(updatedEntity);
+        return CoreApiResponse.success(updatedEntity);
     }
 }
