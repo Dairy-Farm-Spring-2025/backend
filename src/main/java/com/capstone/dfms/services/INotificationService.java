@@ -20,5 +20,4 @@ public interface INotificationService {
 
     List<UserNotificationEntity> getUserNotifications();
 
-    List<NotificationResponse> getNotificationsForUser(Long userId);
 }

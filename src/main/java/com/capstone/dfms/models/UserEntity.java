@@ -69,6 +69,10 @@ public class UserEntity extends BaseEntity {
     @JsonIgnore
     private Boolean updateInfo;
 
+    private String fcmTokenMobile;
+
+    private String fcmTokenWeb;
+
     @JsonIgnore
     private Boolean changePassword;
 }

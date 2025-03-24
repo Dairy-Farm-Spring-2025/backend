@@ -2,10 +2,7 @@ package com.capstone.dfms.services;
 
 import com.capstone.dfms.models.RoleEntity;
 import com.capstone.dfms.models.UserEntity;
-import com.capstone.dfms.requests.PersonalUpdateRequest;
-import com.capstone.dfms.requests.UserChangePasswordRequest;
-import com.capstone.dfms.requests.UserForgotPasswordRequest;
-import com.capstone.dfms.requests.UserSignInRequest;
+import com.capstone.dfms.requests.*;
 import com.capstone.dfms.responses.SignInResponse;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,4 +45,6 @@ public interface IUserService {
     UserEntity getUserById(Long id);
 
     UserEntity changeUserRole(Long userId,Long roleId);
+
+    void updateFcmToken(FcmTokenRequest request);
 }
