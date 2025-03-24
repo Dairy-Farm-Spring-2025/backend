@@ -171,6 +171,18 @@
 			<version>3.2.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.google.api-client</groupId>
+			<artifactId>google-api-client</artifactId>
+			<version>1.33.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.http-client</groupId>
+			<artifactId>google-http-client-gson</artifactId>
+			<version>1.39.2</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
