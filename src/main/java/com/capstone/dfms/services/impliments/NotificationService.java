@@ -15,6 +15,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -99,22 +100,27 @@ public class NotificationService implements INotificationService {
     }
 
     private void sendFirebaseNotification(UserEntity user, NotificationEntity notification) {
-        Notification fcmNotification = Notification.builder()
-                .setTitle(notification.getTitle())
-                .setBody(notification.getDescription())
-                .build();
-
         Map<String, String> data = new HashMap<>();
         data.put("notificationId", notification.getNotificationId().toString());
         if (notification.getLink() != null) {
             data.put("link", notification.getLink());
         }
 
+        Map<String, String> notificationPayload = new HashMap<>();
+        notificationPayload.put("title", notification.getTitle());
+        notificationPayload.put("body", notification.getDescription());
+        String logoUrl = "http://34.124.196.11:8080/images/logo/logo_dairyfarm.png";
+        notificationPayload.put("icon", logoUrl);
+        if (notification.getLink() != null) {
+            notificationPayload.put("click_action", notification.getLink());
+        }
+        String notificationJson = new Gson().toJson(notificationPayload);
+
         // Gửi cho mobile
         if (user.getFcmTokenMobile() != null && !user.getFcmTokenMobile().isEmpty()) {
             Message mobileMessage = Message.builder()
-                    .setNotification(fcmNotification)
                     .putAllData(data)
+                    .putData("notification", notificationJson)
                     .setToken(user.getFcmTokenMobile())
                     .build();
 
@@ -124,8 +130,8 @@ public class NotificationService implements INotificationService {
         // Gửi cho web
         if (user.getFcmTokenWeb() != null && !user.getFcmTokenWeb().isEmpty()) {
             Message webMessage = Message.builder()
-                    .setNotification(fcmNotification)
                     .putAllData(data)
+                    .putData("notification", notificationJson)
                     .setToken(user.getFcmTokenWeb())
                     .build();
 
