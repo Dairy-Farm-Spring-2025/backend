@@ -29,6 +29,17 @@ spring:
     date-format: yyyy-MM-dd
     serialization:
       write-dates-as-timestamps: false
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 796302756667-v8k7e9vj907llfj9nrucos35ndqll7i5.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - email
+              - profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
 
 app:
   firebase:

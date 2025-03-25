@@ -4,6 +4,7 @@ import com.capstone.dfms.models.RoleEntity;
 import com.capstone.dfms.models.UserEntity;
 import com.capstone.dfms.requests.*;
 import com.capstone.dfms.responses.SignInResponse;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

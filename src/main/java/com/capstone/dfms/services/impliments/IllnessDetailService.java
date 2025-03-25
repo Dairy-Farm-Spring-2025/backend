@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.statics.UserStatic;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.IIllnessDetailMapper;
 import com.capstone.dfms.mappers.IIllnessMapper;
 import com.capstone.dfms.models.*;
@@ -33,9 +34,8 @@ public class IllnessDetailService implements IIllnessDetailService {
     private final ITaskRepository taskRepository;
     private final ITaskTypeRepository taskTypeRepository;
     private final ICowPenRepository cowPenRepository;
-
+    private final IRoleRepository roleRepository;
     private final IHealthRecordRepository healthRecordRepository;
-
     private final IIllnessDetailMapper mapper;
 
     @Override
@@ -181,11 +181,14 @@ public class IllnessDetailService implements IIllnessDetailService {
                 // Call the create function of IllnessDetailService.
                 IllnessDetailEntity createdEntity = this.createIllnessDetail(mapper.toModel(request), true);
                 successes.add(createdEntity);
+                RoleEntity role = roleRepository.findById(3L).orElseThrow(()
+                        -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
 
                 TaskTypeEntity treatmentTaskType = taskTypeRepository.findByName("Chữa bệnh")
                         .orElseGet(() -> {
                             TaskTypeEntity newTaskType = new TaskTypeEntity();
                             newTaskType.setName("Chữa bệnh");
+                            newTaskType.setRoleId(role);
                             newTaskType.setDescription("Công việc điều trị bệnh cho bò");
                             return taskTypeRepository.save(newTaskType);
                         });
