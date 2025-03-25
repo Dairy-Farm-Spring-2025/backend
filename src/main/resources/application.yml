@@ -1,5 +1,11 @@
 server:
   port: ${SERVER_PORT:8080}
+  ssl:
+    enabled: true
+    key-store: /etc/ssl/certs/keystore.p12
+    key-store-password: Phuc0987
+    key-store-type: PKCS12
+    key-alias: springboot
 
 spring:
   datasource:
@@ -39,7 +45,8 @@ spring:
             scope:
               - email
               - profile
-            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            redirect-uri: https://34.124.196.11:8080/login/oauth2/code/google
+
 
 app:
   firebase:
@@ -47,6 +54,7 @@ app:
   fe:
     verify_url: ${VERIFY_URL:http://localhost:8080/api/v1/users/verify}
     forgot_password_url: ${FORGOT_PASSWORD_URL:http://localhost:8080/api/v1/users/setpassword}
+    path: http://localhost:5173
   cors:
     allowedOrigins: http://localhost:4176,http://localhost:4200,http://34.124.196.11:8080,https://34.124.196.11,https://34.124.196.11
   api:
@@ -54,7 +62,7 @@ app:
       v1: /api/v1
   openapi:
     dev-url: http://localhost:${SERVER_PORT:8080}
-    prod-url: http://34.124.196.11:8080
+    prod-url: http://api.dairyfarmfpt.website
   auth:
     tokenSecret: T04ca023b39512e46d0c2cf4b48d5aac61d34302994c87ed4eff225dcf3b0a218739f3897051a057f9b846a69ea2927a587044164b7bae5e1306219d50b588cb1
     refreshTokenExpirationMsec: 864000000  # 10 days
