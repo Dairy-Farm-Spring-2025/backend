@@ -38,7 +38,7 @@ spring:
             scope:
               - email
               - profile
-            redirect-uri: https://34.124.196.11:8080/login/oauth2/code/google
+            redirect-uri: https://api.dairyfarmfpt.website/login/oauth2/code/google
 
 
 app:
