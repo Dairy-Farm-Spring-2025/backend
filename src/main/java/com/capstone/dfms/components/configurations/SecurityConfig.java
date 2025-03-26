@@ -31,6 +31,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -115,20 +116,26 @@ public class SecurityConfig {
                 String userName = user.getName() != null ? user.getName() : "UNKNOWN";
 
                 String redirectUrl = String.format(
-                        "http://localhost:5173/dairy?access_token=%s&refresh_token=%s&user_id=%s&user_name=%s&role=%s",
-                        URLEncoder.encode(accessToken, "UTF-8"),
-                        URLEncoder.encode(refreshToken, "UTF-8"),
-                        URLEncoder.encode(userId, "UTF-8"),
-                        URLEncoder.encode(userName, "UTF-8"),
-                        URLEncoder.encode(roleName, "UTF-8")
+                        "http://localhost:5173/dairy?access_token=%s&refresh_token=%s&userId=%d&userName=%s&roleName=%s",
+                        URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
+                        URLEncoder.encode(refreshToken, StandardCharsets.UTF_8),
+                        user.getId(),
+                        URLEncoder.encode(user.getName(), StandardCharsets.UTF_8),
+                        URLEncoder.encode(roleName, StandardCharsets.UTF_8)
                 );
+
+                response.setStatus(HttpServletResponse.SC_FOUND);
+                response.setHeader("Location", redirectUrl);
+                response.getWriter().flush();
                 response.sendRedirect(redirectUrl);
 
             } catch (Exception e) {
-                String errorMessage = URLEncoder.encode(e.getMessage(), "UTF-8");
+                String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
                 String errorRedirectUrl = "http://localhost:5173/dairy?error=" + errorMessage;
 
-                response.sendRedirect(errorRedirectUrl);
+                response.setStatus(HttpServletResponse.SC_FOUND);
+                response.setHeader("Location", errorRedirectUrl);
+                response.getWriter().flush();
             }
         };
     }
