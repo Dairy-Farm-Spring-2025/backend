@@ -27,8 +27,7 @@ public class AuthService implements IAuthService {
         System.out.println("Email đăng nhập Google: " + email);
         Optional<UserEntity> existingUser = userRepository.findByEmail(email);
         if(existingUser.isPresent()) {
-            throw new AppException(HttpStatus.CONFLICT, LocalizationUtils.getMessage("user.create.exist"));
-
+            throw new RuntimeException("Email " + email + " không tồn tại trong hệ thống!");
         }
 
         UserEntity user = existingUser.get();
