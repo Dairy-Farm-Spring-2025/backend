@@ -112,7 +112,7 @@ public class SecurityConfig {
                 UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
                 UserEntity user = authService.processGoogleLogin(oauthToken);
 
-                String accessToken = tokenProvider.createAccessToken(user.getId());
+                String accessToken = tokenProvider.createAccessToken(principal);
                 String refreshToken = tokenProvider.createRefreshToken(principal);
                 String userId = String.valueOf(user.getId());
                 String roleName = user.getRoleId() != null ? user.getRoleId().getName() : "UNKNOWN";
