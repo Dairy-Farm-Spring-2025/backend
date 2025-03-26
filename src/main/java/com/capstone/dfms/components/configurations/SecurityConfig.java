@@ -30,6 +30,8 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.net.URLEncoder;
+
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @EnableWebSecurity
@@ -102,18 +104,26 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler oauth2SuccessHandler() {
         return (request, response, authentication) -> {
-            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-            UserEntity user = authService.processGoogleLogin(oauthToken);
+            try {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                UserEntity user = authService.processGoogleLogin(oauthToken);
 
-            String accessToken = tokenProvider.createAccessToken(user.getId());
+                String accessToken = tokenProvider.createAccessToken(user.getId());
+                String refreshToken = tokenProvider.createRefreshToken(authentication);
 
-            String refreshToken = tokenProvider.createRefreshToken(authentication);
+                String redirectUrl = String.format(
+                        "http://localhost:5173/dairy?access_token=%s&refresh_token=%s",
+                        URLEncoder.encode(accessToken, "UTF-8"),
+                        URLEncoder.encode(refreshToken, "UTF-8")
+                );
+                response.sendRedirect(redirectUrl);
 
-            response.setContentType("application/json");
-            response.getWriter().write(
-                    String.format("{\"access_token\": \"%s\", \"refresh_token\": \"%s\"}", accessToken, refreshToken)
-            );
-            response.sendRedirect("http://localhost:5173/dairy");
+            } catch (Exception e) {
+                String errorMessage = URLEncoder.encode(e.getMessage(), "UTF-8");
+                String errorRedirectUrl = "http://localhost:5173/dairy?error=" + errorMessage;
+
+                response.sendRedirect(errorRedirectUrl);
+            }
         };
     }
 
