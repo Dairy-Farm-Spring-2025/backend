@@ -3,6 +3,7 @@ package com.capstone.dfms.components.configurations;
 import com.capstone.dfms.components.fitters.TokenAuthenticationFilter;
 import com.capstone.dfms.components.securities.TokenProvider;
 import com.capstone.dfms.components.securities.UserDetailService;
+import com.capstone.dfms.components.securities.UserPrincipal;
 import com.capstone.dfms.models.UserEntity;
 import com.capstone.dfms.services.IAuthService;
 import com.capstone.dfms.services.impliments.UserService;
@@ -107,6 +108,7 @@ public class SecurityConfig {
         return (request, response, authentication) -> {
             try {
                 OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
                 UserEntity user = authService.processGoogleLogin(oauthToken);
 
                 String accessToken = tokenProvider.createAccessToken(user.getId());
