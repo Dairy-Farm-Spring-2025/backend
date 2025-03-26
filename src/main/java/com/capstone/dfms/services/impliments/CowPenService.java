@@ -1,6 +1,7 @@
 package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.ICowPenMapper;
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.CowPenEntity;
@@ -38,30 +39,28 @@ public class CowPenService implements ICowPenService {
     @Override
     public CowPenResponse create(CowPenEntity request) {
         Optional<CowPenEntity> cowPenEntity = cowPenRepository.findById(request.getId());
-        if(cowPenEntity.isPresent()){
-            throw new AppException(HttpStatus.OK, "Cow-Pen have created before");
+        if (cowPenEntity.isPresent()) {
+            throw new AppException(HttpStatus.OK, LocalizationUtils.getMessage("cow.pen.created.before"));
         }
 
         CowEntity cowEntity = cowRepository.findById(request.getId().getCowId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found with ID: " + request.getId().getCowId()));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.not.found")));
         PenEntity penEntity = penRepository.findById(request.getId().getPenId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Pen not found with ID: " + request.getId().getPenId()));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("pen.not.found")));
 
         List<CowPenEntity> existingCowPenForCow = cowPenRepository.findValidCowPensByCowId(cowEntity.getCowId(), LocalDate.now());
         for (var cowPen : existingCowPenForCow) {
             LocalDateTime toDate = cowPen.getToDate();
-
             if (toDate == null || request.getId().getFromDate().isAfter(toDate)) {
-                throw new AppException(HttpStatus.OK, "Cow in another Pen!");
+                throw new AppException(HttpStatus.OK, LocalizationUtils.getMessage("cow.in.another.pen"));
             }
         }
 
         List<CowPenEntity> existingCowPenForPen = cowPenRepository.findValidCowPensByPenId(penEntity.getPenId(), LocalDate.now());
         for (var cowPen : existingCowPenForPen) {
             LocalDateTime toDate = cowPen.getToDate();
-
             if (toDate == null || request.getId().getFromDate().isAfter(toDate)) {
-                throw new AppException(HttpStatus.OK, "Pen is not available!");
+                throw new AppException(HttpStatus.OK, LocalizationUtils.getMessage("pen.not.available"));
             }
         }
 
