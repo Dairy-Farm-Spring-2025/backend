@@ -37,9 +37,8 @@ public class UserPrincipal implements UserDetails,OAuth2User{
         this.authorities = authorities;
     }
 
-    public UserPrincipal(UserEntity user, Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes) {
+    public UserPrincipal(UserEntity user, Map<String, Object> attributes) {
         this.user = user;
-        this.authorities = authorities != null ? authorities : Collections.emptyList();
         this.attributes = attributes != null ? attributes : Collections.emptyMap();
     }
 

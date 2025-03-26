@@ -94,6 +94,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorize"))
+                        .userInfoEndpoint(userInfo -> userInfo.userService(configOAuth2UserService()))
                         .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/*"))
                         .successHandler(oauth2SuccessHandler())
                         .failureHandler(oauth2FailureHandler()))
@@ -150,5 +151,10 @@ public class SecurityConfig {
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"" + exception.getMessage() + "\"}");
         };
+    }
+
+    @Bean
+    public ConfigOAuth2UserService configOAuth2UserService() {
+        return new ConfigOAuth2UserService();
     }
 }

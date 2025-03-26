@@ -9,8 +9,10 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Service;
 
-public class ConfigOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User>{
+@Service
+public class ConfigOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     @Autowired
     private IUserRepository userRepository;
 
@@ -22,6 +24,6 @@ public class ConfigOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Email " + email + " không tồn tại trong hệ thống!"));
-        return new UserPrincipal(user);
+        return new UserPrincipal(user, oauth2User.getAttributes());
     }
 }
