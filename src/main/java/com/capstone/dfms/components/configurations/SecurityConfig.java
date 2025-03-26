@@ -119,7 +119,7 @@ public class SecurityConfig {
                 String userName = user.getName() != null ? user.getName() : "UNKNOWN";
 
                 String redirectUrl = String.format(
-                        "http://localhost:5173/dairy?access_token=%s&refresh_token=%s&userId=%d&userName=%s&roleName=%s",
+                        "http://localhost:5173/login/oauth2/callback?access_token=%s&refresh_token=%s&userId=%d&userName=%s&roleName=%s",
                         URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
                         URLEncoder.encode(refreshToken, StandardCharsets.UTF_8),
                         user.getId(),
@@ -134,7 +134,7 @@ public class SecurityConfig {
 
             } catch (Exception e) {
                 String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
-                String errorRedirectUrl = "http://localhost:5173/dairy?error=" + errorMessage;
+                String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + errorMessage;
 
                 response.setStatus(HttpServletResponse.SC_FOUND);
                 response.setHeader("Location", errorRedirectUrl);
