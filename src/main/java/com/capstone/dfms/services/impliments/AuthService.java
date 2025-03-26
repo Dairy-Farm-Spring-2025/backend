@@ -22,16 +22,13 @@ public class AuthService implements IAuthService {
         OAuth2User oAuth2User = authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
 
-        Optional<UserEntity> existingUser = userRepository.findByEmail(email);
-        if (existingUser.isEmpty()) {
-            throw new RuntimeException("Email " + email + " không tồn tại trong hệ thống!");
-        }
-
-        UserEntity user = existingUser.get();
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email " + email + " không tồn tại trong hệ thống!"));
 
         if (!user.getIsActive()) {
             throw new RuntimeException("Tài khoản không hoạt động!");
         }
+
         return user;
     }
 }

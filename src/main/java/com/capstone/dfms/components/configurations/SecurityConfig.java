@@ -110,11 +110,17 @@ public class SecurityConfig {
 
                 String accessToken = tokenProvider.createAccessToken(user.getId());
                 String refreshToken = tokenProvider.createRefreshToken(authentication);
+                String userId = String.valueOf(user.getId());
+                String roleName = user.getRoleId() != null ? user.getRoleId().getName() : "UNKNOWN";
+                String userName = user.getName() != null ? user.getName() : "UNKNOWN";
 
                 String redirectUrl = String.format(
-                        "http://localhost:5173/dairy?access_token=%s&refresh_token=%s",
+                        "http://localhost:5173/dairy?access_token=%s&refresh_token=%s&user_id=%s&user_name=%s&role=%s",
                         URLEncoder.encode(accessToken, "UTF-8"),
-                        URLEncoder.encode(refreshToken, "UTF-8")
+                        URLEncoder.encode(refreshToken, "UTF-8"),
+                        URLEncoder.encode(userId, "UTF-8"),
+                        URLEncoder.encode(userName, "UTF-8"),
+                        URLEncoder.encode(roleName, "UTF-8")
                 );
                 response.sendRedirect(redirectUrl);
 
@@ -126,6 +132,7 @@ public class SecurityConfig {
             }
         };
     }
+
 
     @Bean
     public AuthenticationFailureHandler oauth2FailureHandler() {
