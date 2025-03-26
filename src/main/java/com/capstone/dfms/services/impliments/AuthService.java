@@ -24,9 +24,10 @@ public class AuthService implements IAuthService {
     public UserEntity processGoogleLogin(OAuth2AuthenticationToken authentication) {
         OAuth2User oAuth2User = authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
-        System.out.println("Email đăng nhập Google: " + email);
+
         Optional<UserEntity> existingUser = userRepository.findByEmail(email);
-        if(existingUser.isEmpty()) {
+
+        if (existingUser.isEmpty()) {
             throw new RuntimeException("Email " + email + " không tồn tại trong hệ thống!");
         }
 
@@ -35,6 +36,8 @@ public class AuthService implements IAuthService {
         if (!user.getIsActive()) {
             throw new RuntimeException("Tài khoản không hoạt động!");
         }
+
         return user;
     }
+
 }

@@ -120,7 +120,7 @@ public class SecurityConfig {
                         URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
                         URLEncoder.encode(refreshToken, StandardCharsets.UTF_8),
                         user.getId(),
-                        URLEncoder.encode(user.getName(), StandardCharsets.UTF_8),
+                        URLEncoder.encode(userName, StandardCharsets.UTF_8),
                         URLEncoder.encode(roleName, StandardCharsets.UTF_8)
                 );
 
