@@ -56,6 +56,28 @@ public class TokenProvider {
         return jwt;
     }
 
+    public String createRefreshToken(UserPrincipal principal) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + appProperties.getAuth().getRefreshTokenExpirationMsec());
+        String jwt = Jwts.builder()
+                .setSubject(Long.toString(principal.getId()))
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, appProperties.getAuth().getTokenSecret())
+                .compact();
+
+        TokenEntity token = new TokenEntity();
+        token.setExpirationDate(expiryDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+        token.setExpired(false);
+        token.setRevoked(false);
+        token.setUser(principal.getUser());
+        token.setName(jwt);
+
+        tokenRepository.save(token);
+
+        return jwt;
+    }
+
     public String createAccessToken(Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
