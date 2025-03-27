@@ -109,6 +109,7 @@ public class SecurityConfig {
     public AuthenticationSuccessHandler oauth2SuccessHandler() {
         return (request, response, authentication) -> {
             try {
+                System.out.println("Success handler invoked");
                 OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
                 UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
                 UserEntity user = authService.processGoogleLogin(oauthToken);
@@ -127,19 +128,21 @@ public class SecurityConfig {
                         URLEncoder.encode(userName, StandardCharsets.UTF_8),
                         URLEncoder.encode(roleName, StandardCharsets.UTF_8)
                 );
-
-                response.setStatus(HttpServletResponse.SC_FOUND);
-                response.setHeader("Location", redirectUrl);
-                response.getWriter().flush();
+                System.out.println("Redirecting to: " + redirectUrl);
                 response.sendRedirect(redirectUrl);
-
+            } catch (OAuth2AuthenticationException e) {
+                System.err.println("OAuth2 error in success handler: " + e.getMessage());
+                String errorCode = e.getError().getErrorCode(); // user_not_found hoặc user_disabled
+                String encodedErrorCode = URLEncoder.encode(errorCode, StandardCharsets.UTF_8);
+                String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + encodedErrorCode;
+                System.out.println("Redirecting to: " + errorRedirectUrl);
+                response.sendRedirect(errorRedirectUrl);
             } catch (Exception e) {
-//                String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
-//                String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + errorMessage;
-//
-//                response.setStatus(HttpServletResponse.SC_FOUND);
-//                response.setHeader("Location", errorRedirectUrl);
-//                response.getWriter().flush();
+                System.err.println("Unexpected error in success handler: " + e.getMessage());
+                e.printStackTrace();
+                String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=internal_error";
+                System.out.println("Redirecting to: " + errorRedirectUrl);
+                response.sendRedirect(errorRedirectUrl);
             }
         };
     }
@@ -149,6 +152,7 @@ public class SecurityConfig {
     public AuthenticationFailureHandler oauth2FailureHandler() {
         return (request, response, exception) -> {
             try {
+                System.out.println("Failure handler invoked: " + exception.getMessage());
                 String errorCode = "authentication_failed";
                 if (exception instanceof OAuth2AuthenticationException) {
                     OAuth2Error error = ((OAuth2AuthenticationException) exception).getError();
@@ -156,17 +160,13 @@ public class SecurityConfig {
                 }
                 String encodedErrorCode = URLEncoder.encode(errorCode, StandardCharsets.UTF_8);
                 String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + encodedErrorCode;
-                if (!response.isCommitted()) {
-                    response.sendRedirect(errorRedirectUrl);
-                } else {
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    response.getWriter().write("Response already committed");
-                }
+                System.out.println("Redirecting to: " + errorRedirectUrl);
+                response.sendRedirect(errorRedirectUrl);
             } catch (Exception e) {
+                System.err.println("Error in failure handler: " + e.getMessage());
                 String fallbackErrorUrl = "http://localhost:5173/login/oauth2/callback?error=internal_error";
-                if (!response.isCommitted()) {
-                    response.sendRedirect(fallbackErrorUrl);
-                }
+                System.out.println("Redirecting to: " + fallbackErrorUrl);
+                response.sendRedirect(fallbackErrorUrl);
             }
         };
     }
