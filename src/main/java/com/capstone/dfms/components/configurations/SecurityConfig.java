@@ -134,12 +134,12 @@ public class SecurityConfig {
                 response.sendRedirect(redirectUrl);
 
             } catch (Exception e) {
-                String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
-                String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + errorMessage;
-
-                response.setStatus(HttpServletResponse.SC_FOUND);
-                response.setHeader("Location", errorRedirectUrl);
-                response.getWriter().flush();
+//                String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
+//                String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + errorMessage;
+//
+//                response.setStatus(HttpServletResponse.SC_FOUND);
+//                response.setHeader("Location", errorRedirectUrl);
+//                response.getWriter().flush();
             }
         };
     }
@@ -148,15 +148,26 @@ public class SecurityConfig {
     @Bean
     public AuthenticationFailureHandler oauth2FailureHandler() {
         return (request, response, exception) -> {
-            String errorCode = "authentication_failed"; // Mặc định
-
-            if (exception instanceof OAuth2AuthenticationException) {
-                OAuth2Error error = ((OAuth2AuthenticationException) exception).getError();
-                errorCode = error.getErrorCode(); // Lấy mã lỗi thực tế
+            try {
+                String errorCode = "authentication_failed";
+                if (exception instanceof OAuth2AuthenticationException) {
+                    OAuth2Error error = ((OAuth2AuthenticationException) exception).getError();
+                    errorCode = error.getErrorCode();
+                }
+                String encodedErrorCode = URLEncoder.encode(errorCode, StandardCharsets.UTF_8);
+                String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + encodedErrorCode;
+                if (!response.isCommitted()) {
+                    response.sendRedirect(errorRedirectUrl);
+                } else {
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    response.getWriter().write("Response already committed");
+                }
+            } catch (Exception e) {
+                String fallbackErrorUrl = "http://localhost:5173/login/oauth2/callback?error=internal_error";
+                if (!response.isCommitted()) {
+                    response.sendRedirect(fallbackErrorUrl);
+                }
             }
-
-            String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + errorCode;
-            response.sendRedirect(errorRedirectUrl);
         };
     }
 
