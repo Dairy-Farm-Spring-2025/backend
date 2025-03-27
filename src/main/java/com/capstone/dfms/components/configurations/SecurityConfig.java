@@ -150,10 +150,7 @@ public class SecurityConfig {
             String errorMessage = URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
             String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + errorMessage;
 
-            response.setStatus(HttpServletResponse.SC_FOUND);
-            response.setHeader("Location", errorRedirectUrl);
-            response.getWriter().flush();
-            response.sendRedirect(errorRedirectUrl);
+            response.sendRedirect(errorRedirectUrl); // Chỉ cần gọi sendRedirect
         };
     }
 
