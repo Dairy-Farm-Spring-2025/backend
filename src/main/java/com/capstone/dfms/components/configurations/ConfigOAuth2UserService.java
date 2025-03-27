@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,9 @@ public class ConfigOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String email = oauth2User.getAttribute("email");
 
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Email " + email + " không tồn tại trong hệ thống!"));
+                .orElseThrow(() ->
+                        new OAuth2AuthenticationException(new OAuth2Error("user_not_found"), "Email " + email + " không tồn tại trong hệ thống!")
+                );
         return new UserPrincipal(user, oauth2User.getAttributes());
     }
 }
