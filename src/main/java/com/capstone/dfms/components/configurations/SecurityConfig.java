@@ -25,6 +25,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -90,8 +92,7 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/login/**", "/oauth2/**").permitAll()
-                        .requestMatchers("/**").permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorize"))
                         .userInfoEndpoint(userInfo -> userInfo.userService(configOAuth2UserService()))
@@ -147,12 +148,18 @@ public class SecurityConfig {
     @Bean
     public AuthenticationFailureHandler oauth2FailureHandler() {
         return (request, response, exception) -> {
-            String errorMessage = URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
-            String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + errorMessage;
+            String errorCode = "authentication_failed"; // Mặc định
 
-            response.sendRedirect(errorRedirectUrl); // Chỉ cần gọi sendRedirect
+            if (exception instanceof OAuth2AuthenticationException) {
+                OAuth2Error error = ((OAuth2AuthenticationException) exception).getError();
+                errorCode = error.getErrorCode(); // Lấy mã lỗi thực tế
+            }
+
+            String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + errorCode;
+            response.sendRedirect(errorRedirectUrl);
         };
     }
+
 
     @Bean
     public ConfigOAuth2UserService configOAuth2UserService() {
