@@ -147,9 +147,13 @@ public class SecurityConfig {
     @Bean
     public AuthenticationFailureHandler oauth2FailureHandler() {
         return (request, response, exception) -> {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"" + exception.getMessage() + "\"}");
+            String errorMessage = URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
+            String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + errorMessage;
+
+            response.setStatus(HttpServletResponse.SC_FOUND);
+            response.setHeader("Location", errorRedirectUrl);
+            response.getWriter().flush();
+            response.sendRedirect(errorRedirectUrl);
         };
     }
 

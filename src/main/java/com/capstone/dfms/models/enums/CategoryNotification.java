@@ -5,5 +5,6 @@ public enum CategoryNotification {
     feeding,
     heathcare,
     task,
-    other
+    other,
+    application
 }
