@@ -28,8 +28,10 @@ public class FeedMealEntity extends BaseEntity{
     @JoinColumn(name = "cow_type_id")
     private CowTypeEntity cowTypeEntity;
 
+    @Enumerated(EnumType.STRING)
     private CowStatus cowStatus;
 
+    @Enumerated(EnumType.STRING)
     private FeedMealShift shift;
 
 

@@ -25,6 +25,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
+        config.setMaxAge(MAX_AGE_SECS);
         config.setAllowedOriginPatterns(Arrays.asList("*"));
         config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "responseType", "Authorization"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH"));

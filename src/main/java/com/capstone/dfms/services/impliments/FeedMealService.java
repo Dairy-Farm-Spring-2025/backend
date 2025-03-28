@@ -8,15 +8,19 @@ import com.capstone.dfms.models.enums.CowStatus;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.FeedMealDetailRequest;
 import com.capstone.dfms.requests.FeedMealRequest;
+import com.capstone.dfms.responses.CalculateFoodResponse;
 import com.capstone.dfms.services.IFeedMealService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +31,8 @@ public class FeedMealService implements IFeedMealService {
     private final ICowTypeRepository cowTypeRepository;
     private final IItemRepository itemRepository;
     private final ICategoryRepository categoryRepository;
+    private final IPenRepository penRepository;
+    private final ICowPenRepository cowPenRepository;
 
 
     @Override
@@ -174,5 +180,39 @@ public class FeedMealService implements IFeedMealService {
                 .orElseThrow(() -> new DataNotFoundException("Feed Meal", "id", id));
 
         feedMealRepository.delete(vaccineCycle);
+    }
+
+
+    public List<CalculateFoodResponse> calculateFeedForArea(Long areaId) {
+        List<PenEntity> pensInArea = penRepository.findByArea(areaId);
+        Map<ItemEntity, BigDecimal> totalFeedRequired = new HashMap<>();
+
+        for (PenEntity pen : pensInArea) {
+            List<CowEntity> cowsInPen = cowPenRepository.findCowsByPenId(pen.getPenId());
+
+            for (CowEntity cow : cowsInPen) {
+                Optional<FeedMealEntity> feedMealOpt = feedMealRepository.findByCowTypeAndStatus(
+                        cow.getCowTypeEntity(), cow.getCowStatus()
+                );
+
+                if (feedMealOpt.isPresent()) {
+                    FeedMealEntity feedMeal = feedMealOpt.get();
+                    for (FeedMealDetailEntity detail : feedMeal.getFeedMealDetails()) {
+                        ItemEntity item = detail.getItemEntity();
+                        BigDecimal quantityRequired = detail.getQuantity();
+
+                        totalFeedRequired.put(item, totalFeedRequired.getOrDefault(item, BigDecimal.ZERO).add(quantityRequired));
+                    }
+                }
+            }
+        }
+
+        return totalFeedRequired.entrySet().stream()
+                .map(entry -> new CalculateFoodResponse(
+                        entry.getKey().getName(),
+                        entry.getKey().getUnit(),
+                        entry.getValue()
+                ))
+                .collect(Collectors.toList());
     }
 }

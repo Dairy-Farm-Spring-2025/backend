@@ -1,11 +1,16 @@
 package com.capstone.dfms.services.impliments;
 
+import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.UserEntity;
 import com.capstone.dfms.repositories.ITokenRepository;
 import com.capstone.dfms.repositories.IUserRepository;
 import com.capstone.dfms.services.IAuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -23,15 +28,19 @@ public class AuthService implements IAuthService {
         String email = oAuth2User.getAttribute("email");
 
         Optional<UserEntity> existingUser = userRepository.findByEmail(email);
-        if (!existingUser.isPresent()) {
-            throw new RuntimeException("Email " + email + " không tồn tại trong hệ thống!");
+
+        if (existingUser.isEmpty()) {
+            throw new OAuth2AuthenticationException(new OAuth2Error("user_not_found"), "Email " + email + " không tồn tại trong hệ thống!");
         }
 
         UserEntity user = existingUser.get();
 
         if (!user.getIsActive()) {
-            throw new RuntimeException("Tài khoản không hoạt động!");
+            throw new OAuth2AuthenticationException(new OAuth2Error("user_disabled"), "Tài khoản không hoạt động!");
         }
+
         return user;
     }
+
+
 }

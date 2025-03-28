@@ -2,6 +2,7 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.FeedMealEntity;
+import com.capstone.dfms.models.ItemEntity;
 import com.capstone.dfms.requests.DryMatterRequest;
 import com.capstone.dfms.requests.FeedMealRequest;
 import com.capstone.dfms.responses.AreaResponse;
@@ -10,7 +11,9 @@ import com.capstone.dfms.services.IFeedMealService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${app.api.version.v1}/feedmeals")
@@ -49,5 +52,10 @@ public class FeedMealController {
         double dryMatter = feedMealService.calculateDryMatter(request.getCowStatus(), request.getCowTypeId());
         DryMatterResponse response = new DryMatterResponse(dryMatter);
         return CoreApiResponse.success(response);
+    }
+
+    @GetMapping("/calculate/{areaId}")
+    public CoreApiResponse<?> getFeedForArea(@PathVariable Long areaId) {
+        return CoreApiResponse.success(feedMealService.calculateFeedForArea(areaId));
     }
 }
