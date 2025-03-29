@@ -71,6 +71,14 @@ public class ExportItemController {
         return CoreApiResponse.success(exportItemService.getAllExportItems());
     }
 
+
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @GetMapping("/my")
+    public CoreApiResponse<List<ExportItemEntity>> getMyExportItems() {
+        List<ExportItemEntity> exportItems = exportItemService.getMyExportItems();
+        return CoreApiResponse.success(exportItems);
+    }
+
     @GetMapping("/{id}")
     public CoreApiResponse<ExportItemEntity> getById(@PathVariable Long id) {
         return CoreApiResponse.success(exportItemService.getExportItemById(id));
