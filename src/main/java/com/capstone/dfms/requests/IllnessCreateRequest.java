@@ -4,6 +4,7 @@ import com.capstone.dfms.models.enums.IllnessSeverity;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Getter
@@ -13,8 +14,8 @@ import java.time.LocalDate;
 public class IllnessCreateRequest {
     private String symptoms;
     private IllnessSeverity severity;
-    private LocalDate startDate;
-    private LocalDate endDate;
     private String prognosis;
     private Long cowId;
+
+    List<IllnessDetailPlanVet> detail;
 }

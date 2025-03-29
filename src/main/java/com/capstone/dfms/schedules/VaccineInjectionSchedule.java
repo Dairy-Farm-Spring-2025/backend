@@ -1,5 +1,7 @@
 package com.capstone.dfms.schedules;
 
+import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.IVaccineInjectionMapper;
 import com.capstone.dfms.models.*;
 import com.capstone.dfms.models.enums.InjectionStatus;
@@ -7,11 +9,13 @@ import com.capstone.dfms.models.enums.PriorityTask;
 import com.capstone.dfms.models.enums.TaskShift;
 import com.capstone.dfms.models.enums.TaskStatus;
 import com.capstone.dfms.repositories.*;
+import com.capstone.dfms.services.ITaskTypeService;
 import com.capstone.dfms.services.IVaccineInjectionService;
 import com.capstone.dfms.services.impliments.VaccineInjectionService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -27,9 +31,12 @@ public class VaccineInjectionSchedule {
     private final ICowRepository cowRepository;
     private final IVaccineCycleDetailRepository vaccineCycleDetailRepository;
     private final IVaccineInjectionMapper vaccineInjectionMapper;
+    private final ITaskTypeRepository taskTypeRepository;
 
     private final IVaccineCycleRepository vaccineCycleRepository;
     private final ITaskRepository taskRepository;
+
+    private final IRoleRepository roleRepository;
 
     @Scheduled(cron = "0 0 0 1 * ?")
     public void scheduleVaccineInjectionCreation() {
@@ -74,6 +81,18 @@ public class VaccineInjectionSchedule {
 
                             newVaccineInjectionEntities.add(newInjection);
 
+                            RoleEntity role = roleRepository.findById(3L).orElseThrow(()
+                                    -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
+
+                            TaskTypeEntity injectionTaskType = taskTypeRepository.findByName("Tiêm ngừa")
+                                    .orElseGet(() -> {
+                                        TaskTypeEntity newTaskType = new TaskTypeEntity();
+                                        newTaskType.setName("Tiêm ngừa");
+                                        newTaskType.setRoleId(role);
+                                        newTaskType.setDescription("Công việc tiêm ngừa cho bò");
+                                        return taskTypeRepository.save(newTaskType);
+                                    });
+
                             //  Create Task for This Injection
                             TaskEntity newTask = TaskEntity.builder()
                                     .description("Administer vaccine to cow: " + cow.getName())
@@ -82,6 +101,7 @@ public class VaccineInjectionSchedule {
                                     .toDate(nextInjectionDate)
                                     .priority(PriorityTask.high)
                                     .shift(TaskShift.dayShift)
+                                    .taskTypeId(injectionTaskType)
                                     .vaccineInjection(newInjection)
                                     .build();
 
