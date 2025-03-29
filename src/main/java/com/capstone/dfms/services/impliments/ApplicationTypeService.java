@@ -1,6 +1,7 @@
 package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.IApplicationTypeMapper;
 import com.capstone.dfms.models.ApplicationTypeEntity;
@@ -26,7 +27,7 @@ public class ApplicationTypeService implements IApplicationTypeService {
         Optional<ApplicationTypeEntity> entityOptional = repository.findByName(request.getName());
 
         if(entityOptional.isPresent())
-            throw new AppException(HttpStatus.BAD_REQUEST, "Duplicated name!!");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("general.duplicated_name"));
 
         ApplicationTypeEntity entity = mapper.toModel(request);
         return repository.save(entity);
@@ -40,7 +41,8 @@ public class ApplicationTypeService implements IApplicationTypeService {
     @Override
     public ApplicationTypeEntity getApplicationTypeById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Application Type not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND,
+                        LocalizationUtils.getMessage("application_type.name") + " " + LocalizationUtils.getMessage("general.not_found")));
     }
 
     @Override
@@ -49,10 +51,11 @@ public class ApplicationTypeService implements IApplicationTypeService {
         Optional<ApplicationTypeEntity> entityOptional = repository.findByName(request.getName());
 
         if(entityOptional.isPresent())
-            throw new AppException(HttpStatus.BAD_REQUEST, "Duplicated name!!");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("general.duplicated_name"));
 
         ApplicationTypeEntity applicationType = repository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Application Type not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND,
+                        LocalizationUtils.getMessage("application_type.name") + " "  + LocalizationUtils.getMessage("general.not_found")));
 
         mapper.updateEntityFromDto(request, applicationType);
         return repository.save(applicationType);
@@ -61,7 +64,8 @@ public class ApplicationTypeService implements IApplicationTypeService {
     @Override
     public void deleteApplicationType(Long id) {
         if (!repository.existsById(id)) {
-            throw new AppException(HttpStatus.NOT_FOUND, "Application Type not found");
+            throw new AppException(HttpStatus.NOT_FOUND,
+                    LocalizationUtils.getMessage("application_type.name") + " "  + LocalizationUtils.getMessage("general.not_found"));
         }
         repository.deleteById(id);
     }
