@@ -9,11 +9,10 @@ import com.capstone.dfms.mappers.IIllnessMapper;
 import com.capstone.dfms.models.*;
 import com.capstone.dfms.models.enums.*;
 import com.capstone.dfms.repositories.*;
-import com.capstone.dfms.requests.IllnessCreateRequest;
-import com.capstone.dfms.requests.IllnessDetailPlanVet;
-import com.capstone.dfms.requests.IllnessPrognosisRequest;
-import com.capstone.dfms.requests.IllnessUpdateRequest;
+import com.capstone.dfms.requests.*;
 import com.capstone.dfms.services.IIllnessService;
+import com.capstone.dfms.services.INotificationService;
+import com.capstone.dfms.services.IUserService;
 import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +24,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -40,6 +40,9 @@ public class IllnessService implements IIllnessService {
     private final IRoleRepository roleRepository;
     private final IHealthRecordRepository healthRecordRepository;
     private final IIllnessDetailMapper mapper;
+    private final IUserRepository userRepository;
+    private final INotificationService notificationService;
+
 
 
     @Override
@@ -119,9 +122,27 @@ public class IllnessService implements IIllnessService {
     @Override
     public IllnessEntity reportIllness(IllnessEntity illness) {
         LocalDate currentDate = LocalDate.now();
-
         illness.setStartDate(currentDate);
-        return this.createIllness(illness);
+
+        IllnessEntity savedIllness = this.createIllness(illness);
+
+        RoleEntity role = roleRepository.findById(2L).orElseThrow(() ->
+                new AppException(HttpStatus.NOT_FOUND,
+                        LocalizationUtils.getMessage("user.login.role_not_exist")));
+        List<Long> managerIds = userRepository.findByRoleId(role.getId())
+                .stream().map(UserEntity::getId).toList();
+
+        if (!managerIds.isEmpty()) {
+            NotificationRequest notificationRequest = new NotificationRequest();
+            notificationRequest.setTitle("Báo cáo bệnh mới");
+            notificationRequest.setDescription("Một báo cáo bệnh mới đã được tạo.");
+            notificationRequest.setLink("/illness/" + savedIllness.getIllnessId());
+            notificationRequest.setCategory(CategoryNotification.heathcare);
+            notificationRequest.setUserIds(managerIds);
+
+            notificationService.createNotification(notificationRequest);
+        }
+        return savedIllness;
     }
 
     @Override
