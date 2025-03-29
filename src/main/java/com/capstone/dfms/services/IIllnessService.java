@@ -2,6 +2,7 @@ package com.capstone.dfms.services;
 
 
 import com.capstone.dfms.models.IllnessEntity;
+import com.capstone.dfms.requests.IllnessCreateRequest;
 import com.capstone.dfms.requests.IllnessPrognosisRequest;
 import com.capstone.dfms.requests.IllnessUpdateRequest;
 import jakarta.annotation.Nullable;
@@ -22,4 +23,6 @@ public interface IIllnessService{
     IllnessEntity prognosisIllness (Long id, IllnessPrognosisRequest request);
 
     IllnessEntity getIllnessWithDetail(Long id);
+
+    IllnessEntity createIllness(IllnessCreateRequest request);
 }

@@ -24,8 +24,7 @@ public class IllnessController {
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @PostMapping("/create")
     public CoreApiResponse<IllnessEntity> createIllness(@RequestBody IllnessCreateRequest request) {
-        IllnessEntity illness = INSTANCE.toModel(request);
-        return CoreApiResponse.success(illnessService.createIllness(illness));
+        return CoreApiResponse.success(illnessService.createIllness(request));
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")

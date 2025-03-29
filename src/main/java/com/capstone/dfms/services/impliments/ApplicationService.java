@@ -71,6 +71,12 @@ public class ApplicationService implements IApplicationService {
         ApplicationEntity approvedApplication = this.getApplicationById(applicationId);
         applicationMapper.updateEntityFromDto(request, approvedApplication);
 
+        if(request.getApprovalStatus().equals(ApprovalStatus.approve)){
+            approvedApplication.setStatus(ApplicationStatus.complete);
+        }
+        else if (request.getApprovalStatus().equals(ApprovalStatus.reject)){
+            approvedApplication.setStatus(ApplicationStatus.reject);
+        }
 
         UserEntity approveBy = UserStatic.getCurrentUser();
         approvedApplication.setApproveBy(approveBy);

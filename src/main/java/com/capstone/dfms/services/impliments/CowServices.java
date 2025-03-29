@@ -308,4 +308,45 @@ public class CowServices implements ICowServices {
 
         return new CowPenBulkResponse<>(savedCows, errors);
     }
+
+    @Override
+    public CowPenBulkResponse<CowResponse> getCowsFromExcel(MultipartFile file) throws IOException {
+        List<CowExcelCreateRequest> cowList = new ArrayList<>();
+        List<CowResponse> cows = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+
+        EasyExcel.read(file.getInputStream(), CowExcelCreateRequest.class, new ReadListener<CowExcelCreateRequest>() {
+            @Override
+            public void invoke(CowExcelCreateRequest cow, AnalysisContext analysisContext) {
+                cowList.add(cow);
+            }
+
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext analysisContext) {
+                System.out.println("Excel parsing completed!");
+            }
+        }).sheet().doRead();
+
+        int rowNum = 2; // Excel starts at row 1
+        for (CowExcelCreateRequest row : cowList) {
+            try {
+                CowEntity cowEntity = cowMapper.toModel(row);
+                if(cowEntity.getCowTypeEntity() != null){
+                    CowTypeEntity cowType = cowTypeRepository.findById(cowEntity.getCowTypeEntity().getCowTypeId())
+                            .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow type not found."));
+                    cowEntity.setCowTypeEntity(cowType);
+                }
+
+                CowResponse response = cowMapper.toResponse(cowEntity);
+                cows.add(response);
+            } catch (AppException e) {
+                errors.add("Error at row " + rowNum + ": " + e.getMessage());
+            } catch (Exception e) {
+                errors.add("Error at row " + rowNum + ": " + e.getMessage());
+            }
+            rowNum++;
+        }
+
+        return new CowPenBulkResponse<>(cows, errors);
+    }
 }

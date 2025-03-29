@@ -20,4 +20,5 @@ public interface ICowServices {
     byte[] generateCowQRCode(Long cowId);
 
     public CowPenBulkResponse<CowResponse> saveCowsFromExcel(MultipartFile file) throws IOException;
+    public CowPenBulkResponse<CowResponse> getCowsFromExcel(MultipartFile file) throws IOException;
 }

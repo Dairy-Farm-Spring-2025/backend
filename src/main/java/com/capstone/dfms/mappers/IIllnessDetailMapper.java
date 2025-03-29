@@ -20,6 +20,10 @@ public interface IIllnessDetailMapper {
     @Mapping(target = "illnessEntity.illnessId", source = "illnessId")
     IllnessDetailEntity toModel(IllnessDetailPlanRequest request);
 
+    @Mapping(target = "vaccine.itemId", source = "vaccineId")
+    IllnessDetailEntity toModel(IllnessDetailPlanVet request);
+
+
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(IllnessDetailReportRequest dto, @MappingTarget IllnessDetailEntity entity);
