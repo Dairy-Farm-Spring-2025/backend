@@ -1,6 +1,7 @@
 package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.IAreaMapper;
 import com.capstone.dfms.models.AreaEntity;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @AllArgsConstructor
@@ -29,24 +31,25 @@ public class AreaServices implements IAreaServices {
     @Override
     public AreaResponse createArea(AreaEntity request) {
         request.setName(StringUtils.NameStandardlizing(request.getName()));
+
         if (areaRepository.existsByName(request.getName())) {
-            throw new AppException(HttpStatus.OK, "Area with the name '" + request.getName() + "' already exists.");
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    LocalizationUtils.getMessage("area.exists", null, Locale.getDefault())
+                            + " (Name: " + request.getName() + ")");
         }
+
 
         this.validateDimensions(request);
 
         float areaTotalSize = request.getLength() * request.getWidth();
-
         float penTotalSize = request.getMaxPen() * (request.getPenLength() * request.getPenWidth());
 
-        if (penTotalSize >  areaTotalSize){
+        if (penTotalSize > areaTotalSize) {
             throw new AppException(HttpStatus.BAD_REQUEST,
-                    "Diện tích chuồng không phù hợp");
+                    LocalizationUtils.getMessage("area.invalid_size", null, Locale.getDefault()));
         }
 
         AreaEntity savedArea = areaRepository.save(request);
-
-        int existingPenCount = penRepository.countByAreaBelongto(savedArea);
 
         List<PenEntity> pens = new ArrayList<>();
         int numberInRow = request.getNumberInRow() != null ? request.getNumberInRow() : 1;
@@ -61,7 +64,7 @@ public class AreaServices implements IAreaServices {
 
             PenEntity pen = PenEntity.builder()
                     .name(penName)
-                    .description("Automatically generated pen " + i)
+                    .description(LocalizationUtils.getMessage("pen.auto_generated", new Object[]{i}, Locale.getDefault()))
                     .penStatus(PenStatus.empty)
                     .areaBelongto(savedArea)
                     .build();
@@ -77,49 +80,51 @@ public class AreaServices implements IAreaServices {
     public AreaResponse updateArea(Long id, AreaUpdateRequest request) {
         // Fetch the existing entity
         AreaEntity existingEntity = areaRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Area with ID '" + id + "' not found."));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                        LocalizationUtils.getMessage("area.not_found", null, Locale.getDefault())
+                                + " (ID: " + id + ")"));
 
-        if(request.getName() != null) {
+        if (request.getName() != null) {
             request.setName(StringUtils.NameStandardlizing(request.getName()));
             if (areaRepository.existsByName(request.getName())
                     && !existingEntity.getName().equalsIgnoreCase(request.getName())) {
-                throw new AppException(HttpStatus.OK, "Area with the name '" + request.getName() + "' already exists.");
+                throw new AppException(HttpStatus.OK,
+                        LocalizationUtils.getMessage("area.exists", new Object[]{request.getName()}, Locale.getDefault()));
             }
         }
 
         areaMapper.updateAreaFromRequest(request, existingEntity);
+        validateDimensions(existingEntity);
 
-        this.validateDimensions(existingEntity);
         // Save the updated entity
         AreaEntity updatedEntity = areaRepository.save(existingEntity);
-
-        // Map the updated entity to a response and return
         return areaMapper.toResponse(updatedEntity);
     }
-
 
     @Override
     public void deleteArea(Long id) {
         AreaEntity existingEntity = areaRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Area with ID '" + id + "' not found."));
+                .orElseThrow(() -> new AppException(HttpStatus.OK,
+                        LocalizationUtils.getMessage("area.not_found", new Object[]{id}, Locale.getDefault())));
         areaRepository.delete(existingEntity);
     }
 
     @Override
     public AreaResponse getAreaById(Long id) {
-
         AreaEntity areaEntity = areaRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Area with ID '" + id + "' not found."));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                        LocalizationUtils.getMessage("area.not_found", null, Locale.getDefault())
+                                + " (ID: " + id + ")"));
 
         long occupied = penRepository.countPensByStatus(id, PenStatus.occupied);
         long empty = penRepository.countPensByStatus(id, PenStatus.empty);
         long underMaintenance = penRepository.countPensByStatus(id, PenStatus.underMaintenance);
-        AreaResponse response = IAreaMapper.INSTANCE.toResponse(areaEntity);
+
+        AreaResponse response = areaMapper.toResponse(areaEntity);
         response.setOccupiedPens(occupied);
         response.setEmptyPens(empty);
         response.setDamagedPens(underMaintenance);
         return response;
-
     }
 
     @Override
@@ -131,7 +136,7 @@ public class AreaServices implements IAreaServices {
             long empty = penRepository.countPensByStatus(area.getAreaId(), PenStatus.empty);
             long underMaintenance = penRepository.countPensByStatus(area.getAreaId(), PenStatus.underMaintenance);
 
-            AreaResponse response = IAreaMapper.INSTANCE.toResponse(area);
+            AreaResponse response = areaMapper.toResponse(area);
             response.setOccupiedPens(occupied);
             response.setEmptyPens(empty);
             response.setDamagedPens(underMaintenance);
@@ -143,33 +148,29 @@ public class AreaServices implements IAreaServices {
     private void validateDimensions(AreaEntity areaEntity) {
         List<String> errorMessages = new ArrayList<>();
 
-        // Validate positive numbers
         if (areaEntity.getWidth() <= 0) {
-            errorMessages.add("Width must be a positive number.");
+            errorMessages.add(LocalizationUtils.getMessage("validation.positive.width", null, Locale.getDefault()));
         }
         if (areaEntity.getLength() <= 0) {
-            errorMessages.add("Length must be a positive number.");
+            errorMessages.add(LocalizationUtils.getMessage("validation.positive.length", null, Locale.getDefault()));
         }
         if (areaEntity.getPenWidth() <= 0) {
-            errorMessages.add("Width of pen must be a positive number.");
+            errorMessages.add(LocalizationUtils.getMessage("validation.positive.pen_width", null, Locale.getDefault()));
         }
         if (areaEntity.getPenLength() <= 0) {
-            errorMessages.add("Length of pen must be a positive number.");
+            errorMessages.add(LocalizationUtils.getMessage("validation.positive.pen_length", null, Locale.getDefault()));
         }
-
-        // Validate if area width is smaller than or equal to area length
         if (areaEntity.getWidth() > areaEntity.getLength()) {
-            errorMessages.add("Width must be smaller than or equal to Length.");
+            errorMessages.add(LocalizationUtils.getMessage("validation.dimension.width_smaller_than_length", null, Locale.getDefault()));
         }
-
-        // Validate if pen width is smaller than or equal to pen length
         if (areaEntity.getPenWidth() > areaEntity.getPenLength()) {
-            errorMessages.add("Width of pen must be smaller than or equal to Length of pen.");
+            errorMessages.add(LocalizationUtils.getMessage("validation.dimension.pen_width_smaller_than_pen_length", null, Locale.getDefault()));
         }
 
-        // If there are any error messages, throw an exception with the list of messages
         if (!errorMessages.isEmpty()) {
-            throw new AppException(HttpStatus.OK, "Request không hợp lệ", errorMessages);
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    LocalizationUtils.getMessage("validation.invalid_request", null, Locale.getDefault()),
+                    errorMessages);
         }
     }
 

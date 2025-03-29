@@ -55,6 +55,10 @@ public class TaskEntity {
     private String completionNotes;
 
     @ManyToOne
+    @JoinColumn(name = "illness_id")
+    private IllnessEntity mainIllness;
+
+    @ManyToOne
     @JoinColumn(name = "illness_detail_id")
     private IllnessDetailEntity illness;
 
