@@ -7,6 +7,8 @@ import com.capstone.dfms.models.HealthRecordEntity;
 import com.capstone.dfms.repositories.ICowRepository;
 import com.capstone.dfms.repositories.IHealthRecordRepository;
 import com.capstone.dfms.requests.HealthReportRequest;
+import com.capstone.dfms.responses.CowHealthInfoResponse;
+import com.capstone.dfms.responses.CowPenBulkResponse;
 import com.capstone.dfms.services.IHealthRecordService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -87,5 +90,25 @@ public class HealthRecordService implements IHealthRecordService{
     public void deleteHealthReport(Long id) {
         HealthRecordEntity existingRecord = getHealthReportById(id);
         healthRecordRepository.delete(existingRecord);
+    }
+
+    @Override
+    public CowPenBulkResponse<HealthRecordEntity> createBulkHealthReport(List<HealthReportRequest> requests) {
+        List<HealthRecordEntity> healthRecordEntities = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+
+        requests.forEach(request -> {
+            try{
+                healthRecordEntities.add(this.createHealthReport(request));
+            }
+            catch (Exception exception){
+                errors.add("Error create health record with cow: " + request.getCowId());
+            }
+        });
+
+        return CowPenBulkResponse.<HealthRecordEntity>builder()
+                .successes(healthRecordEntities)
+                .errors(errors)
+                .build();
     }
 }

@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -77,6 +78,10 @@ public class VaccineInjectionService implements IVaccineInjectionService {
     public VaccineInjectionEntity reportVaccineInjection(Long id, InjectionStatus status) {
         VaccineInjectionEntity entity = vaccineInjectionRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Vaccine Injection not found"));
+
+        if(entity.getInjectionDate().equals(LocalDate.now())){
+            throw new AppException(HttpStatus.BAD_REQUEST, "No time to report!");
+        }
 
         entity.setAdministeredBy(UserStatic.getCurrentUser());
         entity.setStatus(status);

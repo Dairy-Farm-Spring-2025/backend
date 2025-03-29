@@ -3,6 +3,7 @@ package com.capstone.dfms.controllers;
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.HealthRecordEntity;
 import com.capstone.dfms.requests.HealthReportRequest;
+import com.capstone.dfms.responses.CowPenBulkResponse;
 import com.capstone.dfms.services.IHealthRecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +22,12 @@ public class HealthRecordController {
     public CoreApiResponse<HealthRecordEntity> createHealthReport(@RequestBody HealthReportRequest request) {
         HealthRecordEntity createdRecord = healthRecordService.createHealthReport(request);
         return CoreApiResponse.success(createdRecord);
+    }
+
+    @PreAuthorize("hasAnyRole('VETERINARIANS')")
+    @PostMapping("/create-bulk")
+    public CoreApiResponse<CowPenBulkResponse<HealthRecordEntity>> createBulkHealthReport(@RequestBody List<HealthReportRequest> requests) {
+        return CoreApiResponse.success(healthRecordService.createBulkHealthReport(requests));
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
