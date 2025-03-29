@@ -8,17 +8,22 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserPrincipal implements UserDetails {
+public class UserPrincipal implements UserDetails,OAuth2User{
     private UserEntity user;
+
+    @Setter
+    private Map<String, Object> attributes;
 
     public UserPrincipal(UserEntity user) {
         this.user = user;
@@ -32,6 +37,11 @@ public class UserPrincipal implements UserDetails {
         this.authorities = authorities;
     }
 
+    public UserPrincipal(UserEntity user, Map<String, Object> attributes) {
+        this.user = user;
+        this.attributes = attributes != null ? attributes : Collections.emptyMap();
+    }
+
     public static UserPrincipal create(UserEntity user) {
         List<GrantedAuthority> authorities = Collections.
                 singletonList(new SimpleGrantedAuthority("ROLE_"+user.getRoleId().getName().toUpperCase()));
@@ -41,6 +51,15 @@ public class UserPrincipal implements UserDetails {
                 authorities
         );
     }
+
+    public static UserPrincipal create(UserEntity user, Map<String, Object> attributes) {
+        UserPrincipal userPrincipal = UserPrincipal.create(user);
+        userPrincipal.setAttributes(attributes);
+        return userPrincipal;
+    }
+
+
+
     public Long getId() {
         return user.getId();
     }
@@ -82,6 +101,16 @@ public class UserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public String getName() {
+        return user.getEmail();
     }
 
     @Override

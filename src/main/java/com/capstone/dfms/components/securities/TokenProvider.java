@@ -11,11 +11,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.security.SignatureException;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Service
 public class TokenProvider {
@@ -56,9 +58,44 @@ public class TokenProvider {
         return jwt;
     }
 
+    public String createRefreshToken(UserPrincipal principal) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + appProperties.getAuth().getRefreshTokenExpirationMsec());
+        String jwt = Jwts.builder()
+                .setSubject(Long.toString(principal.getId()))
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, appProperties.getAuth().getTokenSecret())
+                .compact();
+
+        TokenEntity token = new TokenEntity();
+        token.setExpirationDate(expiryDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+        token.setExpired(false);
+        token.setRevoked(false);
+        token.setUser(principal.getUser());
+        token.setName(jwt);
+
+        tokenRepository.save(token);
+
+        return jwt;
+    }
+
     public String createAccessToken(Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + appProperties.getAuth().getAccessTokenExpirationMsec());
+
+        return Jwts.builder()
+                .setSubject(Long.toString(userPrincipal.getId()))
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, appProperties.getAuth().getTokenSecret())
+                .compact();
+    }
+
+
+    public String createAccessToken(UserPrincipal userPrincipal) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + appProperties.getAuth().getAccessTokenExpirationMsec());
 
@@ -80,6 +117,8 @@ public class TokenProvider {
                 .signWith(SignatureAlgorithm.HS512, appProperties.getAuth().getTokenSecret())
                 .compact();
     }
+
+
 
     public String createToken(Long userId,int expiryTime) {
         Date now = new Date();

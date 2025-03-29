@@ -43,4 +43,7 @@ public interface ITaskRepository extends JpaRepository<TaskEntity, Long> {
 
     TaskEntity findByIllness(IllnessDetailEntity illness);
 
+    @Query("SELECT t FROM TaskEntity t WHERE t.assignee.id = :userId AND :today BETWEEN t.fromDate AND t.toDate")
+    List<TaskEntity> findTodayTasksByUser(@Param("userId") Long userId, @Param("today") LocalDate today);
+
 }

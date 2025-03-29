@@ -9,16 +9,20 @@ import com.capstone.dfms.models.ApplicationTypeEntity;
 import com.capstone.dfms.models.UserEntity;
 import com.capstone.dfms.models.enums.ApplicationStatus;
 import com.capstone.dfms.models.enums.ApprovalStatus;
+import com.capstone.dfms.models.enums.CategoryNotification;
 import com.capstone.dfms.repositories.IApplicationRepository;
 import com.capstone.dfms.repositories.IApplicationTypeRepository;
 import com.capstone.dfms.repositories.IUserRepository;
 import com.capstone.dfms.requests.ApplicationApproveRequest;
 import com.capstone.dfms.requests.ApplicationCreateRequest;
+import com.capstone.dfms.requests.NotificationRequest;
 import com.capstone.dfms.services.IApplicationService;
+import com.capstone.dfms.services.INotificationService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -28,6 +32,7 @@ public class ApplicationService implements IApplicationService {
     private final IApplicationTypeRepository applicationTypeRepository;
     private final IUserRepository userRepository;
     private final IApplicationMapper applicationMapper;
+    private final INotificationService notificationService;
 
     @Override
     public ApplicationEntity createApplication(ApplicationCreateRequest request) {
@@ -66,17 +71,35 @@ public class ApplicationService implements IApplicationService {
         ApplicationEntity approvedApplication = this.getApplicationById(applicationId);
         applicationMapper.updateEntityFromDto(request, approvedApplication);
 
-        if (request.getApprovalStatus().equals(ApprovalStatus.approve)) {
-            approvedApplication.setStatus(ApplicationStatus.complete);
-        } else if (request.getApprovalStatus().equals(ApprovalStatus.reject)) {
-            approvedApplication.setStatus(ApplicationStatus.reject);
-        }
 
         UserEntity approveBy = UserStatic.getCurrentUser();
         approvedApplication.setApproveBy(approveBy);
 
-        return applicationRepository.save(approvedApplication);
+        String title = "Cập nhật trạng thái đơn";
+        String description = "";
+
+        if (request.getApprovalStatus().equals(ApprovalStatus.approve)) {
+            approvedApplication.setStatus(ApplicationStatus.complete);
+            description = "Đơn của bạn đã được phê duyệt.";
+        } else if (request.getApprovalStatus().equals(ApprovalStatus.reject)) {
+            approvedApplication.setStatus(ApplicationStatus.reject);
+            description = "Đơn của bạn đã bị từ chối.";
+        }
+
+        ApplicationEntity savedApplication = applicationRepository.save(approvedApplication);
+
+        NotificationRequest notificationRequest = new NotificationRequest();
+        notificationRequest.setTitle(title);
+        notificationRequest.setDescription(description);
+        notificationRequest.setLink("/applications");
+        notificationRequest.setCategory(CategoryNotification.application);
+        notificationRequest.setUserIds(Collections.singletonList(approvedApplication.getRequestBy().getId()));
+
+        notificationService.createNotification(notificationRequest);
+
+        return savedApplication;
     }
+
 
     @Override
     public void deleteApplication(Long applicationId) {
