@@ -10,5 +10,7 @@ import lombok.*;
 public class ExportItemRequest {
     private int quantity;
 
-    private Long itemBatchId;
+    private Long itemId;
+
+    private Long taskId;
 }

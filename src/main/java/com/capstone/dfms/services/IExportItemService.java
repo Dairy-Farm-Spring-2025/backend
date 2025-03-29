@@ -1,27 +1,29 @@
 package com.capstone.dfms.services;
 
 import com.capstone.dfms.models.ExportItemEntity;
+import com.capstone.dfms.requests.ExportItemRequest;
 
 import java.util.List;
 
 public interface IExportItemService {
 
-    ExportItemEntity createExportItem(ExportItemEntity exportItem);
+    void createExportItem(ExportItemRequest request);
 
     ExportItemEntity getExportItemById(long id);
 
     List<ExportItemEntity> getAllExportItems();
 
-    ExportItemEntity approveExportItem (Long id);
+//    ExportItemEntity approveExportItem (Long id);
 
-    List<ExportItemEntity> approveMultipleExportItems(List<Long> listId);
+//    List<ExportItemEntity> approveMultipleExportItems(List<Long> listId);
 
-    ExportItemEntity rejectExportItem (Long id);
+//    ExportItemEntity rejectExportItem (Long id);
 
     ExportItemEntity cancelExportItem (Long id);
 
-    ExportItemEntity updateExportItem (Long id, float quantiy);
+//    ExportItemEntity updateExportItem (Long id, float quantiy);
 
+    List<ExportItemEntity> getMyExportItems();
     ExportItemEntity exportItem (Long id);
 
 }
