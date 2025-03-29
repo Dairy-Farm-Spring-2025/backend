@@ -36,4 +36,6 @@ public class VaccineInjectionEntity  extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private InjectionStatus status;
+
+    private String description;
 }
