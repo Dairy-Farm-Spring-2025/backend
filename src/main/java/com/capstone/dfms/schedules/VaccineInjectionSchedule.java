@@ -38,8 +38,7 @@ public class VaccineInjectionSchedule {
 
     private final IRoleRepository roleRepository;
 
-//    @Scheduled(cron = "0 0 0 1 * ?")
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(cron = "0 0 0 1 * ?")
     public void scheduleVaccineInjectionCreation() {
         this.testCreateVaccineInjection();
     }
