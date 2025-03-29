@@ -38,7 +38,8 @@ public class VaccineInjectionSchedule {
 
     private final IRoleRepository roleRepository;
 
-    @Scheduled(cron = "0 0 0 1 * ?")
+//    @Scheduled(cron = "0 0 0 1 * ?")
+    @Scheduled(fixedRate = 60000)
     public void scheduleVaccineInjectionCreation() {
         this.testCreateVaccineInjection();
     }
@@ -77,6 +78,8 @@ public class VaccineInjectionSchedule {
                                     .cowEntity(cow)
                                     .vaccineCycleDetail(details)
                                     .status(InjectionStatus.pending)
+                                    .description("Tiêm phòng cho: " + cow.getName() +
+                                            " - Vaccine: " + details.getItemEntity().getName())
                                     .build();
 
                             newVaccineInjectionEntities.add(newInjection);

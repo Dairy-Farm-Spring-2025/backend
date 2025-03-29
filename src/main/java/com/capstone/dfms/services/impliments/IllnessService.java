@@ -3,20 +3,12 @@ package com.capstone.dfms.services.impliments;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.securities.UserPrincipal;
 import com.capstone.dfms.components.statics.UserStatic;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.IIllnessDetailMapper;
 import com.capstone.dfms.mappers.IIllnessMapper;
-import com.capstone.dfms.models.CowEntity;
-import com.capstone.dfms.models.IllnessDetailEntity;
-import com.capstone.dfms.models.IllnessEntity;
-import com.capstone.dfms.models.UserEntity;
-import com.capstone.dfms.models.enums.CowStatus;
-import com.capstone.dfms.models.enums.IllnessDetailStatus;
-import com.capstone.dfms.models.enums.IllnessSeverity;
-import com.capstone.dfms.models.enums.IllnessStatus;
-import com.capstone.dfms.repositories.ICowRepository;
-import com.capstone.dfms.repositories.IIllnessDetailRepository;
-import com.capstone.dfms.repositories.IIllnessRepository;
-import com.capstone.dfms.repositories.IItemRepository;
+import com.capstone.dfms.models.*;
+import com.capstone.dfms.models.enums.*;
+import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.IllnessCreateRequest;
 import com.capstone.dfms.requests.IllnessDetailPlanVet;
 import com.capstone.dfms.requests.IllnessPrognosisRequest;
@@ -42,6 +34,12 @@ public class IllnessService implements IIllnessService {
     private final IIllnessMapper iIllnessMapper;
     private final IItemRepository iItemRepository;
     private final IIllnessDetailMapper illnessDetailMapper;
+    private final ITaskRepository taskRepository;
+    private final ITaskTypeRepository taskTypeRepository;
+    private final ICowPenRepository cowPenRepository;
+    private final IRoleRepository roleRepository;
+    private final IHealthRecordRepository healthRecordRepository;
+    private final IIllnessDetailMapper mapper;
 
 
     @Override
@@ -143,33 +141,33 @@ public class IllnessService implements IIllnessService {
 
     @Override
     public IllnessEntity createIllness(IllnessCreateRequest request) {
+        if (request.getSeverity().equals(IllnessSeverity.none)){
+            throw new AppException(HttpStatus.BAD_REQUEST, "Illness that have severity none does not need to be created!");
+        }
+
         IllnessEntity illness = iIllnessMapper.toModel(request);
 
         // Ensure relations are set properly
         illness.setCowEntity(findCowEntity(request.getCowId()));
         illness.setUserEntity(UserStatic.getCurrentUser());
-        illness.setIllnessStatus(IllnessStatus.pending);
+        illness.setIllnessStatus(IllnessStatus.processing);
         illness.setStartDate(LocalDate.now());
 
         if (request.getDetail() != null) {
-//            illness.getIllnessDetails().forEach(detail -> {
-//                detail.setIllnessEntity(illness);
-//                detail.setStatus(IllnessDetailStatus.pending);
-//                Long id = detail.getVaccine().getItemId();
-//                var itemEntity = iItemRepository.findById(id)
-//                        .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no item have id" + id));
-//                detail.setVaccine(itemEntity);
-//            });
             List<IllnessDetailEntity > illnessDetails = new ArrayList<>();
             request.getDetail().forEach(detail -> {
                 IllnessDetailEntity illnessDetail = illnessDetailMapper.toModel(detail);
                 illnessDetail.setStatus(IllnessDetailStatus.pending);
                 illnessDetail.setIllnessEntity(illness);
 
+
                 Long id = detail.getVaccineId();
                 var itemEntity = iItemRepository.findById(id)
                         .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no item have id" + id));
                 illnessDetail.setVaccine(itemEntity);
+
+                illnessDetail.setDescription("Điều trị bệnh cho: " + illness.getCowEntity().getName() +
+                        " - Vaccine: " + itemEntity.getName());
 
                 illnessDetails.add(illnessDetail);
             });
@@ -177,7 +175,14 @@ public class IllnessService implements IIllnessService {
             illness.setIllnessDetails(illnessDetails);
         }
 
-        return illnessRepository.save(illness);
+        IllnessEntity createdEntity = illnessRepository.save(illness);
+
+        // 🔹 Create Tasks for Each Illness Detail
+        for (IllnessDetailEntity detail : createdEntity.getIllnessDetails()) {
+            createTaskForIllnessDetail(createdEntity, detail);
+        }
+
+        return createdEntity;
     }
 
 
@@ -189,6 +194,38 @@ public class IllnessService implements IIllnessService {
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This cow is not existed!"));
         return cowEntity;
     }
+
+    private void createTaskForIllnessDetail(IllnessEntity illness, IllnessDetailEntity detail) {
+        RoleEntity role = roleRepository.findById(3L).orElseThrow(() ->
+                new AppException(HttpStatus.NOT_FOUND,
+                        LocalizationUtils.getMessage("user.login.role_not_exist")));
+
+        TaskTypeEntity treatmentTaskType = taskTypeRepository.findByName("Chữa bệnh")
+                .orElseGet(() -> {
+                    TaskTypeEntity newTaskType = new TaskTypeEntity();
+                    newTaskType.setName("Chữa bệnh");
+                    newTaskType.setRoleId(role);
+                    newTaskType.setDescription("Công việc điều trị bệnh cho bò");
+                    return taskTypeRepository.save(newTaskType);
+                });
+
+        CowEntity cow = illness.getCowEntity();
+        CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
+
+        TaskEntity task = new TaskEntity();
+        task.setDescription("Điều trị bệnh cho: " + cow.getName() +
+                " - Vaccine: " + detail.getVaccine().getName());
+        task.setStatus(TaskStatus.pending);
+        task.setFromDate(detail.getDate());
+        task.setToDate(detail.getDate());
+        task.setShift(TaskShift.dayShift);
+        task.setTaskTypeId(treatmentTaskType);
+        task.setAreaId(latestCowPen.getPenEntity().getAreaBelongto());
+        task.setIllness(detail);
+
+        taskRepository.save(task);
+    }
+
 
 
 }
