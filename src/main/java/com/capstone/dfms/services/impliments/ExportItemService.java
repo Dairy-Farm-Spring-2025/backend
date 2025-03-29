@@ -203,6 +203,15 @@ public class ExportItemService implements IExportItemService {
         return exportItemRepository.save(exportItem);
     }
 
+    @Override
+    public List<ExportItemEntity> getMyExportItems() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity user = userPrincipal.getUser();
+        return exportItemRepository.findByPicker_Id(user.getId());
+    }
+
+
 
 
 

@@ -23,6 +23,7 @@ public interface IExportItemService {
 
 //    ExportItemEntity updateExportItem (Long id, float quantiy);
 
+    List<ExportItemEntity> getMyExportItems();
     ExportItemEntity exportItem (Long id);
 
 }
