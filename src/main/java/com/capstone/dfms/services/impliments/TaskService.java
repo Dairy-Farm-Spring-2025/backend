@@ -31,6 +31,7 @@ public class TaskService implements ITaskService {
     private final IUserRepository userRepository;
     private final ITaskTypeRepository taskTypeRepository;
     private final IReportTaskRepository reportTaskRepository;
+    private final IIllnessRepository illnessRepository;
     private final ITaskMapper taskMapper;
     private final IReportTaskMapper reportTaskMapper;
 
@@ -43,6 +44,12 @@ public class TaskService implements ITaskService {
 
         TaskTypeEntity taskType = taskTypeRepository.findById(request.getTaskTypeId())
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy loại công việc"));
+
+        IllnessEntity illness = null;
+        if(request.getIllnessId() != null){
+            illness = illnessRepository.findById(request.getIllnessId())
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy loại bệnh"));
+        }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
@@ -84,6 +91,10 @@ public class TaskService implements ITaskService {
                     .priority(request.getPriority())
                     .shift(request.getShift())
                     .build();
+
+            if(illness != null){
+                task.setMainIllness(illness);
+            }
             tasks.add(task);
         }
         return taskRepository.saveAll(tasks);

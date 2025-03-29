@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.statics.UserStatic;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.IApplicationMapper;
 import com.capstone.dfms.models.ApplicationEntity;
 import com.capstone.dfms.models.ApplicationTypeEntity;
@@ -36,33 +37,28 @@ public class ApplicationService implements IApplicationService {
     @Override
     public ApplicationEntity createApplication(ApplicationCreateRequest request) {
         ApplicationTypeEntity type = applicationTypeRepository.findById(request.getTypeId())
-                .orElseThrow(() -> new RuntimeException("Application Type not found"));
+                .orElseThrow(() -> new RuntimeException(LocalizationUtils.getMessage("application_type.not_found")));
 
-        // Validate requestBy user
         UserEntity requestBy = UserStatic.getCurrentUser();
 
         boolean applicationExists = applicationRepository.existsByRequestByAndFromDateAndToDateAndType(
                 requestBy, request.getFromDate(), request.getToDate(), type);
 
         if (applicationExists) {
-            throw new RuntimeException("A similar application already exists. Please modify your request.");
+            throw new RuntimeException(LocalizationUtils.getMessage("application.already_exists"));
         }
 
-        // Map request to entity
         ApplicationEntity application = applicationMapper.toModel(request);
-
-        // Set references (if not already handled in mapper)
         application.setType(type);
         application.setRequestBy(requestBy);
 
-        // Save to database
         return applicationRepository.save(application);
     }
 
     @Override
     public ApplicationEntity getApplicationById(Long applicationId) {
         return applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("Application with ID " + applicationId + " not found."));
+                .orElseThrow(() -> new RuntimeException(LocalizationUtils.getMessage("application.not_found", applicationId)));
     }
 
     @Override
@@ -74,6 +70,7 @@ public class ApplicationService implements IApplicationService {
     public ApplicationEntity updateApplication(Long applicationId, ApplicationApproveRequest request) {
         ApplicationEntity approvedApplication = this.getApplicationById(applicationId);
         applicationMapper.updateEntityFromDto(request, approvedApplication);
+
 
         UserEntity approveBy = UserStatic.getCurrentUser();
         approvedApplication.setApproveBy(approveBy);
@@ -115,13 +112,13 @@ public class ApplicationService implements IApplicationService {
         ApplicationEntity cancelApplication = this.getApplicationById(applicationId);
         UserEntity currentUser = UserStatic.getCurrentUser();
 
-        if(cancelApplication.getStatus() != ApplicationStatus.processing){
-            throw new AppException(HttpStatus.BAD_REQUEST, "Application was approved/rejected!");
+        if (cancelApplication.getStatus() != ApplicationStatus.processing) {
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("application.cannot_cancel"));
         }
 
-        if(!(cancelApplication.getRequestBy().getId() == currentUser.getId()
-                || currentUser.getRoleId().getName().equalsIgnoreCase("MANAGER"))){
-            throw new AppException(HttpStatus.BAD_REQUEST, "You don't have permission to cancel application!");
+        if (!(cancelApplication.getRequestBy().getId() == currentUser.getId()
+                || currentUser.getRoleId().getName().equalsIgnoreCase("MANAGER"))) {
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("application.no_permission_cancel"));
         }
 
         cancelApplication.setStatus(ApplicationStatus.cancel);
@@ -133,7 +130,7 @@ public class ApplicationService implements IApplicationService {
     @Override
     public List<ApplicationEntity> getApplicationsByApplicationType(Long applicationTypeId) {
         ApplicationTypeEntity applicationType = applicationTypeRepository.findById(applicationTypeId)
-                .orElseThrow(() -> new RuntimeException("Application Type with ID " + applicationTypeId + " not found."));
+                .orElseThrow(() -> new RuntimeException(LocalizationUtils.getMessage("application_type.not_found")));
 
         return applicationRepository.findByType(applicationType);
     }
@@ -141,7 +138,6 @@ public class ApplicationService implements IApplicationService {
     @Override
     public List<ApplicationEntity> getApplicationsByRequestBy() {
         UserEntity requestBy = UserStatic.getCurrentUser();
-
         return applicationRepository.findByRequestBy(requestBy);
     }
 }
