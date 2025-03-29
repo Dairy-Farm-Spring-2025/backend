@@ -28,11 +28,12 @@ public class ExportItemEntity extends BaseEntity{
     @ManyToOne
     private ItemBatchEntity itemBatchEntity;
 
-    @ManyToOne
-    @JoinColumn(name = "exporter_id")
-    private UserEntity exporter;
-
     private LocalDateTime exportDate;
+
+    @ManyToOne
+    @JoinColumn(name = "task_id")
+    private TaskEntity task;
+
 
     @Enumerated(EnumType.STRING)
     private ExportItemStatus status;

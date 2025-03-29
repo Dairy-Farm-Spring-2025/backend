@@ -10,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 public interface IExportItemMapper {
     IExportItemMapper INSTANCE = Mappers.getMapper(IExportItemMapper.class);
 
-    @Mapping(source = "itemBatchId", target = "itemBatchEntity.itemBatchId")
+//    @Mapping(source = "itemBatchId", target = "itemBatchEntity.itemBatchId")
     ExportItemEntity toModel(ExportItemRequest request);
 
 }

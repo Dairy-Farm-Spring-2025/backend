@@ -3,13 +3,13 @@ package com.capstone.dfms.services.impliments;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.securities.UserPrincipal;
 import com.capstone.dfms.components.utils.LocalizationUtils;
-import com.capstone.dfms.models.ExportItemEntity;
-import com.capstone.dfms.models.ItemBatchEntity;
-import com.capstone.dfms.models.UserEntity;
+import com.capstone.dfms.models.*;
 import com.capstone.dfms.models.enums.BatchStatus;
 import com.capstone.dfms.models.enums.ExportItemStatus;
 import com.capstone.dfms.repositories.IExportItemRepository;
 import com.capstone.dfms.repositories.IItemBatchRepository;
+import com.capstone.dfms.repositories.ITaskRepository;
+import com.capstone.dfms.requests.ExportItemRequest;
 import com.capstone.dfms.services.IExportItemService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,79 +28,123 @@ public class ExportItemService implements IExportItemService {
 
     private final IItemBatchRepository itemBatchRepository;
 
+    private final ITaskRepository taskRepository;
+
 
     @Override
-    public ExportItemEntity createExportItem(ExportItemEntity exportItem) {
+    public void createExportItem(ExportItemRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         UserEntity user = userPrincipal.getUser();
 
-        ItemBatchEntity itemBatch = itemBatchRepository.findById(exportItem.getItemBatchEntity().getItemBatchId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item_batch.not_exist")));
+        TaskEntity task = taskRepository.findById(request.getTaskId()).orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                LocalizationUtils.getMessage("task.not.found")));
 
-        if (exportItem.getQuantity() > itemBatch.getQuantity()) {
+        List<ItemBatchEntity> inUseBatches = itemBatchRepository.findByItemEntity_ItemIdAndStatusOrderByImportDateAsc(
+                request.getItemId(), BatchStatus.inUse);
+
+        float remainingQuantity = request.getQuantity();
+
+        for (ItemBatchEntity batch : inUseBatches) {
+            if (remainingQuantity <= 0) break;
+
+            float availableQuantity = batch.getQuantity();
+            float exportQuantity = Math.min(availableQuantity, remainingQuantity);
+
+            ExportItemEntity exportItem = new ExportItemEntity();
+            exportItem.setPicker(user);
+            exportItem.setExportDate(LocalDateTime.now());
+            exportItem.setStatus(ExportItemStatus.pending);
+            exportItem.setItemBatchEntity(batch);
+            exportItem.setQuantity(exportQuantity);
+            exportItem.setTask(task);
+
+            exportItemRepository.save(exportItem);
+
+            remainingQuantity -= exportQuantity;
+        }
+
+        if (remainingQuantity > 0) {
+            List<ItemBatchEntity> availableBatches = itemBatchRepository.findByItemEntity_ItemIdAndStatusOrderByImportDateAsc(
+                    request.getItemId(), BatchStatus.available);
+
+            for (ItemBatchEntity batch : availableBatches) {
+                if (remainingQuantity <= 0) break;
+
+                float availableQuantity = batch.getQuantity();
+                float exportQuantity = Math.min(availableQuantity, remainingQuantity);
+
+                ExportItemEntity exportItem2 = new ExportItemEntity();
+                exportItem2.setPicker(user);
+                exportItem2.setExportDate(LocalDateTime.now());
+                exportItem2.setStatus(ExportItemStatus.pending);
+                exportItem2.setItemBatchEntity(batch);
+                exportItem2.setQuantity(exportQuantity);
+                exportItem2.setTask(task);
+                exportItemRepository.save(exportItem2);
+
+                remainingQuantity -= exportQuantity;
+            }
+        }
+
+        if (remainingQuantity > 0) {
             throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.quantity.exceed"));
         }
-
-        exportItem.setPicker(user);
-        exportItem.setStatus(ExportItemStatus.pending);
-        exportItem.setExportDate(LocalDateTime.now());
-        exportItem.setItemBatchEntity(itemBatch);
-
-        return exportItemRepository.save(exportItem);
-    }
-
-    @Override
-    public ExportItemEntity approveExportItem (Long id){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        UserEntity user = userPrincipal.getUser();
-        ExportItemEntity exportItem = exportItemRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist")));
-
-        exportItem.setStatus(ExportItemStatus.approved);
-        exportItem.setExporter(user);
-
-        return exportItemRepository.save(exportItem);
-    }
-
-    @Override
-    public List<ExportItemEntity> approveMultipleExportItems(List<Long> listId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        UserEntity user = userPrincipal.getUser();
-
-        List<ExportItemEntity> exportItems = exportItemRepository.findAllById(listId);
-
-        if (exportItems.isEmpty()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.no.valid.items"));
-        }
-
-        for (ExportItemEntity exportItem : exportItems) {
-            if (exportItem.getStatus() != ExportItemStatus.pending) {
-                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.approve.invalid.status"));
-            }
-            exportItem.setStatus(ExportItemStatus.approved);
-            exportItem.setExporter(user);
-        }
-
-        return exportItemRepository.saveAll(exportItems);
     }
 
 
-    @Override
-    public ExportItemEntity rejectExportItem (Long id){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        UserEntity user = userPrincipal.getUser();
-        ExportItemEntity exportItem = exportItemRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist")));
 
-        exportItem.setStatus(ExportItemStatus.reject);
-        exportItem.setExporter(user);
+//    @Override
+//    public ExportItemEntity approveExportItem (Long id){
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+//        UserEntity user = userPrincipal.getUser();
+//        ExportItemEntity exportItem = exportItemRepository.findById(id)
+//                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist")));
+//
+//        exportItem.setStatus(ExportItemStatus.approved);
+//        exportItem.setExporter(user);
+//
+//        return exportItemRepository.save(exportItem);
+//    }
 
-        return exportItemRepository.save(exportItem);
-    }
+//    @Override
+//    public List<ExportItemEntity> approveMultipleExportItems(List<Long> listId) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+//        UserEntity user = userPrincipal.getUser();
+//
+//        List<ExportItemEntity> exportItems = exportItemRepository.findAllById(listId);
+//
+//        if (exportItems.isEmpty()) {
+//            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.no.valid.items"));
+//        }
+//
+//        for (ExportItemEntity exportItem : exportItems) {
+//            if (exportItem.getStatus() != ExportItemStatus.pending) {
+//                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.approve.invalid.status"));
+//            }
+//            exportItem.setStatus(ExportItemStatus.approved);
+//            exportItem.setExporter(user);
+//        }
+//
+//        return exportItemRepository.saveAll(exportItems);
+//    }
+
+
+//    @Override
+//    public ExportItemEntity rejectExportItem (Long id){
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+//        UserEntity user = userPrincipal.getUser();
+//        ExportItemEntity exportItem = exportItemRepository.findById(id)
+//                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist")));
+//
+//        exportItem.setStatus(ExportItemStatus.reject);
+//        exportItem.setExporter(user);
+//
+//        return exportItemRepository.save(exportItem);
+//    }
 
 
     @Override
@@ -115,17 +160,17 @@ public class ExportItemService implements IExportItemService {
         return exportItemRepository.save(exportItem);
     }
 
-    @Override
-    public ExportItemEntity updateExportItem(Long id, float quantiy) {
-        ExportItemEntity exportItem = exportItemRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This export item is not existed!"));
-        if (exportItem.getStatus() != ExportItemStatus.pending) {
-            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.update.invalid.status"));
-        }
-        exportItem.setQuantity(quantiy);
-
-        return exportItemRepository.save(exportItem);
-    }
+//    @Override
+//    public ExportItemEntity updateExportItem(Long id, float quantiy) {
+//        ExportItemEntity exportItem = exportItemRepository.findById(id)
+//                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This export item is not existed!"));
+//        if (exportItem.getStatus() != ExportItemStatus.pending) {
+//            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.update.invalid.status"));
+//        }
+//        exportItem.setQuantity(quantiy);
+//
+//        return exportItemRepository.save(exportItem);
+//    }
 
     @Override
     public ExportItemEntity exportItem(Long id) {
@@ -164,7 +209,9 @@ public class ExportItemService implements IExportItemService {
     @Override
     public ExportItemEntity getExportItemById(long id) {
         return exportItemRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist")));
+                .orElseThrow(
+                        () -> new AppException(HttpStatus.BAD_REQUEST,
+                                LocalizationUtils.getMessage("export.item.not.exist")));
     }
 
     @Override
