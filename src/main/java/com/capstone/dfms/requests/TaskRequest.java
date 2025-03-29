@@ -21,4 +21,5 @@ public class TaskRequest {
     private PriorityTask priority;
     private Long taskTypeId;
     private TaskShift shift;
+    private Long illnessId;
 }

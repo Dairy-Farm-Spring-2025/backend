@@ -1,16 +1,16 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.requests.AreaCreateRequest;
 import com.capstone.dfms.requests.AreaUpdateRequest;
 import com.capstone.dfms.responses.AreaResponse;
 import com.capstone.dfms.services.IAreaServices;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -23,11 +23,10 @@ public class AreaController {
     private final IAreaServices areaServices;
 
     @PostMapping("/create")
-    public CoreApiResponse<AreaResponse> createAccountManager(
-            @Valid @RequestBody AreaCreateRequest areaCreateRequest
-    ){
+    public CoreApiResponse<AreaResponse> createArea(@Valid @RequestBody AreaCreateRequest areaCreateRequest) {
         var areaResponse = areaServices.createArea(INSTANCE.toModel(areaCreateRequest));
-        return CoreApiResponse.success(areaResponse);
+        String message = LocalizationUtils.getMessage("general.create_successfully", null, LocaleContextHolder.getLocale());
+        return CoreApiResponse.success(areaResponse, message);
     }
 
     @PutMapping("/{id}")
@@ -36,18 +35,21 @@ public class AreaController {
             @Valid @RequestBody AreaUpdateRequest areaUpdateRequest
     ) {
         AreaResponse areaResponse = areaServices.updateArea(id, areaUpdateRequest);
-        return CoreApiResponse.success(areaResponse);
+        String message = LocalizationUtils.getMessage("application.update.success", null, LocaleContextHolder.getLocale());
+        return CoreApiResponse.success(areaResponse, message);
     }
 
     @GetMapping("/{id}")
     public CoreApiResponse<AreaResponse> getAreaById(@PathVariable Long id) {
         AreaResponse areaResponse = areaServices.getAreaById(id);
-        return CoreApiResponse.success(areaResponse);
+        String message = LocalizationUtils.getMessage("application.fetch.success", null, LocaleContextHolder.getLocale());
+        return CoreApiResponse.success(areaResponse, message);
     }
 
     @GetMapping
     public CoreApiResponse<List<AreaResponse>> getAllAreas() {
         List<AreaResponse> areas = areaServices.getAllAreas();
-        return CoreApiResponse.success(areas);
+        String message = LocalizationUtils.getMessage("applications.fetch.success", null, LocaleContextHolder.getLocale());
+        return CoreApiResponse.success(areas, message);
     }
 }

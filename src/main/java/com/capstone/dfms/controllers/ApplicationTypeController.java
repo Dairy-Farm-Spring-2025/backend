@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.ApplicationTypeEntity;
 import com.capstone.dfms.requests.ApplicationTypeRequest;
 import com.capstone.dfms.services.IApplicationTypeService;
@@ -19,10 +20,10 @@ public class ApplicationTypeController {
     private final IApplicationTypeService service;
 
     // Create a new ApplicationType
-    @PreAuthorize("hasAnyRole('MANAGER')")
+//    @PreAuthorize("hasAnyRole('MANAGER')")
     @PostMapping
     public CoreApiResponse<ApplicationTypeEntity> createApplicationType(@RequestBody ApplicationTypeRequest request) {
-        return CoreApiResponse.success(service.createApplicationType(request));
+        return CoreApiResponse.success(service.createApplicationType(request), LocalizationUtils.getMessage("general.create_successfully"));
     }
 
     // Get all ApplicationTypes
@@ -51,6 +52,6 @@ public class ApplicationTypeController {
     @DeleteMapping("/{id}")
     public CoreApiResponse<?> deleteApplicationType(@PathVariable Long id) {
         service.deleteApplicationType(id);
-        return  CoreApiResponse.success("Delete successfully!");
+        return  CoreApiResponse.success(LocalizationUtils.getMessage("general.delete_successfully"));
     }
 }
