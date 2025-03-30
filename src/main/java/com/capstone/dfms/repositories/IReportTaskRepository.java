@@ -26,5 +26,10 @@ public interface IReportTaskRepository extends JpaRepository<ReportTaskEntity, L
 
     List<ReportTaskEntity> findByDate(LocalDate date);
 
+    @Query("SELECT r FROM ReportTaskEntity r WHERE r.status = 'PENDING' AND r.date = :today AND r.taskId.shift = 'DAY_SHIFT'")
+    List<ReportTaskEntity> findPendingReportsForToday(@Param("today") LocalDate today);
+
+
+
 
 }

@@ -1,9 +1,6 @@
 package com.capstone.dfms.responses;
 
-import com.capstone.dfms.models.IllnessDetailEntity;
-import com.capstone.dfms.models.ReportTaskEntity;
-import com.capstone.dfms.models.TaskTypeEntity;
-import com.capstone.dfms.models.VaccineInjectionEntity;
+import com.capstone.dfms.models.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +19,7 @@ public class TaskResponse {
     private String status;
     private LocalDate fromDate;
     private LocalDate toDate;
-    private String areaName;
+    private AreaEntity areaId;
     private TaskTypeEntity taskTypeId;
     private String assignerName;
     private String assigneeName;

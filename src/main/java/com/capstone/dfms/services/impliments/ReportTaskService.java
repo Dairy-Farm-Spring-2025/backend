@@ -52,6 +52,10 @@ public class ReportTaskService implements IReportTaskService {
         if (!task.getAssignee().getId().equals(user.getId())) {
             throw new AppException(HttpStatus.FORBIDDEN, "You are not assigned to this task.");
         }
+
+        if (!existingReport.getStartTime().toLocalDate().equals(LocalDate.now())) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "You can only report on the creation date.");
+        }
         existingReport.setDescription(updatedReportTask.getDescription());
         existingReport.setComment(updatedReportTask.getComment());
         existingReport.setStatus(ReportStatus.processing);
