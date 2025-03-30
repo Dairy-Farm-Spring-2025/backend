@@ -5,13 +5,13 @@ import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.models.*;
 import com.capstone.dfms.models.enums.CowStatus;
+import com.capstone.dfms.models.enums.FeedMealStatus;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.FeedMealDetailRequest;
 import com.capstone.dfms.requests.FeedMealRequest;
 import com.capstone.dfms.responses.CalculateFoodResponse;
 import com.capstone.dfms.services.IFeedMealService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +39,17 @@ public class FeedMealService implements IFeedMealService {
     public FeedMealEntity createFeedMeal(FeedMealRequest request) {
         CowTypeEntity cowTypeEntity = cowTypeRepository.findById(request.getCowTypeId())
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Cow Type not found"));
+
+        boolean exists = feedMealRepository.existsByCowStatusAndCowTypeEntityAndStatus(
+                request.getCowStatus(),
+                cowTypeEntity,
+                FeedMealStatus.inUse
+        );
+
+        if (exists) {
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    "Đã tồn tại bữa ăn cho loại bò này. Vui lòng huỷ sử dụng bữa ăn cũ trước khi tạo bữa ăn mới");
+        }
 
         Map<String, BigDecimal> requiredPercentages = Map.of(
                 "Cỏ Khô", BigDecimal.valueOf(35.0),
@@ -92,7 +103,7 @@ public class FeedMealService implements IFeedMealService {
                 FeedMealEntity.builder()
                         .name(request.getName())
                         .cowStatus(request.getCowStatus())
-                        .shift(request.getShift())
+//                        .shift(request.getShift())
                         .description(request.getDescription())
                         .cowTypeEntity(cowTypeEntity)
                         .build()
@@ -194,15 +205,17 @@ public class FeedMealService implements IFeedMealService {
                 Optional<FeedMealEntity> feedMealOpt = feedMealRepository.findByCowTypeAndStatus(
                         cow.getCowTypeEntity(), cow.getCowStatus()
                 );
+                if (feedMealOpt.isEmpty()) {
+                    throw new AppException(HttpStatus.BAD_REQUEST,"Không tìm thấy khẩu phần ăn cho loại bò: "
+                            + cow.getCowTypeEntity().getName() + " với trạng thái " + cow.getCowStatus());
+                }
 
-                if (feedMealOpt.isPresent()) {
-                    FeedMealEntity feedMeal = feedMealOpt.get();
-                    for (FeedMealDetailEntity detail : feedMeal.getFeedMealDetails()) {
-                        ItemEntity item = detail.getItemEntity();
-                        BigDecimal quantityRequired = detail.getQuantity();
+                FeedMealEntity feedMeal = feedMealOpt.get();
+                for (FeedMealDetailEntity detail : feedMeal.getFeedMealDetails()) {
+                    ItemEntity item = detail.getItemEntity();
+                    BigDecimal quantityRequired = detail.getQuantity();
 
-                        totalFeedRequired.put(item, totalFeedRequired.getOrDefault(item, BigDecimal.ZERO).add(quantityRequired));
-                    }
+                    totalFeedRequired.put(item, totalFeedRequired.getOrDefault(item, BigDecimal.ZERO).add(quantityRequired));
                 }
             }
         }

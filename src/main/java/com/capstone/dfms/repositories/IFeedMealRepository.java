@@ -3,6 +3,7 @@ package com.capstone.dfms.repositories;
 import com.capstone.dfms.models.CowTypeEntity;
 import com.capstone.dfms.models.FeedMealEntity;
 import com.capstone.dfms.models.enums.CowStatus;
+import com.capstone.dfms.models.enums.FeedMealStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,16 @@ import java.util.Optional;
 
 @Repository
 public interface IFeedMealRepository extends JpaRepository<FeedMealEntity, Long> {
-    @Query("SELECT f FROM FeedMealEntity f WHERE f.cowTypeEntity = :cowType AND f.cowStatus = :cowStatus")
-    Optional<FeedMealEntity> findByCowTypeAndStatus(@Param("cowType") CowTypeEntity cowType, @Param("cowStatus") CowStatus cowStatus);
+    @Query("SELECT f FROM FeedMealEntity f WHERE f.cowTypeEntity = :cowType AND f.cowStatus = :cowStatus AND f.status = 'inUse'")
+    Optional<FeedMealEntity> findByCowTypeAndStatus(
+            @Param("cowType") CowTypeEntity cowType,
+            @Param("cowStatus") CowStatus cowStatus
+    );
+
+    @Query("SELECT COUNT(f) > 0 FROM FeedMealEntity f WHERE f.cowStatus = :cowStatus AND f.cowTypeEntity = :cowTypeEntity AND f.status = :status")
+    boolean existsByCowStatusAndCowTypeEntityAndStatus(
+            @Param("cowStatus") CowStatus cowStatus,
+            @Param("cowTypeEntity") CowTypeEntity cowTypeEntity,
+            @Param("status") FeedMealStatus status
+    );
 }

@@ -24,6 +24,6 @@ public class FeedMealRequest {
 
     private List<FeedMealDetailRequest> details;
 
-    private FeedMealShift shift;
+//    private FeedMealShift shift;
 
 }
