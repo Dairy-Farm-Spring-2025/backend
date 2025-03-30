@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 @Builder
 public class CalculateFoodResponse {
     private String name;
+    private Long itemId;
     private ItemUnit unit;
     private BigDecimal quantityNeeded;
 }

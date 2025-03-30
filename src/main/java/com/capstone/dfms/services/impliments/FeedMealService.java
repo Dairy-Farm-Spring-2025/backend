@@ -223,6 +223,7 @@ public class FeedMealService implements IFeedMealService {
         return totalFeedRequired.entrySet().stream()
                 .map(entry -> new CalculateFoodResponse(
                         entry.getKey().getName(),
+                        entry.getKey().getItemId(),
                         entry.getKey().getUnit(),
                         entry.getValue()
                 ))
