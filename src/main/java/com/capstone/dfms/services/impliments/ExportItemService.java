@@ -37,11 +37,28 @@ public class ExportItemService implements IExportItemService {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         UserEntity user = userPrincipal.getUser();
 
-        TaskEntity task = taskRepository.findById(request.getTaskId()).orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
-                LocalizationUtils.getMessage("task.not.found")));
+        TaskEntity task = taskRepository.findById(request.getTaskId()).orElseThrow(() ->
+                new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.not.found")));
 
         List<ItemBatchEntity> inUseBatches = itemBatchRepository.findByItemEntity_ItemIdAndStatusOrderByImportDateAsc(
                 request.getItemId(), BatchStatus.inUse);
+
+        List<ItemBatchEntity> availableBatches = itemBatchRepository.findByItemEntity_ItemIdAndStatusOrderByImportDateAsc(
+                request.getItemId(), BatchStatus.available);
+
+        float totalAvailableQuantity = 0;
+
+        for (ItemBatchEntity batch : inUseBatches) {
+            totalAvailableQuantity += batch.getQuantity();
+        }
+
+        for (ItemBatchEntity batch : availableBatches) {
+            totalAvailableQuantity += batch.getQuantity();
+        }
+
+        if (totalAvailableQuantity < request.getQuantity()) {
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.quantity.exceed"));
+        }
 
         float remainingQuantity = request.getQuantity();
 
@@ -50,6 +67,16 @@ public class ExportItemService implements IExportItemService {
 
             float availableQuantity = batch.getQuantity();
             float exportQuantity = Math.min(availableQuantity, remainingQuantity);
+
+            batch.setQuantity(batch.getQuantity() - exportQuantity);
+            if (batch.getQuantity() == 0) {
+                batch.setStatus(BatchStatus.depleted);
+            }
+
+            if (batch.getStatus() == BatchStatus.available) {
+                batch.setStatus(BatchStatus.inUse);
+            }
+            itemBatchRepository.save(batch);
 
             ExportItemEntity exportItem = new ExportItemEntity();
             exportItem.setPicker(user);
@@ -65,14 +92,16 @@ public class ExportItemService implements IExportItemService {
         }
 
         if (remainingQuantity > 0) {
-            List<ItemBatchEntity> availableBatches = itemBatchRepository.findByItemEntity_ItemIdAndStatusOrderByImportDateAsc(
-                    request.getItemId(), BatchStatus.available);
-
             for (ItemBatchEntity batch : availableBatches) {
                 if (remainingQuantity <= 0) break;
 
                 float availableQuantity = batch.getQuantity();
                 float exportQuantity = Math.min(availableQuantity, remainingQuantity);
+
+                batch.setQuantity(batch.getQuantity() - exportQuantity);
+                if (batch.getQuantity() == 0) {
+                    batch.setStatus(BatchStatus.depleted);
+                }
 
                 ExportItemEntity exportItem2 = new ExportItemEntity();
                 exportItem2.setPicker(user);
@@ -84,17 +113,9 @@ public class ExportItemService implements IExportItemService {
                 exportItemRepository.save(exportItem2);
 
                 remainingQuantity -= exportQuantity;
-
-                if (remainingQuantity > 0) {
-                    throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.quantity.exceed"));
-                }
             }
-
         }
-
-
     }
-
 
 
 //    @Override
@@ -151,17 +172,27 @@ public class ExportItemService implements IExportItemService {
 
 
     @Override
-    public ExportItemEntity cancelExportItem (Long id){
+    public ExportItemEntity cancelExportItem(Long id) {
         ExportItemEntity exportItem = exportItemRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This export item is not existed!"));
-       if (exportItem.getStatus() != ExportItemStatus.pending) {
+
+        if (exportItem.getStatus() != ExportItemStatus.pending) {
             throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.cancel.invalid.status"));
         }
 
-        exportItem.setStatus(ExportItemStatus.cancel);
+        ItemBatchEntity itemBatch = exportItem.getItemBatchEntity();
+        itemBatch.setQuantity(itemBatch.getQuantity() + exportItem.getQuantity());
 
+        if (itemBatch.getStatus() == BatchStatus.depleted) {
+            itemBatch.setStatus(BatchStatus.inUse);
+        }
+
+        itemBatchRepository.save(itemBatch);
+
+        exportItem.setStatus(ExportItemStatus.cancel);
         return exportItemRepository.save(exportItem);
     }
+
 
 //    @Override
 //    public ExportItemEntity updateExportItem(Long id, float quantiy) {
@@ -187,24 +218,13 @@ public class ExportItemService implements IExportItemService {
         if (!exportItem.getPicker().getId().equals(user.getId())) {
             throw new AppException(HttpStatus.FORBIDDEN, LocalizationUtils.getMessage("export.item.not.authorized"));
         }
-        ItemBatchEntity itemBatch = exportItem.getItemBatchEntity();
-        float exportQuantity = exportItem.getQuantity();
 
-        if (itemBatch.getQuantity() < exportQuantity) {
-            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.batch.not.enough"));
-        }
-
-        itemBatch.setQuantity(itemBatch.getQuantity() - exportQuantity);
-
-        if (itemBatch.getQuantity() == 0) {
-            itemBatch.setStatus(BatchStatus.depleted);
-        }
         exportItem.setStatus(ExportItemStatus.exported);
         exportItem.setExportDate(LocalDateTime.now());
 
-        itemBatchRepository.save(itemBatch);
         return exportItemRepository.save(exportItem);
     }
+
 
     @Override
     public List<ExportItemEntity> getMyExportItems() {
