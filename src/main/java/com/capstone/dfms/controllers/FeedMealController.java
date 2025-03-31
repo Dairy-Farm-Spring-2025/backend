@@ -5,6 +5,7 @@ import com.capstone.dfms.models.FeedMealEntity;
 import com.capstone.dfms.models.ItemEntity;
 import com.capstone.dfms.requests.DryMatterRequest;
 import com.capstone.dfms.requests.FeedMealRequest;
+import com.capstone.dfms.requests.UpdateFeedMealRequest;
 import com.capstone.dfms.responses.AreaResponse;
 import com.capstone.dfms.responses.DryMatterResponse;
 import com.capstone.dfms.services.IFeedMealService;
@@ -57,5 +58,13 @@ public class FeedMealController {
     @GetMapping("/calculate/{areaId}")
     public CoreApiResponse<?> getFeedForArea(@PathVariable Long areaId) {
         return CoreApiResponse.success(feedMealService.calculateFeedForArea(areaId));
+    }
+
+    @PutMapping("/{id}")
+    public CoreApiResponse<FeedMealEntity> updateFeedMeal(
+            @PathVariable Long id,
+            @RequestBody UpdateFeedMealRequest request) {
+        FeedMealEntity updatedFeedMeal = feedMealService.updateFeedMeal(id, request);
+        return CoreApiResponse.success(updatedFeedMeal);
     }
 }

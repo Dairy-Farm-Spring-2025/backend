@@ -4,6 +4,7 @@ import com.capstone.dfms.models.FeedMealEntity;
 import com.capstone.dfms.models.ItemEntity;
 import com.capstone.dfms.models.enums.CowStatus;
 import com.capstone.dfms.requests.FeedMealRequest;
+import com.capstone.dfms.requests.UpdateFeedMealRequest;
 import com.capstone.dfms.responses.CalculateFoodResponse;
 
 import java.math.BigDecimal;
@@ -22,5 +23,7 @@ public interface IFeedMealService {
 
     double calculateDryMatter(CowStatus cowStatus, Long cowTypeId);
 
-    public List<CalculateFoodResponse> calculateFeedForArea(Long areaId);
+    FeedMealEntity updateFeedMeal(Long feedMealId, UpdateFeedMealRequest request);
+
+    List<CalculateFoodResponse> calculateFeedForArea(Long areaId);
 }

@@ -9,6 +9,7 @@ import com.capstone.dfms.models.enums.FeedMealStatus;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.FeedMealDetailRequest;
 import com.capstone.dfms.requests.FeedMealRequest;
+import com.capstone.dfms.requests.UpdateFeedMealRequest;
 import com.capstone.dfms.responses.CalculateFoodResponse;
 import com.capstone.dfms.services.IFeedMealService;
 import lombok.RequiredArgsConstructor;
@@ -102,6 +103,7 @@ public class FeedMealService implements IFeedMealService {
         FeedMealEntity savedFeedMeal = feedMealRepository.save(
                 FeedMealEntity.builder()
                         .name(request.getName())
+                        .status(FeedMealStatus.inUse)
                         .cowStatus(request.getCowStatus())
 //                        .shift(request.getShift())
                         .description(request.getDescription())
@@ -192,6 +194,38 @@ public class FeedMealService implements IFeedMealService {
 
         feedMealRepository.delete(vaccineCycle);
     }
+
+    @Override
+    public FeedMealEntity updateFeedMeal(Long feedMealId, UpdateFeedMealRequest request) {
+        FeedMealEntity feedMeal = feedMealRepository.findById(feedMealId)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Không tìm thấy khẩu phần ăn với ID: " + feedMealId));
+
+        if (request.getStatus() == FeedMealStatus.inUse) {
+            boolean exists = feedMealRepository.existsByCowStatusAndCowTypeEntityAndStatus(
+                    feedMeal.getCowStatus(),
+                    feedMeal.getCowTypeEntity(),
+                    FeedMealStatus.inUse
+            );
+
+            if (exists) {
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        "Đã tồn tại bữa ăn cho loại bò này. Vui lòng huỷ sử dụng bữa ăn cũ trước khi chuyển trạng thái.");
+            }
+        }
+
+        if (request.getName() != null) {
+            feedMeal.setName(request.getName());
+        }
+        if (request.getDescription() != null) {
+            feedMeal.setDescription(request.getDescription());
+        }
+        if (request.getStatus() != null) {
+            feedMeal.setStatus(request.getStatus());
+        }
+
+        return feedMealRepository.save(feedMeal);
+    }
+
 
 
     public List<CalculateFoodResponse> calculateFeedForArea(Long areaId) {
