@@ -71,10 +71,8 @@ public class ExportItemService implements IExportItemService {
             batch.setQuantity(batch.getQuantity() - exportQuantity);
             if (batch.getQuantity() == 0) {
                 batch.setStatus(BatchStatus.depleted);
-            } else {
-                batch.setStatus(BatchStatus.inUse);
             }
-            itemBatchRepository.saveAndFlush(batch);
+            itemBatchRepository.save(batch);
 
             ExportItemEntity exportItem = new ExportItemEntity();
             exportItem.setPicker(user);
@@ -99,8 +97,10 @@ public class ExportItemService implements IExportItemService {
                 batch.setQuantity(batch.getQuantity() - exportQuantity);
                 if (batch.getQuantity() == 0) {
                     batch.setStatus(BatchStatus.depleted);
+                } else {
+                    batch.setStatus(BatchStatus.inUse);
                 }
-
+                itemBatchRepository.save(batch);
                 ExportItemEntity exportItem2 = new ExportItemEntity();
                 exportItem2.setPicker(user);
                 exportItem2.setExportDate(LocalDateTime.now());
