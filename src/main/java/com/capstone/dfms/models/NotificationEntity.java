@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -24,6 +25,8 @@ public class NotificationEntity extends BaseEntity{
     private String description;
 
     private String link;
+
+    private LocalDateTime dateTime;
 
     private CategoryNotification category;
 

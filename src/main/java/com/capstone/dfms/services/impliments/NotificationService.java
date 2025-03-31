@@ -21,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,7 @@ public class NotificationService implements INotificationService {
         notification.setDescription(request.getDescription());
         notification.setLink(request.getLink());
         notification.setCategory(request.getCategory());
+        notification.setDateTime(LocalDateTime.now());
 
         NotificationEntity savedNotification = notificationRepository.save(notification);
 
