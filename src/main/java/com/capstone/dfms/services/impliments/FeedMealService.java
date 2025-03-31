@@ -226,6 +226,50 @@ public class FeedMealService implements IFeedMealService {
         return feedMealRepository.save(feedMeal);
     }
 
+    @Override
+    public FeedMealDetailEntity updateFeedMealDetail(Long feedMealDetailId, BigDecimal quantity) {
+        FeedMealDetailEntity feedMealDetail = feedMealDetailRepository.findById(feedMealDetailId)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Không tìm thấy chi tiết khẩu phần ăn với ID: " + feedMealDetailId));
+
+        if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Số lượng phải lớn hơn 0");
+        }
+
+        feedMealDetail.setQuantity(quantity);
+        return feedMealDetailRepository.save(feedMealDetail);
+    }
+
+
+    @Override
+    public void addFeedMealDetail(Long feedMealId, FeedMealDetailRequest request) {
+        FeedMealEntity feedMeal = feedMealRepository.findById(feedMealId)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Không tìm thấy khẩu phần ăn với ID: " + feedMealId));
+
+        ItemEntity item = itemRepository.findById(request.getItemId())
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Không tìm thấy nguyên liệu với ID: " + request.getItemId()));
+
+        if (request.getQuantity() == null || request.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Số lượng phải lớn hơn 0");
+        }
+
+        if (feedMealDetailRepository.findByFeedMealEntityAndItemEntity(feedMeal, item).isPresent()) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Nguyên liệu này đã có trong khẩu phần ăn");
+        }
+
+        FeedMealDetailEntity detail = new FeedMealDetailEntity();
+        detail.setFeedMealEntity(feedMeal);
+        detail.setItemEntity(item);
+        detail.setQuantity(request.getQuantity());
+
+        feedMealDetailRepository.save(detail);
+    }
+
+
+    @Override
+    public void removeFeedMealDetail(Long feedMealId) {
+        FeedMealDetailEntity feedMealDetail = feedMealDetailRepository.findById(feedMealId).orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Không tìm thấy chi tiết bữa ăn"));
+        feedMealDetailRepository.delete(feedMealDetail);
+    }
 
 
     public List<CalculateFoodResponse> calculateFeedForArea(Long areaId) {

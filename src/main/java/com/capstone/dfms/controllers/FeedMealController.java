@@ -1,9 +1,11 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.models.FeedMealDetailEntity;
 import com.capstone.dfms.models.FeedMealEntity;
 import com.capstone.dfms.models.ItemEntity;
 import com.capstone.dfms.requests.DryMatterRequest;
+import com.capstone.dfms.requests.FeedMealDetailRequest;
 import com.capstone.dfms.requests.FeedMealRequest;
 import com.capstone.dfms.requests.UpdateFeedMealRequest;
 import com.capstone.dfms.responses.AreaResponse;
@@ -67,4 +69,28 @@ public class FeedMealController {
         FeedMealEntity updatedFeedMeal = feedMealService.updateFeedMeal(id, request);
         return CoreApiResponse.success(updatedFeedMeal);
     }
+
+    @PutMapping("detail/{id}")
+    public CoreApiResponse<FeedMealDetailEntity> updateFeedMealDetail(
+            @PathVariable Long id,
+            @RequestParam BigDecimal quantity) {
+        FeedMealDetailEntity updatedDetail = feedMealService.updateFeedMealDetail(id, quantity);
+        return CoreApiResponse.success(updatedDetail);
+    }
+
+    @PostMapping("addDetail/{feedMealId}")
+    public CoreApiResponse<String> addFeedMealDetail(
+            @PathVariable Long feedMealId,
+            @RequestBody FeedMealDetailRequest request) {
+        feedMealService.addFeedMealDetail(feedMealId, request);
+        return CoreApiResponse.success("Thêm nguyên liệu vào khẩu phần ăn thành công");
+    }
+
+    @DeleteMapping("detail/{feedMealDetailId}")
+    public CoreApiResponse<String> removeFeedMealDetail(@PathVariable Long feedMealDetailId) {
+        feedMealService.removeFeedMealDetail(feedMealDetailId);
+        return CoreApiResponse.success("Xóa nguyên liệu khỏi khẩu phần ăn thành công");
+    }
+
+
 }
