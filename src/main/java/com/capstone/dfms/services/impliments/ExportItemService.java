@@ -71,9 +71,7 @@ public class ExportItemService implements IExportItemService {
             batch.setQuantity(batch.getQuantity() - exportQuantity);
             if (batch.getQuantity() == 0) {
                 batch.setStatus(BatchStatus.depleted);
-            }
-
-            if (batch.getStatus() == BatchStatus.available) {
+            } else {
                 batch.setStatus(BatchStatus.inUse);
             }
             itemBatchRepository.save(batch);
