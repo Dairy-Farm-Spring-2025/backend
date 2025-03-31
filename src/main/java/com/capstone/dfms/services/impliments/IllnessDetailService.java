@@ -200,6 +200,7 @@ public class IllnessDetailService implements IIllnessDetailService {
 
                 task.setDescription("Điều trị bệnh: " + createdEntity.getDescription());
                 task.setStatus(TaskStatus.pending);
+                task.setPriority(PriorityTask.high);
                 task.setFromDate(createdEntity.getDate());
                 task.setToDate(createdEntity.getDate());
                 task.setIllness(createdEntity);

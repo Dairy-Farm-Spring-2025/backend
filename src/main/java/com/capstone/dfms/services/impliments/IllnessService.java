@@ -60,6 +60,11 @@ public class IllnessService implements IIllnessService {
     }
 
     @Override
+    public List<IllnessEntity> getIllnessByStatus(IllnessStatus status) {
+        return illnessRepository.findByIllnessStatus(status);
+    }
+
+    @Override
     public IllnessEntity getIllnessById(Long id) {
         return illnessRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This illness is not existed!"));
