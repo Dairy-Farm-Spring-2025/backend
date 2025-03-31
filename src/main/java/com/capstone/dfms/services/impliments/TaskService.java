@@ -75,8 +75,10 @@ public class TaskService implements ITaskService {
             if (!isAssigneeAvailableForTask(assigneeId, request.getFromDate(), request.getToDate())) {
                 throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã đạt giới hạn tối đa 6 ngày làm việc trong tuần.");
             }
-            if (isDuplicateTaskTypeAndArea(assigneeId, request.getTaskTypeId(), request.getAreaId(), request.getFromDate(), request.getToDate())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã có công việc loại này trong khu vực này trong thời gian này.");
+            if (!assignee.getRoleId().getName().equalsIgnoreCase("Veterinarians")) {
+                if (isDuplicateTaskTypeAndArea(assigneeId, request.getTaskTypeId(), request.getAreaId(), request.getFromDate(), request.getToDate())) {
+                    throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã có công việc loại này trong khu vực này trong thời gian này.");
+                }
             }
 
             TaskEntity task = TaskEntity.builder()
