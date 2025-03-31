@@ -85,11 +85,12 @@ public class ExportItemService implements IExportItemService {
 
                 remainingQuantity -= exportQuantity;
             }
+            if (remainingQuantity > 0) {
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.quantity.exceed"));
+            }
         }
 
-        if (remainingQuantity > 0) {
-            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.quantity.exceed"));
-        }
+
     }
 
 
