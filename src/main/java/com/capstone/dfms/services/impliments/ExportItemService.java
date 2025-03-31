@@ -74,7 +74,7 @@ public class ExportItemService implements IExportItemService {
             } else {
                 batch.setStatus(BatchStatus.inUse);
             }
-            itemBatchRepository.save(batch);
+            itemBatchRepository.saveAndFlush(batch);
 
             ExportItemEntity exportItem = new ExportItemEntity();
             exportItem.setPicker(user);
