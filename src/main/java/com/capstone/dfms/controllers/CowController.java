@@ -45,6 +45,11 @@ public class CowController {
         return CoreApiResponse.success(cowResponse);
     }
 
+    @PostMapping("/create-bulk")
+    public ResponseEntity<?> createBulkCow(@Valid @RequestBody List<CowCreateRequest> requests) {
+        return CoreApiResponse.success(cowServices.createBulkCow(requests));
+    }
+
     @PutMapping("/{id}")
     public CoreApiResponse<CowResponse> updateCow(@PathVariable Long id, @Valid @RequestBody CowUpdateRequest cowUpdateRequest) {
         CowResponse cowResponse = cowServices.updateCow(id, cowUpdateRequest);

@@ -62,6 +62,22 @@ public class CowServices implements ICowServices {
     }
 
     @Override
+    public CowPenBulkResponse<CowResponse> createBulkCow(List<CowCreateRequest> requests) {
+        List<CowResponse> responses = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+        int rowNum = 1;
+        for(CowCreateRequest request: requests){
+            try{
+                responses.add(createCow(cowMapper.toModel(request)));
+            } catch (Exception ex){
+                errors.add("Error at row " + rowNum+ ": " + ex);
+            }
+            rowNum++;
+        }
+        return new CowPenBulkResponse<>(responses, errors);
+    }
+
+    @Override
     public CowResponse updateCow(Long id, CowUpdateRequest request) {
         CowEntity existingEntity = cowRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow with ID '" + id + "' not found."));
