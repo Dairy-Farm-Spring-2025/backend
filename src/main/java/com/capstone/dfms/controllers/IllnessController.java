@@ -2,6 +2,7 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.IllnessEntity;
+import com.capstone.dfms.models.enums.IllnessStatus;
 import com.capstone.dfms.requests.IllnessCreateRequest;
 import com.capstone.dfms.requests.IllnessPrognosisRequest;
 import com.capstone.dfms.requests.IllnessReportRequest;
@@ -31,6 +32,12 @@ public class IllnessController {
     @GetMapping
     public CoreApiResponse<List<IllnessEntity>> getAllIllnesses() {
         return CoreApiResponse.success(illnessService.getAllIllnesses());
+    }
+
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @GetMapping("/status")
+    public CoreApiResponse<List<IllnessEntity>> getIllnessesByStatus(@RequestParam  IllnessStatus status) {
+        return CoreApiResponse.success(illnessService.getIllnessByStatus(status));
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
@@ -71,4 +78,6 @@ public class IllnessController {
     public CoreApiResponse<IllnessEntity> prognosisIllness(@PathVariable Long id, @RequestBody IllnessPrognosisRequest updatedIllness) {
         return CoreApiResponse.success(illnessService.prognosisIllness(id, updatedIllness));
     }
+
+
 }

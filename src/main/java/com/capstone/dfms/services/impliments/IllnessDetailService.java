@@ -181,6 +181,38 @@ public class IllnessDetailService implements IIllnessDetailService {
                 // Call the create function of IllnessDetailService.
                 IllnessDetailEntity createdEntity = this.createIllnessDetail(mapper.toModel(request), true);
                 successes.add(createdEntity);
+<<<<<<< HEAD
+=======
+                RoleEntity role = roleRepository.findById(3L).orElseThrow(()
+                        -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
+
+                TaskTypeEntity treatmentTaskType = taskTypeRepository.findByName("Chữa bệnh")
+                        .orElseGet(() -> {
+                            TaskTypeEntity newTaskType = new TaskTypeEntity();
+                            newTaskType.setName("Chữa bệnh");
+                            newTaskType.setRoleId(role);
+                            newTaskType.setDescription("Công việc điều trị bệnh cho bò");
+                            return taskTypeRepository.save(newTaskType);
+                        });
+                CowEntity cow = createdEntity.getIllnessEntity().getCowEntity();
+                CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
+
+
+                TaskEntity task = new TaskEntity();
+
+                task.setDescription("Điều trị bệnh: " + createdEntity.getDescription());
+                task.setStatus(TaskStatus.pending);
+                task.setPriority(PriorityTask.high);
+                task.setFromDate(createdEntity.getDate());
+                task.setToDate(createdEntity.getDate());
+                task.setIllness(createdEntity);
+                task.setShift(TaskShift.dayShift);
+                task.setTaskTypeId(treatmentTaskType);
+                task.setAreaId(latestCowPen.getPenEntity().getAreaBelongto());
+
+                taskRepository.save(task);
+
+>>>>>>> b0a7a8fb764fb249b708ee76efc6015e2df8c858
 
             } catch (Exception ex) {
                 // Collect error messages but continue processing.
