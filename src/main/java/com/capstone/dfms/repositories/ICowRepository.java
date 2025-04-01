@@ -20,4 +20,6 @@ public interface ICowRepository extends JpaRepository<CowEntity, Long> {
     long countByNameContains(@Param("substring") String substring);
 
     List<CowEntity> findByCowTypeEntity_CowTypeId(Long cowTypeId);
+    List<CowEntity> findByCowTypeEntity_CowTypeIdAndDateOfOutIsNullOrDateOfOutAfter(Long cowTypeId, LocalDate currentDate);
+
 }

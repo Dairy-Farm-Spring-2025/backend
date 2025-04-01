@@ -1,6 +1,7 @@
 package com.capstone.dfms.repositories;
 
 import com.capstone.dfms.models.IllnessEntity;
+import com.capstone.dfms.models.enums.IllnessStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,4 +14,6 @@ public interface IIllnessRepository extends JpaRepository<IllnessEntity, Long> {
 
     @Query("SELECT i FROM IllnessEntity i LEFT JOIN FETCH i.illnessDetails WHERE i.illnessId = :id")
     Optional<IllnessEntity> findByIdWithDetails(@Param("id") Long id);
+
+    List<IllnessEntity> findByIllnessStatus(IllnessStatus illnessStatus);
 }

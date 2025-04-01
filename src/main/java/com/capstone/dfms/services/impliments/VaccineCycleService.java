@@ -63,8 +63,14 @@ public class VaccineCycleService implements IVaccineCycleService {
         ItemEntity item = itemRepository.findById(detailRequest.getItemId())
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Invalid Item ID"));
 
+        if(!(item.getCategoryEntity().getName().equalsIgnoreCase("Vaccine") ||
+                item.getCategoryEntity().getName().equalsIgnoreCase("Vắc-xin"))){
+            throw new AppException(HttpStatus.BAD_REQUEST, "Item is not vaccine!");
+        }
+
         VaccineCycleDetailEntity entity = vaccineCycleDetailMapper.toModel(detailRequest);
         entity.setVaccineCycleEntity(vaccineCycle);
+        entity.setItemEntity(item);
 
         return entity;
     }
