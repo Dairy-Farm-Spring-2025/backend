@@ -1,6 +1,7 @@
 package com.capstone.dfms.services;
 
 import com.capstone.dfms.models.CowEntity;
+import com.capstone.dfms.requests.CowCreateRequest;
 import com.capstone.dfms.requests.CowExcelCreateRequest;
 import com.capstone.dfms.requests.CowUpdateRequest;
 import com.capstone.dfms.responses.CowPenBulkResponse;
@@ -12,6 +13,7 @@ import java.util.List;
 
 public interface ICowServices {
     CowResponse createCow(CowEntity request);
+    CowPenBulkResponse<CowResponse> createBulkCow(List<CowCreateRequest> requests);
     CowResponse updateCow(Long id, CowUpdateRequest request);
     void deleteCow(Long id);
     CowResponse getCowById(Long id);
