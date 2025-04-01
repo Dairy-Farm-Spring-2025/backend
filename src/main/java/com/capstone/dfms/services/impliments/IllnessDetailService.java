@@ -181,8 +181,7 @@ public class IllnessDetailService implements IIllnessDetailService {
                 // Call the create function of IllnessDetailService.
                 IllnessDetailEntity createdEntity = this.createIllnessDetail(mapper.toModel(request), true);
                 successes.add(createdEntity);
-<<<<<<< HEAD
-=======
+
                 RoleEntity role = roleRepository.findById(3L).orElseThrow(()
                         -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
 
@@ -212,7 +211,6 @@ public class IllnessDetailService implements IIllnessDetailService {
 
                 taskRepository.save(task);
 
->>>>>>> b0a7a8fb764fb249b708ee76efc6015e2df8c858
 
             } catch (Exception ex) {
                 // Collect error messages but continue processing.
