@@ -27,8 +27,9 @@ public class TaskResponse {
     private String shift;
     private String completionNotes;
     private ReportTaskEntity reportTask;
-    private IllnessDetailEntity illness;
+    private IllnessDetailEntity illnessDetail;
     private VaccineInjectionEntity vaccineInjection;
+    private IllnessEntity illness;
 
 
 }

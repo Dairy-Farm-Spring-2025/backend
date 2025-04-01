@@ -6,6 +6,7 @@ import com.capstone.dfms.components.securities.UserPrincipal;
 import com.capstone.dfms.mappers.IReportTaskMapper;
 import com.capstone.dfms.mappers.ITaskMapper;
 import com.capstone.dfms.models.*;
+import com.capstone.dfms.models.enums.TaskShift;
 import com.capstone.dfms.models.enums.TaskStatus;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.TaskRequest;
@@ -236,22 +237,41 @@ public class TaskService implements ITaskService {
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Task not found with ID: " + taskId));
 
         LocalDate toDate = task.getToDate();
+        LocalDate fromDate = task.getFromDate();
+        UserEntity assignee = task.getAssignee();
 
         if (request.getDescription() != null) {
             task.setDescription(request.getDescription());
         }
 
         if (request.getFromDate() != null) {
+            LocalDate newFromDate = request.getFromDate();
 
             if (LocalDate.now().isAfter(task.getFromDate())) {
                 throw new AppException(HttpStatus.BAD_REQUEST, "Cannot update task as the from date is already in the future.");
-            } else {
-                task.setFromDate(request.getFromDate());
             }
+
+            if (newFromDate.isBefore(LocalDate.now())) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Ngày bắt đầu phải từ hôm nay hoặc sau.");
+            }
+
+            if (!isAssigneeAvailableForTask(assignee.getId(), newFromDate, toDate)) {
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        "Người dùng " + assignee.getName() + " đã đạt giới hạn tối đa 6 ngày làm việc trong tuần.");
+            }
+
+            task.setFromDate(newFromDate);
         }
 
+
         if (request.getToDate() != null) {
-            task.setToDate(request.getToDate());
+            if (!isAssigneeAvailableForTask(assignee.getId(), fromDate, request.getToDate())) {
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        "Người dùng " + assignee.getName() + " đã đạt giới hạn tối đa 6 ngày làm việc trong tuần.");
+            }else{
+                task.setToDate(request.getToDate());
+
+            }
         }
 
         if (request.getAreaId() != null) {
@@ -277,6 +297,8 @@ public class TaskService implements ITaskService {
                     newTask.setDescription(task.getDescription());
                     newTask.setFromDate(offDate.plusDays(1));
                     newTask.setToDate(toDate);
+                    newTask.setShift(TaskShift.dayShift);
+                    newTask.setAssignee(assignee);
                     newTask.setAreaId(task.getAreaId());
                     newTask.setPriority(task.getPriority());
                     newTask.setStatus(TaskStatus.pending);
