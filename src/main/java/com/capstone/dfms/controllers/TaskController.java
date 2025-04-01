@@ -79,6 +79,6 @@ public class TaskController {
     public CoreApiResponse<TaskEntity> updateTask(@PathVariable Long taskId,
                                                  @RequestBody UpdateTaskRequest updateTaskRequest) {
         TaskEntity updatedTask = taskService.updateTask(taskId, updateTaskRequest);
-        return CoreApiResponse.success(updatedTask);
+        return CoreApiResponse.success(updatedTask,"Update task successfully");
     }
 }

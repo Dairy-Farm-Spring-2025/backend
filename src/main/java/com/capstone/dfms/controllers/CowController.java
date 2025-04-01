@@ -116,7 +116,7 @@ public class CowController {
 //    }
 
 
-    @GetMapping("/templates/download/cow-bulk-excel")
+    @PostMapping("/templates/download/cow-bulk-excel")
     public ResponseEntity<Void> downloadExcelTemplate(HttpServletRequest request) {
         String fileUrl = "/document/Template%20Cow%20Import.xlsx";
         return ResponseEntity.status(HttpStatus.FOUND) // 302 Redirect
