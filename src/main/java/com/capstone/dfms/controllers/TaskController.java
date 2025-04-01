@@ -4,6 +4,7 @@ import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.TaskEntity;
 import com.capstone.dfms.requests.TaskDateRangeRequest;
 import com.capstone.dfms.requests.TaskRequest;
+import com.capstone.dfms.requests.UpdateTaskRequest;
 import com.capstone.dfms.responses.TaskResponse;
 import com.capstone.dfms.services.ITaskService;
 import jakarta.validation.Valid;
@@ -72,5 +73,12 @@ public class TaskController {
     public CoreApiResponse<TaskEntity> getMyTaskById(@PathVariable Long taskId) {
         TaskEntity task = taskService.getMyTaskById(taskId);
         return CoreApiResponse.success(task);
+    }
+
+    @PutMapping("update/{taskId}")
+    public CoreApiResponse<TaskEntity> updateTask(@PathVariable Long taskId,
+                                                 @RequestBody UpdateTaskRequest updateTaskRequest) {
+        TaskEntity updatedTask = taskService.updateTask(taskId, updateTaskRequest);
+        return CoreApiResponse.success(updatedTask);
     }
 }

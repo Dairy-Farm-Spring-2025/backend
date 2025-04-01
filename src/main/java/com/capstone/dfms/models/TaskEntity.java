@@ -52,8 +52,6 @@ public class TaskEntity {
     @Enumerated(EnumType.STRING)
     private TaskShift shift;
 
-    private String completionNotes;
-
     @ManyToOne
     @JoinColumn(name = "illness_id")
     private IllnessEntity mainIllness;

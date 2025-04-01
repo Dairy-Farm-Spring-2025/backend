@@ -9,6 +9,7 @@ import com.capstone.dfms.models.*;
 import com.capstone.dfms.models.enums.TaskStatus;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.TaskRequest;
+import com.capstone.dfms.requests.UpdateTaskRequest;
 import com.capstone.dfms.responses.TaskResponse;
 import com.capstone.dfms.services.ITaskService;
 import com.capstone.dfms.services.ITaskTypeService;
@@ -227,5 +228,64 @@ public class TaskService implements ITaskService {
         }
 
         return taskMap;
+    }
+
+    @Override
+    public TaskEntity updateTask(Long taskId, UpdateTaskRequest request) {
+        TaskEntity task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Task not found with ID: " + taskId));
+
+        LocalDate toDate = task.getToDate();
+
+        if (request.getDescription() != null) {
+            task.setDescription(request.getDescription());
+        }
+
+        if (request.getFromDate() != null) {
+
+            if (LocalDate.now().isAfter(task.getFromDate())) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Cannot update task as the from date is already in the future.");
+            } else {
+                task.setFromDate(request.getFromDate());
+            }
+        }
+
+        if (request.getToDate() != null) {
+            task.setToDate(request.getToDate());
+        }
+
+        if (request.getAreaId() != null) {
+            AreaEntity area = areaRepository.findById(request.getAreaId())
+                    .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Area not found with ID: " + request.getAreaId()));
+            task.setAreaId(area);
+        }
+
+        if (request.getPriority() != null) {
+            task.setPriority(request.getPriority());
+        }
+
+        List<LocalDate> offDates = request.getOffDates();
+
+        if (offDates != null && !offDates.isEmpty()) {
+            for (LocalDate offDate : offDates) {
+                if (!offDate.isBefore(task.getFromDate()) && !offDate.isAfter(task.getToDate())) {
+                    task.setToDate(offDate.minusDays(1));
+                    task.setStatus(TaskStatus.pending);
+                    taskRepository.save(task);
+
+                    TaskEntity newTask = new TaskEntity();
+                    newTask.setDescription(task.getDescription());
+                    newTask.setFromDate(offDate.plusDays(1));
+                    newTask.setToDate(toDate);
+                    newTask.setAreaId(task.getAreaId());
+                    newTask.setPriority(task.getPriority());
+                    newTask.setStatus(TaskStatus.pending);
+                    taskRepository.save(newTask);
+
+                    return task;
+                }
+            }
+        }
+        return taskRepository.save(task);
     }
 }

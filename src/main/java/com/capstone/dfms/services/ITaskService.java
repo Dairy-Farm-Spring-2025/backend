@@ -2,6 +2,7 @@ package com.capstone.dfms.services;
 
 import com.capstone.dfms.models.TaskEntity;
 import com.capstone.dfms.requests.TaskRequest;
+import com.capstone.dfms.requests.UpdateTaskRequest;
 import com.capstone.dfms.responses.TaskResponse;
 
 import java.time.LocalDate;
@@ -24,4 +25,6 @@ public interface ITaskService {
     TaskEntity getMyTaskById(Long taskId);
 
     List<TaskEntity> getMyTasks();
+
+    TaskEntity updateTask(Long taskId, UpdateTaskRequest request);
 }

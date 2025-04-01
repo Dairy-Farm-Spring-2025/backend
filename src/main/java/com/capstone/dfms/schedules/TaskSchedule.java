@@ -59,7 +59,7 @@ public class TaskSchedule {
         }
     }
 
-    @Scheduled(cron = "0 0 0 ? * FRI")
+    @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     public void createTasksForNextWeek() {
         LocalDate nextMonday = LocalDate.now().plusDays(3);

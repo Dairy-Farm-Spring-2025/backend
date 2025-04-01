@@ -247,6 +247,10 @@ public class CowPenService implements ICowPenService {
 
     @Override
     public CowPenResponse createCowPen(CowPenEntity request) {
+        Optional<CowPenEntity> cowPenEntity = cowPenRepository.findById(request.getId());
+        if (cowPenEntity.isPresent()) {
+            throw new AppException(HttpStatus.OK, LocalizationUtils.getMessage("cow.pen.created.before"));
+        }
         CowEntity cowEntity = cowRepository.findById(request.getId().getCowId())
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found with ID: " + request.getId().getCowId()));
         PenEntity penEntity = penRepository.findById(request.getId().getPenId())
