@@ -35,10 +35,10 @@ public class VaccineInjectionSchedule {
 
     private final IVaccineCycleRepository vaccineCycleRepository;
     private final ITaskRepository taskRepository;
-
     private final IRoleRepository roleRepository;
+    private final ICowPenRepository cowPenRepository;
 
-    @Scheduled(cron = "0 0 0 1 * ?")
+    @Scheduled(cron = "0 0 0 ? * FRI")
     public void scheduleVaccineInjectionCreation() {
         this.testCreateVaccineInjection();
     }
@@ -50,7 +50,9 @@ public class VaccineInjectionSchedule {
 
         List<VaccineCycleEntity> cycleEntities = vaccineCycleRepository.findAllWithDetails();
         cycleEntities.forEach(cycle -> {
-            List<CowEntity> cowEntitiesByCowType = cowRepository.findByCowTypeEntity_CowTypeId(cycle.getCowTypeEntity().getCowTypeId());
+            List<CowEntity> cowEntitiesByCowType =
+                    cowRepository.findByCowTypeEntity_CowTypeIdAndDateOfOutIsNullOrDateOfOutAfter
+                            (cycle.getCowTypeEntity().getCowTypeId(), LocalDate.now());
 
             cycle.getVaccineCycleDetails().forEach(details -> {
                 cowEntitiesByCowType.forEach(cow -> {
@@ -58,8 +60,8 @@ public class VaccineInjectionSchedule {
                             vaccineInjectionRepository.findVaccineInjectionsByCowAndVaccineCycleDetail(cow.getCowId(),
                                     details.getVaccineCycleDetailId());
 
-                    LocalDate startMonth = LocalDate.now().minusDays(1);
-                    LocalDate endMonth = LocalDate.now().plusMonths(1).plusDays(1);
+                    LocalDate startMonth = LocalDate.now();
+                    LocalDate endMonth = LocalDate.now().plusDays(8);
 
                     LocalDate nextInjectionDate;
                     if (vaccineInjectionEntities.isEmpty()) {
@@ -95,6 +97,8 @@ public class VaccineInjectionSchedule {
                                         return taskTypeRepository.save(newTaskType);
                                     });
 
+                            CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
+
                             //  Create Task for This Injection
                             TaskEntity newTask = TaskEntity.builder()
                                     .description("Administer vaccine to cow: " + cow.getName())
@@ -105,6 +109,7 @@ public class VaccineInjectionSchedule {
                                     .shift(TaskShift.dayShift)
                                     .taskTypeId(injectionTaskType)
                                     .vaccineInjection(newInjection)
+                                    .areaId(latestCowPen == null ? latestCowPen.getPenEntity().getAreaBelongto() : null)
                                     .build();
 
                             newTaskEntities.add(newTask);
