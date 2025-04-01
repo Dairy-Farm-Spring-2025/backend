@@ -11,6 +11,7 @@ import com.capstone.dfms.models.enums.TaskStatus;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.TaskRequest;
 import com.capstone.dfms.requests.UpdateTaskRequest;
+import com.capstone.dfms.responses.RangeTaskResponse;
 import com.capstone.dfms.responses.TaskResponse;
 import com.capstone.dfms.services.ITaskService;
 import com.capstone.dfms.services.ITaskTypeService;
@@ -163,6 +164,17 @@ public class TaskService implements ITaskService {
     }
 
     @Override
+    public Map<LocalDate, List<RangeTaskResponse>> getMyTasksByDateRange2(LocalDate startDate, LocalDate endDate) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Long userId = userPrincipal.getUser().getId();
+
+        List<TaskEntity> taskEntities = taskRepository.findMyTasksInDateRange(userId, startDate, endDate);
+        List<ReportTaskEntity> reportTaskEntities = reportTaskRepository.findReportTasksByUserIdAndDateRange(userId, startDate, endDate);
+        return mapTasksByDateRange2(taskEntities, reportTaskEntities, startDate, endDate);
+    }
+
+    @Override
     public Map<LocalDate, List<TaskResponse>> getMyTasksByDateRange(LocalDate startDate, LocalDate endDate) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
@@ -230,6 +242,48 @@ public class TaskService implements ITaskService {
 
         return taskMap;
     }
+
+
+    private Map<LocalDate, List<RangeTaskResponse>> mapTasksByDateRange2(
+            List<TaskEntity> taskEntities,
+            List<ReportTaskEntity> reportTaskEntities,
+            LocalDate startDate,
+            LocalDate endDate) {
+
+        Map<LocalDate, List<RangeTaskResponse>> taskMap = new LinkedHashMap<>();
+        LocalDate currentDate = startDate;
+
+        List<RangeTaskResponse> taskResponses = ITaskMapper.INSTANCE.toResponseList2(taskEntities);
+
+        Map<Long, List<ReportTaskEntity>> reportTaskMap = reportTaskEntities.stream()
+                .collect(Collectors.groupingBy(report -> report.getTaskId().getTaskId()));
+
+        while (!currentDate.isAfter(endDate)) {
+            final LocalDate dateToCheck = currentDate;
+
+            List<RangeTaskResponse> tasksForDay = taskResponses.stream()
+                    .filter(task ->
+                            (task.getFromDate().isEqual(dateToCheck) || task.getFromDate().isBefore(dateToCheck)) &&
+                                    (task.getToDate().isEqual(dateToCheck) || task.getToDate().isAfter(dateToCheck)))
+                    .peek(task -> {
+                        List<ReportTaskEntity> reports = reportTaskMap.get(task.getTaskId());
+                        if (reports != null) {
+                            ReportTaskEntity reportForDay = reports.stream()
+                                    .filter(report -> report.getDate().isEqual(dateToCheck))
+                                    .findFirst()
+                                    .orElse(null);
+                            task.setReportTask(reportForDay);
+                        }
+                    })
+                    .collect(Collectors.toList());
+
+            taskMap.put(currentDate, tasksForDay.isEmpty() ? null : tasksForDay);
+            currentDate = currentDate.plusDays(1);
+        }
+
+        return taskMap;
+    }
+
 
     @Override
     public TaskEntity updateTask(Long taskId, UpdateTaskRequest request) {
@@ -309,5 +363,13 @@ public class TaskService implements ITaskService {
             }
         }
         return taskRepository.save(task);
+    }
+
+    @Override
+    public RangeTaskResponse getTaskDetail(Long taskId) {
+        TaskEntity taskEntity = taskRepository.findById(taskId)
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,"Task not found with id: " + taskId));
+
+        return ITaskMapper.INSTANCE.toResponse2(taskEntity);
     }
 }

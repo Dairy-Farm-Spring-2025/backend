@@ -3,6 +3,7 @@ package com.capstone.dfms.services;
 import com.capstone.dfms.models.TaskEntity;
 import com.capstone.dfms.requests.TaskRequest;
 import com.capstone.dfms.requests.UpdateTaskRequest;
+import com.capstone.dfms.responses.RangeTaskResponse;
 import com.capstone.dfms.responses.TaskResponse;
 
 import java.time.LocalDate;
@@ -20,11 +21,17 @@ public interface ITaskService {
 
     Map<LocalDate, List<TaskResponse>> getTasksByDateRange(LocalDate startDate, LocalDate endDate);
 
+    Map<LocalDate, List<RangeTaskResponse>> getMyTasksByDateRange2(LocalDate startDate, LocalDate endDate);
+
     Map<LocalDate, List<TaskResponse>> getMyTasksByDateRange(LocalDate startDate, LocalDate endDate);
+
+
 
     TaskEntity getMyTaskById(Long taskId);
 
     List<TaskEntity> getMyTasks();
 
     TaskEntity updateTask(Long taskId, UpdateTaskRequest request);
+
+    RangeTaskResponse getTaskDetail(Long taskId);
 }
