@@ -86,7 +86,7 @@ public class CowController {
         }
     }
 
-    @GetMapping("/cow-from-excel")
+    @PostMapping("/cow-from-excel")
     public ResponseEntity<?> getCowsFromExcel(@RequestParam("file") MultipartFile file) {
         try {
             CowPenBulkResponse<CowResponse> result = cowServices.getCowsFromExcel(file);
@@ -116,7 +116,7 @@ public class CowController {
 //    }
 
 
-    @PostMapping("/templates/download/cow-bulk-excel")
+    @GetMapping("/templates/download/cow-bulk-excel")
     public ResponseEntity<Void> downloadExcelTemplate(HttpServletRequest request) {
         String fileUrl = "/document/Template%20Cow%20Import.xlsx";
         return ResponseEntity.status(HttpStatus.FOUND) // 302 Redirect
