@@ -364,6 +364,7 @@ public class TaskService implements ITaskService {
                     taskRepository.save(task);
 
                     TaskEntity newTask = new TaskEntity();
+                    newTask.setTaskTypeId(task.getTaskTypeId());
                     newTask.setDescription(task.getDescription());
                     newTask.setFromDate(offDate.plusDays(1));
                     newTask.setToDate(toDate);

@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.models.*;
 import com.capstone.dfms.models.enums.CowStatus;
@@ -39,7 +40,7 @@ public class FeedMealService implements IFeedMealService {
     @Override
     public FeedMealEntity createFeedMeal(FeedMealRequest request) {
         CowTypeEntity cowTypeEntity = cowTypeRepository.findById(request.getCowTypeId())
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Cow Type not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("cow_type.not_found")));
 
         boolean exists = feedMealRepository.existsByCowStatusAndCowTypeEntityAndStatus(
                 request.getCowStatus(),
@@ -49,7 +50,8 @@ public class FeedMealService implements IFeedMealService {
 
         if (exists) {
             throw new AppException(HttpStatus.BAD_REQUEST,
-                    "Đã tồn tại bữa ăn cho loại bò này. Vui lòng huỷ sử dụng bữa ăn cũ trước khi tạo bữa ăn mới");
+                    LocalizationUtils.getMessage("feed_meal.already_exists")
+            );
         }
 
         Map<String, BigDecimal> requiredPercentages = Map.of(
@@ -115,7 +117,7 @@ public class FeedMealService implements IFeedMealService {
                 .map(detail -> FeedMealDetailEntity.builder()
                         .quantity(detail.getQuantity())
                         .itemEntity(itemRepository.findById(detail.getItemId())
-                                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Item not found")))
+                                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("item.not_exist"))))
                         .feedMealEntity(savedFeedMeal)
                         .build())
                 .collect(Collectors.toList());
@@ -125,7 +127,9 @@ public class FeedMealService implements IFeedMealService {
     }
 
     private boolean isValidPercentage(BigDecimal actual, BigDecimal expected) {
-        return actual.subtract(expected).abs().compareTo(BigDecimal.ONE) <= 2.0;
+        BigDecimal difference = actual.subtract(expected).abs();
+        BigDecimal tolerance = BigDecimal.valueOf(5.0);
+        return difference.compareTo(tolerance) <= 0;
     }
 
     private BigDecimal getTotalWeightByCategory(List<FeedMealDetailRequest> details, CategoryEntity category) {
@@ -148,7 +152,7 @@ public class FeedMealService implements IFeedMealService {
     @Override
     public double calculateDryMatter(CowStatus cowStatus, Long cowTypeId) {
         CowTypeEntity cowTypeEntity = cowTypeRepository.findById(cowTypeId)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Cow Type not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("cow_type.not_found")));
         double maxWeight = cowTypeEntity.getMaxWeight();
         double dryMatter = 0.0;
 
@@ -169,7 +173,8 @@ public class FeedMealService implements IFeedMealService {
                 dryMatter = maxWeight * 0.015;
                 break;
             default:
-                throw new AppException(HttpStatus.BAD_REQUEST, "Invalid cow status");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow_status.invalid")
+                );
         }
 
         return dryMatter;
@@ -178,7 +183,7 @@ public class FeedMealService implements IFeedMealService {
     @Override
     public FeedMealEntity getFeedMealById(long id) {
         return feedMealRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This feed meal is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "feed_meal.not_existed"));
     }
 
     @Override
@@ -190,7 +195,7 @@ public class FeedMealService implements IFeedMealService {
     @Override
     public void deleteFeedMeal(long id) {
         FeedMealEntity vaccineCycle = feedMealRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Feed Meal", "id", id));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "feed_meal.not_existed"));
 
         feedMealRepository.delete(vaccineCycle);
     }
@@ -198,7 +203,7 @@ public class FeedMealService implements IFeedMealService {
     @Override
     public FeedMealEntity updateFeedMeal(Long feedMealId, UpdateFeedMealRequest request) {
         FeedMealEntity feedMeal = feedMealRepository.findById(feedMealId)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Không tìm thấy khẩu phần ăn với ID: " + feedMealId));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, new AppException(HttpStatus.BAD_REQUEST, "feed_meal.not_existed")));
 
         if (request.getStatus() == FeedMealStatus.inUse) {
             boolean exists = feedMealRepository.existsByCowStatusAndCowTypeEntityAndStatus(
@@ -209,7 +214,7 @@ public class FeedMealService implements IFeedMealService {
 
             if (exists) {
                 throw new AppException(HttpStatus.BAD_REQUEST,
-                        "Đã tồn tại bữa ăn cho loại bò này. Vui lòng huỷ sử dụng bữa ăn cũ trước khi chuyển trạng thái.");
+                        LocalizationUtils.getMessage("feed_meal.already_exists"));
             }
         }
 
