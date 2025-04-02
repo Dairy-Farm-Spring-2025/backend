@@ -98,6 +98,15 @@ public class TaskController {
         return CoreApiResponse.success(updatedTask,"Update task successfully");
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PutMapping("/{taskId}/assign/{assigneeId}")
+    public CoreApiResponse<TaskEntity> assginVeterinarians(@PathVariable Long taskId,
+                                                           @PathVariable Long assigneeId) {
+        TaskEntity updatedTask = taskService.updateAssigneeForTask(taskId, assigneeId);
+        return CoreApiResponse.success(updatedTask,"Update task successfully");
+    }
+
+
     @GetMapping("detail/mb/{taskId}")
     public CoreApiResponse<RangeTaskResponse> getTaskDetail(@PathVariable Long taskId) {
         RangeTaskResponse response = taskService.getTaskDetail(taskId);

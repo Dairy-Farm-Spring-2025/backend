@@ -33,5 +33,7 @@ public interface ITaskService {
 
     TaskEntity updateTask(Long taskId, UpdateTaskRequest request);
 
+    TaskEntity updateAssigneeForTask(Long taskId, Long assignee);
+
     RangeTaskResponse getTaskDetail(Long taskId);
 }

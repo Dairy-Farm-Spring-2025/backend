@@ -78,7 +78,7 @@ public class TaskService implements ITaskService {
             if (!isAssigneeAvailableForTask(assigneeId, request.getFromDate(), request.getToDate())) {
                 throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã đạt giới hạn tối đa 6 ngày làm việc trong tuần.");
             }
-            if (!assignee.getRoleId().getName().equalsIgnoreCase("Veterinarians")) {
+            if (!assignee.getRoleId().getName().equalsIgnoreCase("Veterinarians") && illness == null) {
                 if (isDuplicateTaskTypeAndArea(assigneeId, request.getTaskTypeId(), request.getAreaId(), request.getFromDate(), request.getToDate())) {
                     throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã có công việc loại này trong khu vực này trong thời gian này.");
                 }
@@ -282,6 +282,22 @@ public class TaskService implements ITaskService {
         }
 
         return taskMap;
+    }
+
+    @Override
+    public TaskEntity updateAssigneeForTask(Long taskId, Long assigneeId){
+        TaskEntity task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Task not found with ID: " + taskId));
+
+        UserEntity assignee = userRepository.findById(assigneeId)
+                .orElseThrow(() -> new DataNotFoundException("User", "id", assigneeId));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity assigner = userPrincipal.getUser();
+        task.setAssigner(assigner);
+        task.setAssignee(assignee);
+        return taskRepository.save(task);
     }
 
 
