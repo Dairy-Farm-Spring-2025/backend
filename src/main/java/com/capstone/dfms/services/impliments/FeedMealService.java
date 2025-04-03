@@ -67,39 +67,59 @@ public class FeedMealService implements IFeedMealService {
                 "Thức ăn ủ chua", BigDecimal.valueOf(0.35),
                 "Khoáng chất", BigDecimal.valueOf(0.75)
         );
-
-        BigDecimal totalWeight = request.getDetails().stream()
-                .map(FeedMealDetailRequest::getQuantity)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-
+        // Tính tổng DM và lưu trữ DM theo category
         BigDecimal totalDryMatter = BigDecimal.ZERO;
+        Map<String, BigDecimal> categoryDryMatters = new HashMap<>();
 
-        for (var entry : requiredPercentages.entrySet()) {
+        // Tính DM cho từng category
+        for (String categoryName : requiredPercentages.keySet()) {
             CategoryEntity category = categoryRepository.findAll().stream()
-                    .filter(cat -> StringUtils.normalizeString(cat.getName()).equals(StringUtils.normalizeString(entry.getKey())))
+                    .filter(cat -> StringUtils.normalizeString(cat.getName()).equals(StringUtils.normalizeString(categoryName)))
                     .findFirst()
-                    .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Category '" + entry.getKey() + "' not found"));
+                    .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Category '" + categoryName + "' not found"));
 
             BigDecimal categoryWeight = getTotalWeightByCategory(request.getDetails(), category);
-            BigDecimal percentage = calculatePercentage(categoryWeight, totalWeight);
+            BigDecimal dryMatterRatio = dryMatterRatios.getOrDefault(categoryName, BigDecimal.ONE);
+            BigDecimal categoryDM = categoryWeight.multiply(dryMatterRatio);
 
-            if (!isValidPercentage(percentage, entry.getValue())) {
-                throw new AppException(HttpStatus.BAD_REQUEST,
-                        String.format("Tỷ lệ %s không đúng, yêu cầu %.0f%%, hiện tại là %.2f%%.",
-                                entry.getKey(), entry.getValue(), percentage));
-            }
-
-            BigDecimal dryMatterRatio = dryMatterRatios.getOrDefault(entry.getKey(), BigDecimal.ONE);
-            totalDryMatter = totalDryMatter.add(categoryWeight.multiply(dryMatterRatio));
+            categoryDryMatters.put(categoryName, categoryDM);
+            totalDryMatter = totalDryMatter.add(categoryDM);
         }
 
+        // Kiểm tra tổng DM
         BigDecimal requiredDryMatter = BigDecimal.valueOf(calculateDryMatter(request.getCowStatus(), request.getCowTypeId()));
+        BigDecimal allowedVariance = requiredDryMatter.multiply(BigDecimal.valueOf(2.0)); // 2% sai số
+        BigDecimal lowerBound = requiredDryMatter.subtract(allowedVariance);
+        BigDecimal upperBound = requiredDryMatter.add(allowedVariance);
 
-        if (!isValidPercentage(totalDryMatter, requiredDryMatter)) {
+        if (totalDryMatter.compareTo(lowerBound) < 0 || totalDryMatter.compareTo(upperBound) > 0) {
             throw new AppException(HttpStatus.BAD_REQUEST,
-                    String.format("Tổng DM không phù hợp! Yêu cầu %.2f kg, hiện tại là %.2f kg.",
+                    String.format("Tổng DM không phù hợp! Yêu cầu %.2f kg, hiện tại là %.2f kg. Sai số cho phép là 2%%.",
                             requiredDryMatter, totalDryMatter));
+        }
+
+        // Tính và kiểm tra tỉ lệ % của từng category dựa trên tổng DM
+        for (Map.Entry<String, BigDecimal> entry : categoryDryMatters.entrySet()) {
+            String categoryName = entry.getKey();
+            BigDecimal categoryDM = entry.getValue();
+
+            // Tính % thực tế dựa trên tổng DM
+            BigDecimal actualPercentage = categoryDM
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(totalDryMatter, 2, RoundingMode.HALF_UP);
+
+            BigDecimal requiredPercentage = requiredPercentages.get(categoryName);
+
+            BigDecimal allowedPercentageVariance = requiredPercentage.multiply(BigDecimal.valueOf(0.05));
+            BigDecimal lowerPercentageBound = requiredPercentage.subtract(allowedPercentageVariance);
+            BigDecimal upperPercentageBound = requiredPercentage.add(allowedPercentageVariance);
+
+            if (actualPercentage.compareTo(lowerPercentageBound) < 0 ||
+                    actualPercentage.compareTo(upperPercentageBound) > 0) {
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        String.format("Tỉ lệ %s không phù hợp! Yêu cầu %.2f%%, hiện tại là %.2f%%",
+                                categoryName, requiredPercentage, actualPercentage));
+            }
         }
 
         FeedMealEntity savedFeedMeal = feedMealRepository.save(
@@ -126,11 +146,11 @@ public class FeedMealService implements IFeedMealService {
         return savedFeedMeal;
     }
 
-    private boolean isValidPercentage(BigDecimal actual, BigDecimal expected) {
-        BigDecimal difference = actual.subtract(expected).abs();
-        BigDecimal tolerance = BigDecimal.valueOf(5.0);
-        return difference.compareTo(tolerance) <= 0;
-    }
+//    private boolean isValidPercentage(BigDecimal actual, BigDecimal expected) {
+//        BigDecimal difference = actual.subtract(expected).abs();
+//        BigDecimal tolerance = BigDecimal.valueOf(5.0);
+//        return difference.compareTo(tolerance) <= 0;
+//    }
 
     private BigDecimal getTotalWeightByCategory(List<FeedMealDetailRequest> details, CategoryEntity category) {
         return details.stream()
@@ -141,12 +161,16 @@ public class FeedMealService implements IFeedMealService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private BigDecimal calculatePercentage(BigDecimal part, BigDecimal total) {
-        if (total.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
-        return part.multiply(BigDecimal.valueOf(100))
-                .divide(total, 10, RoundingMode.HALF_UP)
-                .setScale(2, RoundingMode.HALF_UP);
-    }
+//    private BigDecimal calculatePercentage(BigDecimal part, BigDecimal total) {
+//        if (total.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
+//
+//        // Chia trước rồi nhân 100 để giảm sai số
+//        BigDecimal percentage = part.divide(total, 6, RoundingMode.HALF_UP) // Chia trước với 6 chữ số thập phân
+//                .multiply(BigDecimal.valueOf(100))      // Nhân 100 để lấy %
+//                .setScale(2, RoundingMode.HALF_UP);      // Làm tròn về 2 chữ số thập phân
+//
+//        return percentage;
+//    }
 
 
     @Override
