@@ -355,30 +355,48 @@ public class TaskService implements ITaskService {
         }
 
         List<LocalDate> offDates = request.getOffDates();
-
         if (offDates != null && !offDates.isEmpty()) {
+            Collections.sort(offDates);
+
+            LocalDate firstOffDate = offDates.get(0);
+            LocalDate lastOffDate = offDates.get(offDates.size() - 1);
+
             for (LocalDate offDate : offDates) {
-                if (!offDate.isBefore(task.getFromDate()) && !offDate.isAfter(task.getToDate())) {
-                    task.setToDate(offDate.minusDays(1));
-                    task.setStatus(TaskStatus.pending);
-                    taskRepository.save(task);
-
-                    TaskEntity newTask = new TaskEntity();
-                    newTask.setTaskTypeId(task.getTaskTypeId());
-                    newTask.setDescription(task.getDescription());
-                    newTask.setFromDate(offDate.plusDays(1));
-                    newTask.setToDate(toDate);
-                    newTask.setShift(TaskShift.dayShift);
-                    newTask.setAssignee(assignee);
-                    newTask.setAreaId(task.getAreaId());
-                    newTask.setPriority(task.getPriority());
-                    newTask.setStatus(TaskStatus.pending);
-                    taskRepository.save(newTask);
-
-                    return task;
+                if (offDate.isBefore(fromDate) || offDate.isAfter(toDate)) {
+                    throw new AppException(HttpStatus.BAD_REQUEST,
+                            "Ngày nghỉ " + offDate + " không nằm trong khoảng " + fromDate + " - " + toDate);
                 }
             }
+
+            // Kiểm tra nếu danh sách ngày nghỉ không liên tiếp
+            for (int i = 1; i < offDates.size(); i++) {
+                if (!offDates.get(i).equals(offDates.get(i - 1).plusDays(1))) {
+                    throw new AppException(HttpStatus.BAD_REQUEST,
+                            "Danh sách ngày nghỉ phải liên tiếp nhau.");
+                }
+            }
+
+            // Cập nhật task cũ (kết thúc trước ngày nghỉ đầu tiên)
+            task.setToDate(firstOffDate.minusDays(1));
+            task.setStatus(TaskStatus.pending);
+            taskRepository.save(task);
+
+            // Tạo task mới (bắt đầu sau ngày nghỉ cuối cùng)
+            TaskEntity newTask = new TaskEntity();
+            newTask.setTaskTypeId(task.getTaskTypeId());
+            newTask.setDescription(task.getDescription());
+            newTask.setFromDate(lastOffDate.plusDays(1));
+            newTask.setToDate(toDate);
+            newTask.setShift(TaskShift.dayShift);
+            newTask.setAssignee(assignee);
+            newTask.setAreaId(task.getAreaId());
+            newTask.setPriority(task.getPriority());
+            newTask.setStatus(TaskStatus.pending);
+            taskRepository.save(newTask);
+
+            return task;
         }
+
         return taskRepository.save(task);
     }
 
