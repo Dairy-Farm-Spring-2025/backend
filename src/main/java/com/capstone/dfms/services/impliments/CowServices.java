@@ -55,7 +55,8 @@ public class CowServices implements ICowServices {
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow type not found."));
         request.setCowTypeEntity(cowType);
 
-        request.setName(this.getInitials(cowType.getName()));
+        if(request.getName() == null)
+            request.setName(this.getInitials(cowType.getName()));
 
         CowEntity savedEntity = cowRepository.save(request);
         return cowMapper.toResponse(savedEntity);
@@ -306,7 +307,9 @@ public class CowServices implements ICowServices {
             public void doAfterAllAnalysed(AnalysisContext analysisContext) {
                 System.out.println("Excel parsing completed!");
             }
-        }).sheet().doRead();
+        })
+        .sheet("Cow")
+        .doRead();
 
         int rowNum = 2; // Excel starts at row 1
         for (CowExcelCreateRequest row : cowList) {
@@ -341,15 +344,19 @@ public class CowServices implements ICowServices {
             public void doAfterAllAnalysed(AnalysisContext analysisContext) {
                 System.out.println("Excel parsing completed!");
             }
-        }).sheet().doRead();
+        })
+        .sheet("Cow")
+        .doRead();
 
         int rowNum = 2; // Excel starts at row 1
         for (CowExcelCreateRequest row : cowList) {
             try {
                 CowEntity cowEntity = cowMapper.toModel(row);
                 if(cowEntity.getCowTypeEntity() != null){
-                    CowTypeEntity cowType = cowTypeRepository.findById(cowEntity.getCowTypeEntity().getCowTypeId())
-                            .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow type not found."));
+                    CowTypeEntity cowType = cowTypeRepository.findByName(cowEntity.getCowTypeEntity().getName())
+                            .orElseThrow(
+                                    () -> new AppException(HttpStatus.BAD_REQUEST,
+                                            "Cow type name: " + cowEntity.getCowTypeEntity().getName() + " does not exist!"));
                     cowEntity.setCowTypeEntity(cowType);
                 }
 

@@ -17,14 +17,14 @@ import java.util.List;
 public class HealthRecordController {
     private final IHealthRecordService healthRecordService;
 
-    @PreAuthorize("hasAnyRole('VETERINARIANS')")
+//    @PreAuthorize("hasAnyRole('VETERINARIANS')")
     @PostMapping
     public CoreApiResponse<HealthRecordEntity> createHealthReport(@RequestBody HealthReportRequest request) {
         HealthRecordEntity createdRecord = healthRecordService.createHealthReport(request);
         return CoreApiResponse.success(createdRecord);
     }
 
-    @PreAuthorize("hasAnyRole('VETERINARIANS')")
+//    @PreAuthorize("hasAnyRole('VETERINARIANS')")
     @PostMapping("/create-bulk")
     public CoreApiResponse<CowPenBulkResponse<HealthRecordEntity>> createBulkHealthReport(@RequestBody List<HealthReportRequest> requests) {
         return CoreApiResponse.success(healthRecordService.createBulkHealthReport(requests));

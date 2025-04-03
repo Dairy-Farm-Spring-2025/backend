@@ -38,5 +38,12 @@ public class HealthRecordEntity extends BaseEntity{
 //    private TaskEntity relatedTask;
 
     private LocalDateTime reportTime;
+    private String description;
+    private float weight;
+    private float bodyTemperature;
+    private float heartRate;
+    private float respiratoryRate;
+    private float ruminateActivity;
+
 
 }

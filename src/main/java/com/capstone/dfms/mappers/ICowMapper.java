@@ -27,7 +27,7 @@ public interface ICowMapper {
     @Mapping(source = "cowStatus", target = "cowStatus")  // Ensure correct mapping
     @Mapping(source = "cowOrigin", target = "cowOrigin")
     @Mapping(source = "gender", target = "gender")
-    @Mapping(source = "cowTypeId", target = "cowTypeEntity.cowTypeId")
+    @Mapping(source = "cowTypeName", target = "cowTypeEntity.name")
     CowEntity toModel(CowExcelCreateRequest row); // ✅ Add this line
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

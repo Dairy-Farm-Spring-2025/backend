@@ -49,6 +49,7 @@ public class HealthRecordService implements IHealthRecordService{
 
         entity.setCowEntity(cow);
         entity.setReportTime(LocalDateTime.now());
+        entity.setWeight(90 * (request.getChestCircumference()*request.getChestCircumference()*request.getBodyLength()));
 
         return healthRecordRepository.save(entity);
     }
