@@ -340,6 +340,7 @@ public class TaskService implements ITaskService {
 
         List<LocalDate> offDates = request.getOffDates();
         if (offDates != null && !offDates.isEmpty()) {
+
             Collections.sort(offDates);
 
             LocalDate firstOffDate = offDates.get(0);
@@ -352,7 +353,6 @@ public class TaskService implements ITaskService {
                 }
             }
 
-            // Kiểm tra nếu danh sách ngày nghỉ không liên tiếp
             for (int i = 1; i < offDates.size(); i++) {
                 if (!offDates.get(i).equals(offDates.get(i - 1).plusDays(1))) {
                     throw new AppException(HttpStatus.BAD_REQUEST,
@@ -360,12 +360,10 @@ public class TaskService implements ITaskService {
                 }
             }
 
-            // Cập nhật task cũ (kết thúc trước ngày nghỉ đầu tiên)
             task.setToDate(firstOffDate.minusDays(1));
             task.setStatus(TaskStatus.pending);
             taskRepository.save(task);
 
-            // Tạo task mới (bắt đầu sau ngày nghỉ cuối cùng)
             TaskEntity newTask = new TaskEntity();
             newTask.setTaskTypeId(task.getTaskTypeId());
             newTask.setDescription(task.getDescription());
@@ -377,6 +375,19 @@ public class TaskService implements ITaskService {
             newTask.setPriority(task.getPriority());
             newTask.setStatus(TaskStatus.pending);
             taskRepository.save(newTask);
+
+
+            TaskEntity offTask = new TaskEntity();
+            offTask.setTaskTypeId(task.getTaskTypeId());
+            offTask.setDescription(task.getDescription());
+            offTask.setFromDate(firstOffDate);
+            offTask.setToDate(lastOffDate);
+            offTask.setShift(TaskShift.dayShift);
+            offTask.setAssignee(null);
+            offTask.setAreaId(task.getAreaId());
+            offTask.setPriority(task.getPriority());
+            offTask.setStatus(TaskStatus.pending);
+            taskRepository.save(offTask);
 
             return task;
         }
