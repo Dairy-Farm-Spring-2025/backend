@@ -88,13 +88,13 @@ public class FeedMealService implements IFeedMealService {
 
         // Kiểm tra tổng DM
         BigDecimal requiredDryMatter = BigDecimal.valueOf(calculateDryMatter(request.getCowStatus(), request.getCowTypeId()));
-        BigDecimal allowedVariance = requiredDryMatter.multiply(BigDecimal.valueOf(2.0)); // 2% sai số
+        BigDecimal allowedVariance = requiredDryMatter.multiply(BigDecimal.valueOf(0.1)); // 2% sai số
         BigDecimal lowerBound = requiredDryMatter.subtract(allowedVariance);
         BigDecimal upperBound = requiredDryMatter.add(allowedVariance);
 
         if (totalDryMatter.compareTo(lowerBound) < 0 || totalDryMatter.compareTo(upperBound) > 0) {
             throw new AppException(HttpStatus.BAD_REQUEST,
-                    String.format("Tổng DM không phù hợp! Yêu cầu %.2f kg, hiện tại là %.2f kg. Sai số cho phép là 2%%.",
+                    String.format("Tổng DM không phù hợp! Yêu cầu %.2f kg, hiện tại là %.2f kg",
                             requiredDryMatter, totalDryMatter));
         }
 
@@ -110,7 +110,7 @@ public class FeedMealService implements IFeedMealService {
 
             BigDecimal requiredPercentage = requiredPercentages.get(categoryName);
 
-            BigDecimal allowedPercentageVariance = requiredPercentage.multiply(BigDecimal.valueOf(0.05));
+            BigDecimal allowedPercentageVariance = requiredPercentage.multiply(BigDecimal.valueOf(0.1));
             BigDecimal lowerPercentageBound = requiredPercentage.subtract(allowedPercentageVariance);
             BigDecimal upperPercentageBound = requiredPercentage.add(allowedPercentageVariance);
 
