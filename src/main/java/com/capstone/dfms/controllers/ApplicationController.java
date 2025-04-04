@@ -8,9 +8,11 @@ import com.capstone.dfms.services.IApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 
@@ -83,5 +85,15 @@ public class ApplicationController {
         List<ApplicationEntity> applications = applicationService.getApplicationsByRequestBy();
         String message = messageSource.getMessage("applications.myRequests.success", null, LocaleContextHolder.getLocale());
         return CoreApiResponse.success(applications, message);
+    }
+
+    @GetMapping("/findApplication")
+    public CoreApiResponse<List<ApplicationEntity>> getApplicationsByUserAndType(
+            @RequestParam Long userId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+
+        List<ApplicationEntity> applications = applicationService.getApplicationsByUserDateAndType(userId, fromDate, toDate);
+        return CoreApiResponse.success(applications);
     }
 }

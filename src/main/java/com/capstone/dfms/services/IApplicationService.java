@@ -4,6 +4,7 @@ import com.capstone.dfms.models.ApplicationEntity;
 import com.capstone.dfms.requests.ApplicationApproveRequest;
 import com.capstone.dfms.requests.ApplicationCreateRequest;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IApplicationService {
@@ -18,4 +19,6 @@ public interface IApplicationService {
     ApplicationEntity cancelApplication(Long applicationId, ApplicationApproveRequest request);
     List<ApplicationEntity> getApplicationsByApplicationType(Long applicationTypeId);
     List<ApplicationEntity> getApplicationsByRequestBy();
+
+    List<ApplicationEntity> getApplicationsByUserDateAndType(Long userId, LocalDate fromDate, LocalDate toDate);
 }
