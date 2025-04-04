@@ -10,6 +10,8 @@ import java.util.Date;
 
 @Data
 public class CowExcelCreateRequest {
+    @ExcelProperty("Name")
+    private String name;
     @ExcelProperty("Cow Status")
     private String cowStatusStr;
 
@@ -26,8 +28,8 @@ public class CowExcelCreateRequest {
     @ExcelProperty("Gender")
     private String genderStr;
 
-    @ExcelProperty("Cow Type ID")
-    private Long cowTypeId;
+    @ExcelProperty("Cow Type")
+    private String cowTypeName;
 
     private String description;
 

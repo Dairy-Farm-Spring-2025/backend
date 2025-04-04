@@ -21,5 +21,13 @@ public class HealthReportRequest {
     private float size;
     private CowStatus period;
     private Long cowId;
-//    private LocalDateTime reportTime;
+
+    private String description;
+    private float bodyTemperature;
+    private float heartRate;
+    private float respiratoryRate;
+    private float ruminateActivity;
+
+    private float chestCircumference;
+    private float bodyLength;
 }
