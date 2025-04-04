@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -145,5 +146,11 @@ public class ApplicationService implements IApplicationService {
     public List<ApplicationEntity> getApplicationsByRequestBy() {
         UserEntity requestBy = UserStatic.getCurrentUser();
         return applicationRepository.findByRequestBy(requestBy);
+    }
+
+
+    @Override
+    public List<ApplicationEntity> getApplicationsByUserDateAndType(Long userId, LocalDate fromDate, LocalDate toDate) {
+        return applicationRepository.findByUserAndOverlappingDateRange(userId, fromDate, toDate);
     }
 }
