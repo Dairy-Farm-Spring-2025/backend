@@ -44,6 +44,4 @@ public class HealthRecordEntity extends BaseEntity{
     private float heartRate;
     private float respiratoryRate;
     private float ruminateActivity;
-
-
 }

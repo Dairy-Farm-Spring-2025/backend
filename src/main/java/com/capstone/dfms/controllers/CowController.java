@@ -3,8 +3,10 @@ package com.capstone.dfms.controllers;
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.models.CowEntity;
+import com.capstone.dfms.models.HealthRecordEntity;
 import com.capstone.dfms.requests.CowCreateRequest;
 import com.capstone.dfms.requests.CowUpdateRequest;
+import com.capstone.dfms.responses.BulkCowHealthRecordResponse;
 import com.capstone.dfms.responses.CowPenBulkResponse;
 import com.capstone.dfms.responses.CowResponse;
 import com.capstone.dfms.services.ICowServices;
@@ -76,27 +78,13 @@ public class CowController {
                     .body(qrCodeImage);
     }
 
-    @PostMapping("/import")
-    public ResponseEntity<?> importCows(@RequestParam("file") MultipartFile file) {
-        try {
-            CowPenBulkResponse<CowResponse> result = cowServices.saveCowsFromExcel(file);
-
-            if (!result.getErrors().isEmpty()) {
-                return ResponseEntity.status(400).body(result);
-            }
-
-            return ResponseEntity.ok(result);
-        } catch (IOException e) {
-            return (ResponseEntity<CowPenBulkResponse<CowResponse>>) ResponseEntity.badRequest();
-        }
-    }
-
     @PostMapping("/cow-from-excel")
     public ResponseEntity<?> getCowsFromExcel(@RequestParam("file") MultipartFile file) {
         try {
-            CowPenBulkResponse<CowResponse> result = cowServices.getCowsFromExcel(file);
+            BulkCowHealthRecordResponse result = cowServices.getInformationFromExcel(file);
 
-            if (!result.getErrors().isEmpty()) {
+            if (!result.getCowResponseCowPenBulkResponse().getErrors().isEmpty() ||
+                    !result.getHealthRecordEntityCowPenBulkResponse().getErrors().isEmpty()) {
                 return ResponseEntity.status(400).body(result);
             }
 
@@ -105,20 +93,6 @@ public class CowController {
             return (ResponseEntity<CowPenBulkResponse<CowResponse>>) ResponseEntity.badRequest();
         }
     }
-
-//    @GetMapping("/api/templates/download/excel")
-//    public ResponseEntity<Resource> getExcelTemplate() throws IOException {
-//        Resource resource = new ClassPathResource("static/document/Template Cow Import.xlsx");
-//
-//        if (!resource.exists()) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        }
-//
-//        return ResponseEntity.ok()
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Template Cow Import.xlsx")
-//                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//                .body(resource);
-//    }
 
 
     @GetMapping("/templates/download/cow-bulk-excel")

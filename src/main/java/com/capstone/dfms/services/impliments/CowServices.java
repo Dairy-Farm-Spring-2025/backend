@@ -7,12 +7,15 @@ import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.utils.QRCodeUtil;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.ICowMapper;
+import com.capstone.dfms.mappers.IHealthReportMapper;
 import com.capstone.dfms.mappers.IPenMapper;
 import com.capstone.dfms.models.*;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.CowCreateRequest;
 import com.capstone.dfms.requests.CowExcelCreateRequest;
 import com.capstone.dfms.requests.CowUpdateRequest;
+import com.capstone.dfms.requests.HealthRecordExcelRequest;
+import com.capstone.dfms.responses.BulkCowHealthRecordResponse;
 import com.capstone.dfms.responses.CowHealthInfoResponse;
 import com.capstone.dfms.responses.CowPenBulkResponse;
 import com.capstone.dfms.responses.CowResponse;
@@ -42,6 +45,7 @@ public class CowServices implements ICowServices {
     private final ICowPenRepository cowPenRepository;
     private final IVaccineInjectionRepository vaccineInjectionRepository;
     private final IPenMapper penMapper;
+    private final IHealthReportMapper healthReportMapper;
 
 
 
@@ -329,9 +333,15 @@ public class CowServices implements ICowServices {
     }
 
     @Override
-    public CowPenBulkResponse<CowResponse> getCowsFromExcel(MultipartFile file) throws IOException {
+    public BulkCowHealthRecordResponse getInformationFromExcel(MultipartFile file) throws IOException {
+        CowPenBulkResponse<CowExcelCreateRequest> cowBulkResponse = this.getCowsFromExcel(file);
+        CowPenBulkResponse<HealthRecordExcelRequest> healthRecordEntityBulkResponse = this.getHealthRecordFromExcel(file, cowBulkResponse.getSuccesses());
+
+        return new BulkCowHealthRecordResponse(cowBulkResponse, healthRecordEntityBulkResponse);
+    }
+
+    public CowPenBulkResponse<CowExcelCreateRequest> getCowsFromExcel(MultipartFile file) throws IOException {
         List<CowExcelCreateRequest> cowList = new ArrayList<>();
-        List<CowResponse> cows = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
         EasyExcel.read(file.getInputStream(), CowExcelCreateRequest.class, new ReadListener<CowExcelCreateRequest>() {
@@ -348,7 +358,6 @@ public class CowServices implements ICowServices {
         .sheet("Cow")
         .doRead();
 
-        int rowNum = 2; // Excel starts at row 1
         for (CowExcelCreateRequest row : cowList) {
             try {
                 CowEntity cowEntity = cowMapper.toModel(row);
@@ -359,9 +368,47 @@ public class CowServices implements ICowServices {
                                             "Cow type name: " + cowEntity.getCowTypeEntity().getName() + " does not exist!"));
                     cowEntity.setCowTypeEntity(cowType);
                 }
+            } catch (AppException e) {
+                errors.add("Error at row cow" + row.getName() + ": " + e.getMessage());
+            } catch (Exception e) {
+                errors.add("Error at row cow" + row.getName() + ": " + e.getMessage());
+            }
+        }
 
-                CowResponse response = cowMapper.toResponse(cowEntity);
-                cows.add(response);
+        return new CowPenBulkResponse<>(cowList, errors);
+    }
+
+    public CowPenBulkResponse<HealthRecordExcelRequest> getHealthRecordFromExcel(MultipartFile file, List<CowExcelCreateRequest> cowList) throws IOException {
+        List<HealthRecordExcelRequest> healthRecordsList = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+
+        // Read Excel and store records in the list
+        EasyExcel.read(file.getInputStream(), HealthRecordExcelRequest.class, new ReadListener<HealthRecordExcelRequest>() {
+            @Override
+            public void invoke(HealthRecordExcelRequest record, AnalysisContext context) {
+                healthRecordsList.add(record);
+            }
+
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext context) {
+                System.out.println("Excel parsing completed!");
+            }
+        })
+        .sheet("Health Record") // Read the first sheet
+        .doRead();
+
+        int rowNum = 2; // Excel row numbering (assuming 1-based index with headers)
+        for (HealthRecordExcelRequest row : healthRecordsList) {
+            try {
+                if(row.getCowName() == null){
+                    throw new AppException(HttpStatus.BAD_REQUEST, "There is no name!");
+                }
+                if(cowList.stream()
+                        .filter(cow -> cow.getName().equals(row.getCowName()))
+                        .findFirst().isEmpty()){
+                    throw new AppException(HttpStatus.BAD_REQUEST, "Health record of cow " + row.getCowName() + " is not valid");
+                }
+
             } catch (AppException e) {
                 errors.add("Error at row " + rowNum + ": " + e.getMessage());
             } catch (Exception e) {
@@ -370,6 +417,7 @@ public class CowServices implements ICowServices {
             rowNum++;
         }
 
-        return new CowPenBulkResponse<>(cows, errors);
+        return new CowPenBulkResponse<>(healthRecordsList, errors);
+
     }
 }
