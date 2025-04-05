@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ICowRepository extends JpaRepository<CowEntity, Long> {
     boolean existsByName(String name);
@@ -21,5 +22,7 @@ public interface ICowRepository extends JpaRepository<CowEntity, Long> {
 
     List<CowEntity> findByCowTypeEntity_CowTypeId(Long cowTypeId);
     List<CowEntity> findByCowTypeEntity_CowTypeIdAndDateOfOutIsNullOrDateOfOutAfter(Long cowTypeId, LocalDate currentDate);
-
+    Optional<CowEntity> findByName(String name);
+    @Query("SELECT MAX(c.importTimes) FROM CowEntity c")
+    Long getMaxImportTimes();
 }

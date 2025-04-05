@@ -2,10 +2,7 @@ package com.capstone.dfms.mappers;
 
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.UserEntity;
-import com.capstone.dfms.requests.CowCreateRequest;
-import com.capstone.dfms.requests.CowExcelCreateRequest;
-import com.capstone.dfms.requests.CowUpdateRequest;
-import com.capstone.dfms.requests.PersonalUpdateRequest;
+import com.capstone.dfms.requests.*;
 import com.capstone.dfms.responses.CowResponse;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
