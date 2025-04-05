@@ -11,21 +11,17 @@ import com.capstone.dfms.mappers.IHealthReportMapper;
 import com.capstone.dfms.mappers.IPenMapper;
 import com.capstone.dfms.models.*;
 import com.capstone.dfms.repositories.*;
-import com.capstone.dfms.requests.CowCreateRequest;
-import com.capstone.dfms.requests.CowExcelCreateRequest;
-import com.capstone.dfms.requests.CowUpdateRequest;
-import com.capstone.dfms.requests.HealthRecordExcelRequest;
-import com.capstone.dfms.responses.BulkCowHealthRecordResponse;
-import com.capstone.dfms.responses.CowHealthInfoResponse;
-import com.capstone.dfms.responses.CowPenBulkResponse;
-import com.capstone.dfms.responses.CowResponse;
+import com.capstone.dfms.requests.*;
+import com.capstone.dfms.responses.*;
 import com.capstone.dfms.services.ICowServices;
 import lombok.AllArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -208,7 +204,7 @@ public class CowServices implements ICowServices {
             }
         }
 
-        return initials.toString() + (cowRepository.countByNameContains(initials.toString()) + 1);
+        return initials.toString()+ "-0000-" + String.format("%04d", (cowRepository.countByNameContains(initials.toString() + "-0000-") + 1));
     }
 
     private boolean cowIsInPen(Long cowId){
@@ -334,11 +330,106 @@ public class CowServices implements ICowServices {
 
     @Override
     public BulkCowHealthRecordResponse getInformationFromExcel(MultipartFile file) throws IOException {
+        Long importTimes = Long.parseLong(this.getCellFromImportTimeA2(file));
+        Long maxImportTimes = cowRepository.getMaxImportTimes() == null ? 1 : cowRepository.getMaxImportTimes() + 1;
+        if(maxImportTimes != importTimes){
+            throw new AppException(HttpStatus.BAD_REQUEST, "Invalid import times");
+        }
+
         CowPenBulkResponse<CowExcelCreateRequest> cowBulkResponse = this.getCowsFromExcel(file);
         CowPenBulkResponse<HealthRecordExcelRequest> healthRecordEntityBulkResponse = this.getHealthRecordFromExcel(file, cowBulkResponse.getSuccesses());
 
         return new BulkCowHealthRecordResponse(cowBulkResponse, healthRecordEntityBulkResponse);
     }
+
+    @Override
+    public BulkCreateCowResponse createInformation(BulkCowRequest request) {
+        Long importTimes = cowRepository.getMaxImportTimes() == null ? 1 : cowRepository.getMaxImportTimes() + 1;
+
+        BulkCreateCowResponse response = new BulkCreateCowResponse();
+        List<CowResponse> cowEntities = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+        request.getCows().forEach((cow) -> {
+            try {
+                if(Long.parseLong(cow.getName().split("-")[1]) != importTimes){
+                    throw new AppException(HttpStatus.BAD_REQUEST, "Invalid name!");
+                }
+
+                CowEntity cowEntity = cowMapper.toModel(cow);
+                if (cowEntity.getCowTypeEntity() != null) {
+                    CowTypeEntity cowType = cowTypeRepository.findByName(cowEntity.getCowTypeEntity().getName())
+                            .orElseThrow(
+                                    () -> new AppException(HttpStatus.BAD_REQUEST,
+                                            "Cow type name: " + cowEntity.getCowTypeEntity().getName() + " does not exist!"));
+                    cowEntity.setCowTypeEntity(cowType);
+                } else {
+                    throw new AppException(HttpStatus.BAD_REQUEST, "Cow type is required!");
+                }
+                cowEntity.setImportTimes(importTimes);
+
+                cowEntities.add(createCow(cowEntity));
+            }
+            catch (Exception ex){
+                errors.add("Error at row cow" + cow.getName() + ": " + ex.getMessage());
+            }
+        });
+        response.setCowsResponse(new CowPenBulkResponse<>(cowEntities, errors));
+
+        List<HealthRecordEntity> healthRecordEntities = new ArrayList<>();
+        List<String> errors2 = new ArrayList<>();
+        request.getHealthRecords().forEach((record) -> {
+            try {
+                CowEntity cowEntity = cowRepository.findByName(record.getCowName())
+                        .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Invalid Cow name"));
+
+                HealthRecordEntity entity = healthReportMapper.toModel(record);
+
+                entity.setCowEntity(cowEntity);
+                entity.setWeight(90 * (record.getChestCircumference() * record.getChestCircumference() * record.getBodyLength()));
+
+                healthRecordEntities.add(healthRecordRepository.save(entity));
+            }
+            catch (Exception ex){
+                errors2.add("Error at row cow" + record.getCowName() + ": " + ex.getMessage());
+            }
+        });
+        response.setHealthRecordsResponse(new CowPenBulkResponse<>(healthRecordEntities, errors2));
+
+        return response;
+    }
+
+    public String getCellFromImportTimeA2(MultipartFile file) throws IOException {
+        try (InputStream inputStream = file.getInputStream();
+             Workbook workbook = WorkbookFactory.create(inputStream)) {
+
+            Sheet sheet = workbook.getSheet("Import time");
+            if (sheet == null) {
+                throw new IllegalArgumentException("Sheet 'Import time' not found.");
+            }
+
+            Row row = sheet.getRow(1); // A2 is row 1 (0-based index)
+            if (row == null) {
+                throw new IllegalArgumentException("Row 2 not found in 'Import time' sheet.");
+            }
+
+            Cell cell = row.getCell(0); // A column
+            if (cell == null) {
+                throw new IllegalArgumentException("Cell A2 not found in 'Import time' sheet.");
+            }
+
+            // Support both numeric and string values gracefully
+            return switch (cell.getCellType()) {
+                case NUMERIC -> String.valueOf((long) cell.getNumericCellValue()); // assume integer importTimes
+                case STRING -> cell.getStringCellValue();
+                default -> throw new IllegalArgumentException("Unsupported cell type in A2: " + cell.getCellType());
+            };
+
+        } catch (Exception e) {
+            throw new IOException("Failed to read Import Time from Excel: " + e.getMessage(), e);
+        }
+    }
+
+
 
     public CowPenBulkResponse<CowExcelCreateRequest> getCowsFromExcel(MultipartFile file) throws IOException {
         List<CowExcelCreateRequest> cowList = new ArrayList<>();
@@ -367,6 +458,9 @@ public class CowServices implements ICowServices {
                                     () -> new AppException(HttpStatus.BAD_REQUEST,
                                             "Cow type name: " + cowEntity.getCowTypeEntity().getName() + " does not exist!"));
                     cowEntity.setCowTypeEntity(cowType);
+                }
+                else{
+                    throw new AppException(HttpStatus.BAD_REQUEST, "Cow type is required!");
                 }
             } catch (AppException e) {
                 errors.add("Error at row cow" + row.getName() + ": " + e.getMessage());

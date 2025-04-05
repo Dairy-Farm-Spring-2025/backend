@@ -4,6 +4,7 @@ import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.HealthRecordEntity;
+import com.capstone.dfms.requests.BulkCowRequest;
 import com.capstone.dfms.requests.CowCreateRequest;
 import com.capstone.dfms.requests.CowUpdateRequest;
 import com.capstone.dfms.responses.BulkCowHealthRecordResponse;
@@ -48,8 +49,8 @@ public class CowController {
     }
 
     @PostMapping("/create-bulk")
-    public ResponseEntity<?> createBulkCow(@Valid @RequestBody List<CowCreateRequest> requests) {
-        return CoreApiResponse.success(cowServices.createBulkCow(requests));
+    public CoreApiResponse<?> createBulkCow(@Valid @RequestBody BulkCowRequest requests) {
+        return CoreApiResponse.success(cowServices.createInformation(requests));
     }
 
     @PutMapping("/{id}")

@@ -43,4 +43,5 @@ public class CowEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "cow_type_id")
     private CowTypeEntity cowTypeEntity;
+    private Long importTimes;
 }
