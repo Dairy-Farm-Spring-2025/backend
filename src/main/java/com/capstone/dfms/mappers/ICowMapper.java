@@ -27,8 +27,6 @@ public interface ICowMapper {
     @Mapping(source = "cowTypeName", target = "cowTypeEntity.name")
     CowEntity toModel(CowExcelCreateRequest row); // ✅ Add this line
 
-    @Mapping(source = "cowTypeName", target = "cowTypeEntity.name")
-    CowEntity toModel(ExcelCowRequest row); // ✅ Add this line
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateCowFromRequest(CowUpdateRequest updateRequest, @MappingTarget CowEntity cowEntity);
     @Mapping(source = "cowTypeEntity", target = "cowType")
