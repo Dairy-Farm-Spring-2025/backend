@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,12 +31,13 @@ public class NotificationSchedule {
     public void sendDailyTaskNotification() {
         LocalDate today = LocalDate.now();
         List<UserEntity> users = userRepository.findAll();
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String formattedDate = today.format(formatter);
         for (UserEntity user : users) {
             List<TaskEntity> todayTasks = taskRepository.findTodayTasksByUser(user.getId(), today);
             if (!todayTasks.isEmpty()) {
                 NotificationRequest request = new NotificationRequest();
-                request.setTitle("Thông báo công việc hôm nay");
+                request.setTitle("Thông báo công việc "+ formattedDate);
                 request.setDescription("Bạn có " + todayTasks.size() + " công việc cần làm hôm nay.");
                 request.setLink("/tasks");
                 request.setCategory(CategoryNotification.task);
@@ -60,11 +62,12 @@ public class NotificationSchedule {
     public void sendPendingReportReminders() {
         LocalDate today = LocalDate.now();
         List<ReportTaskEntity> pendingReports = reportTaskRepository.findPendingReportsForToday(today);
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String formattedDate = today.format(formatter);
         for (ReportTaskEntity report : pendingReports) {
             UserEntity user = report.getTaskId().getAssignee();
             NotificationRequest request = new NotificationRequest();
-            request.setTitle("Nhắc nhở báo cáo công việc");
+            request.setTitle("Nhắc nhở báo cáo công việc " + formattedDate);
             request.setDescription("Bạn có công việc chưa hoàn thành báo cáo. Vui lòng hoàn thành trước 17:00.");
             request.setLink("reportTask/"+ report.getReportTaskId());
             request.setCategory(CategoryNotification.task);
@@ -78,12 +81,13 @@ public class NotificationSchedule {
     public void sendUnreportedTaskNotifications() {
         LocalDate today = LocalDate.now();
         List<TaskEntity> unreportedTasks = taskRepository.findUnreportedDayShiftTasks(today);
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String formattedDate = today.format(formatter);
         for (TaskEntity task : unreportedTasks) {
             UserEntity assignee = task.getAssignee();
             if (assignee != null) {
                 NotificationRequest request = new NotificationRequest();
-                request.setTitle("Nhắc nhở check in công việc");
+                request.setTitle("Nhắc nhở check in công việc ngày " + formattedDate);
                 request.setDescription("Bạn có công việc chưa check in. Vui lòng kiểm tra!");
                 request.setLink("task/"+ task.getTaskId());
                 request.setCategory(CategoryNotification.task);
