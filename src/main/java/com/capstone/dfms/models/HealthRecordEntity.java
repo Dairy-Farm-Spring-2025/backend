@@ -1,5 +1,6 @@
 package com.capstone.dfms.models;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.capstone.dfms.models.enums.CowStatus;
 import com.capstone.dfms.models.enums.HealthRecordStatus;
 import jakarta.persistence.*;
@@ -44,4 +45,6 @@ public class HealthRecordEntity extends BaseEntity{
     private float heartRate;
     private float respiratoryRate;
     private float ruminateActivity;
+    private float chestCircumference;
+    private float bodyLength;
 }
