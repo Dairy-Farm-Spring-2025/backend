@@ -29,5 +29,6 @@ public interface ICowServices {
     BulkCowHealthRecordResponse getInformationFromExcel(MultipartFile file) throws IOException;
 
     BulkCreateCowResponse createInformation(BulkCowRequest request);
+    Long getImportedTimes();
 
 }
