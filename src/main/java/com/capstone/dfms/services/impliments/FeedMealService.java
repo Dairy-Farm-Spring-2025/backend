@@ -11,6 +11,7 @@ import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.FeedMealDetailRequest;
 import com.capstone.dfms.requests.FeedMealRequest;
 import com.capstone.dfms.requests.UpdateFeedMealRequest;
+import com.capstone.dfms.responses.CalculateFeedSummaryResponse;
 import com.capstone.dfms.responses.CalculateFoodResponse;
 import com.capstone.dfms.services.IFeedMealService;
 import lombok.RequiredArgsConstructor;
@@ -301,14 +302,24 @@ public class FeedMealService implements IFeedMealService {
     }
 
 
-    public List<CalculateFoodResponse> calculateFeedForArea(Long areaId) {
+    @Override
+    public CalculateFeedSummaryResponse calculateFeedForArea(Long areaId) {
         List<PenEntity> pensInArea = penRepository.findByArea(areaId);
         Map<ItemEntity, BigDecimal> totalFeedRequired = new HashMap<>();
+        Map<String, Integer> cowTypeCountMap = new HashMap<>();
+
+        int totalCows = 0;
 
         for (PenEntity pen : pensInArea) {
             List<CowEntity> cowsInPen = cowPenRepository.findCowsByPenId(pen.getPenId());
+            totalCows += cowsInPen.size();
 
             for (CowEntity cow : cowsInPen) {
+                // Đếm số lượng theo cow type
+                String cowTypeName = cow.getCowTypeEntity().getName();
+                cowTypeCountMap.put(cowTypeName, cowTypeCountMap.getOrDefault(cowTypeName, 0) + 1);
+
+                // Tính khẩu phần ăn
                 Optional<FeedMealEntity> feedMealOpt = feedMealRepository.findByCowTypeAndStatus(
                         cow.getCowTypeEntity(), cow.getCowStatus()
                 );
@@ -327,7 +338,7 @@ public class FeedMealService implements IFeedMealService {
             }
         }
 
-        return totalFeedRequired.entrySet().stream()
+        List<CalculateFoodResponse> foodList = totalFeedRequired.entrySet().stream()
                 .map(entry -> new CalculateFoodResponse(
                         entry.getKey().getName(),
                         entry.getKey().getItemId(),
@@ -335,5 +346,8 @@ public class FeedMealService implements IFeedMealService {
                         entry.getValue()
                 ))
                 .collect(Collectors.toList());
+
+        // Trả về response tổng hợp
+        return new CalculateFeedSummaryResponse(totalCows, cowTypeCountMap, foodList);
     }
 }
