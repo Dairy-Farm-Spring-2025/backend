@@ -20,5 +20,5 @@ public interface IApplicationService {
     List<ApplicationEntity> getApplicationsByApplicationType(Long applicationTypeId);
     List<ApplicationEntity> getApplicationsByRequestBy();
 
-    List<ApplicationEntity> getApplicationsByUserDateAndType(Long userId, LocalDate fromDate, LocalDate toDate);
+    ApplicationEntity getApplicationsByUserDateAndType(Long userId, LocalDate fromDate, LocalDate toDate);
 }

@@ -88,12 +88,12 @@ public class ApplicationController {
     }
 
     @GetMapping("/findApplication")
-    public CoreApiResponse<List<ApplicationEntity>> getApplicationsByUserAndType(
+    public CoreApiResponse<ApplicationEntity> getApplicationsByUserAndType(
             @RequestParam Long userId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
 
-        List<ApplicationEntity> applications = applicationService.getApplicationsByUserDateAndType(userId, fromDate, toDate);
+        ApplicationEntity applications = applicationService.getApplicationsByUserDateAndType(userId, fromDate, toDate);
         return CoreApiResponse.success(applications);
     }
 }
