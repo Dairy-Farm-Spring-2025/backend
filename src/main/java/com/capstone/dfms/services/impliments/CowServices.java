@@ -398,6 +398,11 @@ public class CowServices implements ICowServices {
         return response;
     }
 
+    @Override
+    public Long getImportedTimes() {
+        return cowRepository.getMaxImportTimes() == null ? 0 : cowRepository.getMaxImportTimes();
+    }
+
     public String getCellFromImportTimeA2(MultipartFile file) throws IOException {
         try (InputStream inputStream = file.getInputStream();
              Workbook workbook = WorkbookFactory.create(inputStream)) {

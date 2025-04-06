@@ -104,5 +104,10 @@ public class CowController {
                 .build();
     }
 
+    @GetMapping("/imported-times")
+    public CoreApiResponse<Long> getImportedTimes(HttpServletRequest request) {
+        return CoreApiResponse.success(cowServices.getImportedTimes());
+    }
+
 
 }
