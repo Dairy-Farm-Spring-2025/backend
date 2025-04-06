@@ -23,7 +23,7 @@ public interface IApplicationRepository  extends JpaRepository<ApplicationEntity
             "AND a.type.name = 'Xin nghỉ việc' " +
             "AND a.fromDate <= :toDate " +
             "AND a.toDate >= :fromDate")
-    List<ApplicationEntity> findByUserAndOverlappingDateRange(@Param("userId") Long userId,
+    ApplicationEntity findByUserAndOverlappingDateRange(@Param("userId") Long userId,
                                                               @Param("fromDate") LocalDate fromDate,
                                                               @Param("toDate") LocalDate toDate);
 

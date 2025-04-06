@@ -150,7 +150,7 @@ public class ApplicationService implements IApplicationService {
 
 
     @Override
-    public List<ApplicationEntity> getApplicationsByUserDateAndType(Long userId, LocalDate fromDate, LocalDate toDate) {
+    public ApplicationEntity getApplicationsByUserDateAndType(Long userId, LocalDate fromDate, LocalDate toDate) {
         return applicationRepository.findByUserAndOverlappingDateRange(userId, fromDate, toDate);
     }
 }
