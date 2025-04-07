@@ -120,8 +120,8 @@ public class SecurityConfig {
                 String roleName = user.getRoleId() != null ? user.getRoleId().getName() : "UNKNOWN";
                 String userName = user.getName() != null ? user.getName() : "UNKNOWN";
 
-                String platform = request.getParameter("platform");
-                boolean isMobile = "mobile".equalsIgnoreCase(platform);
+                String state = request.getParameter("state");
+                boolean isMobile = (state != null && state.contains("platform=mobile"));
 
                 String redirectUrl;
                 if (isMobile) {
