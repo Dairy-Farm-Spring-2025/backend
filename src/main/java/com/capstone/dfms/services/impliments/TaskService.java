@@ -253,27 +253,27 @@ public class TaskService implements ITaskService {
         Map<LocalDate, List<RangeTaskResponse>> taskMap = new LinkedHashMap<>();
         LocalDate currentDate = startDate;
 
-        List<RangeTaskResponse> taskResponses = ITaskMapper.INSTANCE.toResponseList2(taskEntities);
-
         Map<Long, List<ReportTaskEntity>> reportTaskMap = reportTaskEntities.stream()
                 .collect(Collectors.groupingBy(report -> report.getTaskId().getTaskId()));
 
         while (!currentDate.isAfter(endDate)) {
             final LocalDate dateToCheck = currentDate;
 
-            List<RangeTaskResponse> tasksForDay = taskResponses.stream()
+            List<RangeTaskResponse> tasksForDay = taskEntities.stream()
                     .filter(task ->
                             (task.getFromDate().isEqual(dateToCheck) || task.getFromDate().isBefore(dateToCheck)) &&
                                     (task.getToDate().isEqual(dateToCheck) || task.getToDate().isAfter(dateToCheck)))
-                    .peek(task -> {
+                    .map(task -> {
+                        RangeTaskResponse taskResponse = ITaskMapper.INSTANCE.toResponse2(task); // map lại mỗi lần
                         List<ReportTaskEntity> reports = reportTaskMap.get(task.getTaskId());
                         if (reports != null) {
                             ReportTaskEntity reportForDay = reports.stream()
                                     .filter(report -> report.getDate().isEqual(dateToCheck))
                                     .findFirst()
                                     .orElse(null);
-                            task.setReportTask(reportForDay);
+                            taskResponse.setReportTask(reportForDay);
                         }
+                        return taskResponse;
                     })
                     .collect(Collectors.toList());
 
@@ -283,6 +283,7 @@ public class TaskService implements ITaskService {
 
         return taskMap;
     }
+
 
     @Override
     public TaskEntity updateAssigneeForTask(Long taskId, Long assigneeId){
