@@ -58,4 +58,10 @@ public class VaccineCycleController {
                                                                   @RequestBody @Valid UpdateVaccineCycleRequest request) {
         return CoreApiResponse.success(vaccineCycleService.updateVaccineCycle(id, request));
     }
+
+    @GetMapping("/cowType/{cowTypeId}")
+    public CoreApiResponse<List<VaccineCycleEntity>> getByCowType(@PathVariable Long cowTypeId) {
+        List<VaccineCycleEntity> vaccineCycles = vaccineCycleService.getByCowTypeId(cowTypeId);
+        return CoreApiResponse.success(vaccineCycles);
+    }
 }

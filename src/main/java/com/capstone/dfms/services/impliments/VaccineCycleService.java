@@ -143,6 +143,8 @@ public class VaccineCycleService implements IVaccineCycleService {
         return vaccineCycleRepository.save(vaccineCycle);
     }
 
-
-
+    @Override
+    public List<VaccineCycleEntity> getByCowTypeId(Long cowTypeId) {
+        return vaccineCycleRepository.findByCowTypeId(cowTypeId);
+    }
 }

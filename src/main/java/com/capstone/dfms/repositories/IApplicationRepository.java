@@ -20,12 +20,11 @@ public interface IApplicationRepository  extends JpaRepository<ApplicationEntity
             UserEntity requestBy, LocalDate fromDate, LocalDate toDate, ApplicationTypeEntity type);
 
     @Query("SELECT a FROM ApplicationEntity a WHERE a.requestBy.id = :userId " +
-            "AND a.type.name = 'Xin nghỉ việc' " +
+            "AND a.type.name = 'Đơn xin nghỉ phép' " +
             "AND a.fromDate <= :toDate " +
             "AND a.toDate >= :fromDate")
     ApplicationEntity findByUserAndOverlappingDateRange(@Param("userId") Long userId,
                                                               @Param("fromDate") LocalDate fromDate,
                                                               @Param("toDate") LocalDate toDate);
-
 
 }

@@ -17,4 +17,6 @@ public interface IVaccineCycleService {
     VaccineCycleEntity updateVaccineCycle(Long id, UpdateVaccineCycleRequest request);
 
     void deleteVaccineCycle(long id);
+
+    List<VaccineCycleEntity> getByCowTypeId(Long cowTypeId);
 }
