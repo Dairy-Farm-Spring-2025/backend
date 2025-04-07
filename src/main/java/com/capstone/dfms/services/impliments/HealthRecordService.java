@@ -51,6 +51,9 @@ public class HealthRecordService implements IHealthRecordService{
         entity.setReportTime(LocalDateTime.now());
         entity.setWeight(90 * (request.getChestCircumference()*request.getChestCircumference()*request.getBodyLength()));
 
+        cow.setCowStatus(request.getPeriod());
+        cowRepository.save(cow);
+
         return healthRecordRepository.save(entity);
     }
 
@@ -83,6 +86,12 @@ public class HealthRecordService implements IHealthRecordService{
         }
 
         mapper.updateEntityFromDto(request, oldEntity);
+        oldEntity.setWeight(90 * (oldEntity.getChestCircumference()*oldEntity.getChestCircumference()*oldEntity.getBodyLength()));
+
+        CowEntity existingCow = oldEntity.getCowEntity();
+
+        existingCow.setCowStatus(oldEntity.getPeriod());
+        cowRepository.save(existingCow);
 
         return healthRecordRepository.save(oldEntity);
     }
