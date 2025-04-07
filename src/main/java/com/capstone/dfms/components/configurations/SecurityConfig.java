@@ -121,7 +121,7 @@ public class SecurityConfig {
                 String userName = user.getName() != null ? user.getName() : "UNKNOWN";
 
                 String redirectUrl = String.format(
-                        "http://localhost:5173/login/oauth2/callback?access_token=%s&refresh_token=%s&userId=%d&userName=%s&roleName=%s",
+                        "https://dairyfarmfpt.website/login/oauth2/callback?access_token=%s&refresh_token=%s&userId=%d&userName=%s&roleName=%s",
                         URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
                         URLEncoder.encode(refreshToken, StandardCharsets.UTF_8),
                         user.getId(),
