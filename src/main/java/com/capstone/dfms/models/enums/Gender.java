@@ -21,4 +21,5 @@ public enum Gender {
     public String toJson() {
         return this.name();
     }
+
 }
