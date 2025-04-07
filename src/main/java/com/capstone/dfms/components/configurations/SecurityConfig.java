@@ -134,13 +134,13 @@ public class SecurityConfig {
                 System.err.println("OAuth2 error in success handler: " + e.getMessage());
                 String errorCode = e.getError().getErrorCode(); // user_not_found hoặc user_disabled
                 String encodedErrorCode = URLEncoder.encode(errorCode, StandardCharsets.UTF_8);
-                String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + encodedErrorCode;
+                String errorRedirectUrl = "https://www.dairyfarmfpt.website/login/oauth2/callback?error=" + encodedErrorCode;
                 System.out.println("Redirecting to: " + errorRedirectUrl);
                 response.sendRedirect(errorRedirectUrl);
             } catch (Exception e) {
                 System.err.println("Unexpected error in success handler: " + e.getMessage());
                 e.printStackTrace();
-                String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=internal_error";
+                String errorRedirectUrl = "https://www.dairyfarmfpt.website/login/oauth2/callback?error=internal_error";
                 System.out.println("Redirecting to: " + errorRedirectUrl);
                 response.sendRedirect(errorRedirectUrl);
             }
