@@ -18,16 +18,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class HealthReportRequest {
     private HealthRecordStatus status;
-    private float size;
     private CowStatus period;
     private Long cowId;
 
     private String description;
-    private float bodyTemperature;
-    private float heartRate;
-    private float respiratoryRate;
-    private float ruminateActivity;
+    private Float size;
+    private Float bodyTemperature;
+    private Float heartRate;
+    private Float respiratoryRate;
+    private Float ruminateActivity;
+    private Float chestCircumference;
+    private Float bodyLength;
 
-    private float chestCircumference;
-    private float bodyLength;
 }

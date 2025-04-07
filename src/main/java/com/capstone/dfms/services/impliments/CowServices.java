@@ -91,6 +91,10 @@ public class CowServices implements ICowServices {
             existingEntity.setCowTypeEntity(cowType);
         }
 
+        if(request.getCowStatus() != null){
+            existingEntity.setCowStatus(request.getCowStatus());
+        }
+
         CowEntity updatedEntity = cowRepository.save(existingEntity);
         return getCowById(updatedEntity.getCowId());
     }
@@ -119,16 +123,6 @@ public class CowServices implements ICowServices {
             response.setPenResponse(null);
         }
         response.setHealthInfoResponses(this.getAllHealthInfoOrderedDesc(id));
-        Optional<HealthRecordEntity> latestHealthRecord = healthRecordRepository.findFirstByCowEntity_CowIdOrderByReportTimeDesc(id);
-
-        if (latestHealthRecord.isPresent()) {
-            HealthRecordEntity healthRecord = latestHealthRecord.get();
-            response.setCowStatus(healthRecord.getPeriod());
-            response.setSize(healthRecord.getSize());
-        } else {
-            response.setWeight(0.0f);
-            response.setSize(0.0f);
-        }
 
         return response;
     }
@@ -159,21 +153,6 @@ public class CowServices implements ICowServices {
                     if (healthInfoResponses.size() > 0){
                         healthInfoResponseTmp.add(healthInfoResponses.get(0));
                         response.setHealthInfoResponses(healthInfoResponseTmp);
-                    }
-
-
-                    // Fetch the latest health record
-                    Optional<HealthRecordEntity> latestHealthRecord = healthRecordRepository.findFirstByCowEntity_CowIdOrderByReportTimeDesc(cowEntity.getCowId());
-
-                    if (latestHealthRecord.isPresent()) {
-                        // Set cow status, weight, and size from the latest health record
-                        HealthRecordEntity healthRecord = latestHealthRecord.get();
-                        response.setCowStatus(healthRecord.getPeriod());
-                        response.setSize(healthRecord.getSize());
-                    } else {
-                        // Default values if no health record exists
-                        response.setWeight(0.0f);
-                        response.setSize(0.0f);
                     }
 
                     return response;
