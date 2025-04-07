@@ -121,10 +121,10 @@ public class SecurityConfig {
                 String userName = user.getName() != null ? user.getName() : "UNKNOWN";
 
                 String platform = request.getParameter("platform");
-                System.out.println("Platform: " + platform);
+                boolean isMobile = "mobile".equalsIgnoreCase(platform);
 
                 String redirectUrl;
-                if ("mobile".equalsIgnoreCase(platform)) {
+                if (isMobile) {
                     redirectUrl = String.format(
                             "exp://127.0.0.1:19000/",
                             URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
