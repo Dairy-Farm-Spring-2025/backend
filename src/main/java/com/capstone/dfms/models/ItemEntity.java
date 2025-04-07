@@ -28,8 +28,6 @@ public class ItemEntity {
     @Enumerated(EnumType.STRING)
     private ItemUnit unit;
 
-    private float quantity;
-
     @ManyToOne
     @JoinColumn(name = "category_id")
     private CategoryEntity categoryEntity;

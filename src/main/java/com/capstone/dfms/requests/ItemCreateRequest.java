@@ -16,8 +16,6 @@ public class ItemCreateRequest {
 
     private String unit;
 
-    private float quantity;
-
     private Long categoryId;
 
     private Long locationId;
