@@ -28,7 +28,9 @@ public interface ICowMapper {
     CowEntity toModel(CowExcelCreateRequest row); // ✅ Add this line
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "cowStatus", ignore = true)
     void updateCowFromRequest(CowUpdateRequest updateRequest, @MappingTarget CowEntity cowEntity);
+
     @Mapping(source = "cowTypeEntity", target = "cowType")
     CowResponse toResponse(CowEntity entity);
 }
