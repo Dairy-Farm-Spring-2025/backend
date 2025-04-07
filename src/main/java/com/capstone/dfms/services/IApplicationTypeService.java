@@ -5,6 +5,7 @@ import com.capstone.dfms.requests.ApplicationTypeRequest;
 
 import java.util.List;
 
+
 public interface IApplicationTypeService  {
     ApplicationTypeEntity createApplicationType(ApplicationTypeRequest request);
     List<ApplicationTypeEntity> getAllApplicationTypes();
