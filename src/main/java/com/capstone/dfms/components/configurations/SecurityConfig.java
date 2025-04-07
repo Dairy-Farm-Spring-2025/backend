@@ -120,14 +120,30 @@ public class SecurityConfig {
                 String roleName = user.getRoleId() != null ? user.getRoleId().getName() : "UNKNOWN";
                 String userName = user.getName() != null ? user.getName() : "UNKNOWN";
 
-                String redirectUrl = String.format(
-                        "https://dairyfarmfpt.website/login/oauth2/callback?access_token=%s&refresh_token=%s&userId=%d&userName=%s&roleName=%s",
-                        URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
-                        URLEncoder.encode(refreshToken, StandardCharsets.UTF_8),
-                        user.getId(),
-                        URLEncoder.encode(userName, StandardCharsets.UTF_8),
-                        URLEncoder.encode(roleName, StandardCharsets.UTF_8)
-                );
+                String platform = request.getParameter("platform");
+                System.out.println("Platform: " + platform);
+
+                String redirectUrl;
+                if ("mobile".equalsIgnoreCase(platform)) {
+                    redirectUrl = String.format(
+                            "exp://127.0.0.1:19000/",
+                            URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
+                            URLEncoder.encode(refreshToken, StandardCharsets.UTF_8),
+                            URLEncoder.encode(userId, StandardCharsets.UTF_8),
+                            URLEncoder.encode(userName, StandardCharsets.UTF_8),
+                            URLEncoder.encode(roleName, StandardCharsets.UTF_8)
+                    );
+                } else {
+                    redirectUrl = String.format(
+                            "https://dairyfarmfpt.website/login/oauth2/callback?access_token=%s&refresh_token=%s&userId=%s&userName=%s&roleName=%s",
+                            URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
+                            URLEncoder.encode(refreshToken, StandardCharsets.UTF_8),
+                            URLEncoder.encode(userId, StandardCharsets.UTF_8),
+                            URLEncoder.encode(userName, StandardCharsets.UTF_8),
+                            URLEncoder.encode(roleName, StandardCharsets.UTF_8)
+                    );
+                }
+
                 System.out.println("Redirecting to: " + redirectUrl);
                 response.sendRedirect(redirectUrl);
             } catch (OAuth2AuthenticationException e) {
