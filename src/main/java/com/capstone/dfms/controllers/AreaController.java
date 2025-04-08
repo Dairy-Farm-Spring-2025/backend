@@ -25,7 +25,7 @@ public class AreaController {
     @PostMapping("/create")
     public CoreApiResponse<AreaResponse> createArea(@Valid @RequestBody AreaCreateRequest areaCreateRequest) {
         var areaResponse = areaServices.createArea(INSTANCE.toModel(areaCreateRequest));
-        String message = LocalizationUtils.getMessage("general.create_successfully", null, LocaleContextHolder.getLocale());
+        String message = LocalizationUtils.getMessage("general.create_successfully");
         return CoreApiResponse.success(areaResponse, message);
     }
 
@@ -35,21 +35,21 @@ public class AreaController {
             @Valid @RequestBody AreaUpdateRequest areaUpdateRequest
     ) {
         AreaResponse areaResponse = areaServices.updateArea(id, areaUpdateRequest);
-        String message = LocalizationUtils.getMessage("application.update.success", null, LocaleContextHolder.getLocale());
+        String message = LocalizationUtils.getMessage("area.update.success");
         return CoreApiResponse.success(areaResponse, message);
     }
 
     @GetMapping("/{id}")
     public CoreApiResponse<AreaResponse> getAreaById(@PathVariable Long id) {
         AreaResponse areaResponse = areaServices.getAreaById(id);
-        String message = LocalizationUtils.getMessage("application.fetch.success", null, LocaleContextHolder.getLocale());
+        String message = LocalizationUtils.getMessage("area.get.success");
         return CoreApiResponse.success(areaResponse, message);
     }
 
     @GetMapping
     public CoreApiResponse<List<AreaResponse>> getAllAreas() {
         List<AreaResponse> areas = areaServices.getAllAreas();
-        String message = LocalizationUtils.getMessage("applications.fetch.success", null, LocaleContextHolder.getLocale());
+        String message = LocalizationUtils.getMessage("area.get.success");
         return CoreApiResponse.success(areas, message);
     }
 }

@@ -33,9 +33,7 @@ public class AreaServices implements IAreaServices {
         request.setName(StringUtils.NameStandardlizing(request.getName()));
 
         if (areaRepository.existsByName(request.getName())) {
-            throw new AppException(HttpStatus.BAD_REQUEST,
-                    LocalizationUtils.getMessage("area.exists", null, Locale.getDefault())
-                            + " (Name: " + request.getName() + ")");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("area.exists"));
         }
 
 
@@ -46,7 +44,7 @@ public class AreaServices implements IAreaServices {
 
         if (penTotalSize > areaTotalSize) {
             throw new AppException(HttpStatus.BAD_REQUEST,
-                    LocalizationUtils.getMessage("area.invalid_size", null, Locale.getDefault()));
+                    LocalizationUtils.getMessage("area.invalid_size"));
         }
 
         AreaEntity savedArea = areaRepository.save(request);
@@ -81,15 +79,14 @@ public class AreaServices implements IAreaServices {
         // Fetch the existing entity
         AreaEntity existingEntity = areaRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
-                        LocalizationUtils.getMessage("area.not_found", null, Locale.getDefault())
-                                + " (ID: " + id + ")"));
+                        LocalizationUtils.getMessage("area.not_found")));
 
         if (request.getName() != null) {
             request.setName(StringUtils.NameStandardlizing(request.getName()));
             if (areaRepository.existsByName(request.getName())
                     && !existingEntity.getName().equalsIgnoreCase(request.getName())) {
                 throw new AppException(HttpStatus.OK,
-                        LocalizationUtils.getMessage("area.exists", new Object[]{request.getName()}, Locale.getDefault()));
+                        LocalizationUtils.getMessage("area.exists"));
             }
         }
 
@@ -105,7 +102,7 @@ public class AreaServices implements IAreaServices {
     public void deleteArea(Long id) {
         AreaEntity existingEntity = areaRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.OK,
-                        LocalizationUtils.getMessage("area.not_found", new Object[]{id}, Locale.getDefault())));
+                        LocalizationUtils.getMessage("area.not_found")));
         areaRepository.delete(existingEntity);
     }
 
@@ -113,8 +110,7 @@ public class AreaServices implements IAreaServices {
     public AreaResponse getAreaById(Long id) {
         AreaEntity areaEntity = areaRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
-                        LocalizationUtils.getMessage("area.not_found", null, Locale.getDefault())
-                                + " (ID: " + id + ")"));
+                        LocalizationUtils.getMessage("area.not_found")));
 
         long occupied = penRepository.countPensByStatus(id, PenStatus.occupied);
         long empty = penRepository.countPensByStatus(id, PenStatus.empty);
@@ -149,27 +145,27 @@ public class AreaServices implements IAreaServices {
         List<String> errorMessages = new ArrayList<>();
 
         if (areaEntity.getWidth() <= 0) {
-            errorMessages.add(LocalizationUtils.getMessage("validation.positive.width", null, Locale.getDefault()));
+            errorMessages.add(LocalizationUtils.getMessage("validation.positive.width"));
         }
         if (areaEntity.getLength() <= 0) {
-            errorMessages.add(LocalizationUtils.getMessage("validation.positive.length", null, Locale.getDefault()));
+            errorMessages.add(LocalizationUtils.getMessage("validation.positive.length"));
         }
         if (areaEntity.getPenWidth() <= 0) {
-            errorMessages.add(LocalizationUtils.getMessage("validation.positive.pen_width", null, Locale.getDefault()));
+            errorMessages.add(LocalizationUtils.getMessage("validation.positive.pen_width"));
         }
         if (areaEntity.getPenLength() <= 0) {
-            errorMessages.add(LocalizationUtils.getMessage("validation.positive.pen_length", null, Locale.getDefault()));
+            errorMessages.add(LocalizationUtils.getMessage("validation.positive.pen_length"));
         }
         if (areaEntity.getWidth() > areaEntity.getLength()) {
-            errorMessages.add(LocalizationUtils.getMessage("validation.dimension.width_smaller_than_length", null, Locale.getDefault()));
+            errorMessages.add(LocalizationUtils.getMessage("validation.dimension.width_smaller_than_length"));
         }
         if (areaEntity.getPenWidth() > areaEntity.getPenLength()) {
-            errorMessages.add(LocalizationUtils.getMessage("validation.dimension.pen_width_smaller_than_pen_length", null, Locale.getDefault()));
+            errorMessages.add(LocalizationUtils.getMessage("validation.dimension.pen_width_smaller_than_pen_length"));
         }
 
         if (!errorMessages.isEmpty()) {
             throw new AppException(HttpStatus.BAD_REQUEST,
-                    LocalizationUtils.getMessage("validation.invalid_request", null, Locale.getDefault()),
+                    LocalizationUtils.getMessage("validation.invalid_request"),
                     errorMessages);
         }
     }
