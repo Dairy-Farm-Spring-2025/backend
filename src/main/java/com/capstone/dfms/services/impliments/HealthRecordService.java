@@ -1,6 +1,7 @@
 package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.IHealthReportMapper;
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.HealthRecordEntity;
@@ -33,7 +34,7 @@ public class HealthRecordService implements IHealthRecordService{
     public HealthRecordEntity createHealthReport(HealthReportRequest request) {
         // Validate that the referenced Cow exists
         CowEntity cow = cowRepository.findById(request.getCowId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found with id " + request.getCowId()));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.not.found")));
 
         LocalDate reportDate = LocalDate.now();
         LocalDateTime startOfDay = reportDate.atStartOfDay();
@@ -42,7 +43,7 @@ public class HealthRecordService implements IHealthRecordService{
         // Check if a report for the same cow on the same date already exists
         if (healthRecordRepository.existsByCowEntity_CowIdAndReportTimeBetween(cow.getCowId(), startOfDay, endOfDay)) {
             throw new AppException(HttpStatus.BAD_REQUEST,
-                    "Health report already exists for cow " + cow.getCowId() + " on date " + reportDate);
+                    LocalizationUtils.getMessage("health.report.exists", cow.getCowId(), reportDate));
         }
 
         HealthRecordEntity entity = mapper.toModel(request);
@@ -60,7 +61,7 @@ public class HealthRecordService implements IHealthRecordService{
     @Override
     public HealthRecordEntity getHealthReportById(Long id) {
         return healthRecordRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Health record not found with id " + id));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("health.report.not.exist")));
     }
 
     @Override
@@ -72,7 +73,7 @@ public class HealthRecordService implements IHealthRecordService{
     public HealthRecordEntity updateHealthReport(Long id, HealthReportRequest request) {
         if(request.getCowId() != null){
             CowEntity cow = cowRepository.findById(request.getCowId())
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found with id " + request.getCowId()));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.not.found")));
         }
 
         HealthRecordEntity oldEntity = this.getHealthReportById(id);
@@ -81,7 +82,7 @@ public class HealthRecordService implements IHealthRecordService{
         if (oldEntity.getReportTime() != null) {
             LocalDateTime oneDayAfterReport = oldEntity.getReportTime().plusDays(1);
             if (LocalDateTime.now().isAfter(oneDayAfterReport)) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Health record can only be updated within 1 day of report time.");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("health.record.update.exceeded"));
             }
         }
 
