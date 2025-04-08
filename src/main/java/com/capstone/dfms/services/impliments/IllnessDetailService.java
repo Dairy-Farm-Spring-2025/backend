@@ -49,7 +49,7 @@ public class IllnessDetailService implements IIllnessDetailService {
         if(detail.getIllnessEntity().getIllnessId() != null){
             Long id = detail.getIllnessEntity().getIllnessId();
             illness = illnessRepository.findById(id)
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no illness have id" + id));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("illness.not.found")));
             this.checkValidateTreatmentPlan(illness);
             detail.setIllnessEntity(illness);
         }
@@ -57,7 +57,7 @@ public class IllnessDetailService implements IIllnessDetailService {
         if(detail.getVaccine().getItemId() != null){
             Long id = detail.getVaccine().getItemId();
             itemEntity = iItemRepository.findById(id)
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no item have id" + id));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not_exist")));
 //            if(!itemEntity.getCategoryEntity().getName().equalsIgnoreCase("vaccine"))
 //                throw new AppException(HttpStatus.BAD_REQUEST, "Item is not vaccine");
             detail.setVaccine(itemEntity);
@@ -66,7 +66,7 @@ public class IllnessDetailService implements IIllnessDetailService {
         if(detail.getVeterinarian() != null){
             Long id = detail.getVeterinarian().getId();
             userEntity = userRepository.findById(id)
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no user have id" + id));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("user.not_exist")));
             if(!userEntity.getRoleId().getName().equalsIgnoreCase("VETERINARIANS"))
                 throw new AppException(HttpStatus.BAD_REQUEST, "NOT VETERINARIANS");
             detail.setVeterinarian(userEntity);
@@ -89,7 +89,7 @@ public class IllnessDetailService implements IIllnessDetailService {
     @Override
     public IllnessDetailEntity getIllnessDetailById(Long id) {
         return illnessDetailRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no illness detail with id: " + id));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("illness.detail.not.found")));
     }
 
     @Override
@@ -115,9 +115,9 @@ public class IllnessDetailService implements IIllnessDetailService {
         if(updatedDetail.getItemId() != null){
             Long tempId = updatedDetail.getItemId();
             ItemEntity itemEntity = iItemRepository.findById(tempId)
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no item have id" + tempId));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not_exist")));
             if(!itemEntity.getCategoryEntity().getName().equalsIgnoreCase("vaccine"))
-                throw new AppException(HttpStatus.BAD_REQUEST, "Item is not vaccine");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not.vaccine"));
             oldIllnessDetail.setVaccine(itemEntity);
         }
 
@@ -160,14 +160,14 @@ public class IllnessDetailService implements IIllnessDetailService {
     public CowPenBulkResponse<IllnessDetailEntity> createTreatmentPlan(List<IllnessDetailPlanRequest> createRequests) {
         // Validate that the request list is not empty.
         if (createRequests == null || createRequests.isEmpty()) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "The request list cannot be empty.");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("request.list.empty"));
         }
 
         // Validate that all requests have the same illnessId.
         Long baseIllnessId = createRequests.get(0).getIllnessId();
         for (IllnessDetailPlanRequest request : createRequests) {
             if (!baseIllnessId.equals(request.getIllnessId())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "All requests must have the same illnessId.");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("request.illnessId.mismatch"));
             }
         }
 
@@ -182,34 +182,34 @@ public class IllnessDetailService implements IIllnessDetailService {
                 IllnessDetailEntity createdEntity = this.createIllnessDetail(mapper.toModel(request), true);
                 successes.add(createdEntity);
 
-                RoleEntity role = roleRepository.findById(3L).orElseThrow(()
-                        -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
-
-                TaskTypeEntity treatmentTaskType = taskTypeRepository.findByName("Chữa bệnh")
-                        .orElseGet(() -> {
-                            TaskTypeEntity newTaskType = new TaskTypeEntity();
-                            newTaskType.setName("Chữa bệnh");
-                            newTaskType.setRoleId(role);
-                            newTaskType.setDescription("Công việc điều trị bệnh cho bò");
-                            return taskTypeRepository.save(newTaskType);
-                        });
-                CowEntity cow = createdEntity.getIllnessEntity().getCowEntity();
-                CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
-
-
-                TaskEntity task = new TaskEntity();
-
-                task.setDescription("Điều trị bệnh: " + createdEntity.getDescription());
-                task.setStatus(TaskStatus.pending);
-                task.setPriority(PriorityTask.high);
-                task.setFromDate(createdEntity.getDate());
-                task.setToDate(createdEntity.getDate());
-                task.setIllness(createdEntity);
-                task.setShift(TaskShift.dayShift);
-                task.setTaskTypeId(treatmentTaskType);
-                task.setAreaId(latestCowPen.getPenEntity().getAreaBelongto());
-
-                taskRepository.save(task);
+//                RoleEntity role = roleRepository.findById(3L).orElseThrow(()
+//                        -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
+//
+//                TaskTypeEntity treatmentTaskType = taskTypeRepository.findByName("Chữa bệnh")
+//                        .orElseGet(() -> {
+//                            TaskTypeEntity newTaskType = new TaskTypeEntity();
+//                            newTaskType.setName("Chữa bệnh");
+//                            newTaskType.setRoleId(role);
+//                            newTaskType.setDescription("Công việc điều trị bệnh cho bò");
+//                            return taskTypeRepository.save(newTaskType);
+//                        });
+//                CowEntity cow = createdEntity.getIllnessEntity().getCowEntity();
+//                CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
+//
+//
+//                TaskEntity task = new TaskEntity();
+//
+//                task.setDescription("Điều trị bệnh: " + createdEntity.getDescription());
+//                task.setStatus(TaskStatus.pending);
+//                task.setPriority(PriorityTask.high);
+//                task.setFromDate(createdEntity.getDate());
+//                task.setToDate(createdEntity.getDate());
+//                task.setIllness(createdEntity);
+//                task.setShift(TaskShift.dayShift);
+//                task.setTaskTypeId(treatmentTaskType);
+//                task.setAreaId(latestCowPen.getPenEntity().getAreaBelongto());
+//
+//                taskRepository.save(task);
 
 
             } catch (Exception ex) {
