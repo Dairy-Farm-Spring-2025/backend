@@ -90,4 +90,9 @@ public class ItemServices implements IItemServices {
     public List<ItemEntity> getItemsByLocationId(Long locationId) {
         return itemRepository.findItemsByLocationId(locationId);
     }
+
+    @Override
+    public List<ItemEntity> getItemsVaccine() {
+        return itemRepository.findItemsByCategoryName("Vắc-xin");
+    }
 }

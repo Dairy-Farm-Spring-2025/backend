@@ -16,4 +16,7 @@ public interface IItemRepository extends JpaRepository<ItemEntity, Long> {
 
     @Query("SELECT i FROM ItemEntity i WHERE i.warehouseLocationEntity.warehouseLocationId = :locationId")
     List<ItemEntity> findItemsByLocationId(@Param("locationId") Long locationId);
+
+    @Query("SELECT i FROM ItemEntity i WHERE i.categoryEntity.name = :categoryName")
+    List<ItemEntity> findItemsByCategoryName(@Param("categoryName") String categoryName);
 }

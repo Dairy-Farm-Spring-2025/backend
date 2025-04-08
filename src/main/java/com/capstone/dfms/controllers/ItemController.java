@@ -64,4 +64,9 @@ public class ItemController {
     public CoreApiResponse<List<ItemEntity>> getItemsByLocation(@PathVariable Long locationId) {
         return CoreApiResponse.success(itemServices.getItemsByLocationId(locationId));
     }
+
+    @GetMapping("/vaccine")
+    public CoreApiResponse<List<ItemEntity>> getItemsVaccine() {
+        return CoreApiResponse.success(itemServices.getItemsVaccine());
+    }
 }

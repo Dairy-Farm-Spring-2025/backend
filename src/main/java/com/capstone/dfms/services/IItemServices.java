@@ -19,4 +19,6 @@ public interface IItemServices {
     List<ItemEntity> getItemsByCategoryId(Long categoryId);
 
     List<ItemEntity> getItemsByLocationId(Long locationId);
+
+    List<ItemEntity> getItemsVaccine();
 }
