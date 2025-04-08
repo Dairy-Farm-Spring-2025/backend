@@ -3,6 +3,7 @@ package com.capstone.dfms.repositories;
 import com.capstone.dfms.models.ApplicationEntity;
 import com.capstone.dfms.models.ApplicationTypeEntity;
 import com.capstone.dfms.models.UserEntity;
+import com.capstone.dfms.models.enums.ApplicationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,5 +27,8 @@ public interface IApplicationRepository  extends JpaRepository<ApplicationEntity
     ApplicationEntity findByUserAndOverlappingDateRange(@Param("userId") Long userId,
                                                               @Param("fromDate") LocalDate fromDate,
                                                               @Param("toDate") LocalDate toDate);
+
+    @Query("SELECT a FROM ApplicationEntity a WHERE a.status = :status")
+    List<ApplicationEntity> findByStatus(@Param("status") ApplicationStatus status);
 
 }

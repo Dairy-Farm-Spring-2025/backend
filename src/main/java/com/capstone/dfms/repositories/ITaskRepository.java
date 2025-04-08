@@ -52,4 +52,7 @@ public interface ITaskRepository extends JpaRepository<TaskEntity, Long> {
             "AND NOT EXISTS (SELECT r FROM ReportTaskEntity r WHERE r.taskId = t AND r.date = :today)")
     List<TaskEntity> findUnreportedDayShiftTasks(@Param("today") LocalDate today);
 
+    @Query("SELECT t FROM TaskEntity t WHERE t.fromDate <= :date AND t.toDate >= :date")
+    List<TaskEntity> findTasksByDate(@Param("date") LocalDate date);
+
 }
