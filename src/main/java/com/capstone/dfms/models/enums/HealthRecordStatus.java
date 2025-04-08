@@ -12,6 +12,9 @@ public enum HealthRecordStatus {
 
     @JsonCreator
     public static HealthRecordStatus fromString(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null; // or throw a custom exception if you want to enforce it
+        }
         for (HealthRecordStatus status : HealthRecordStatus.values()) {
             if (status.name().equalsIgnoreCase(value)) {
                 return status;

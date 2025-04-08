@@ -14,6 +14,10 @@ import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.*;
 import com.capstone.dfms.responses.*;
 import com.capstone.dfms.services.ICowServices;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.http.HttpStatus;
@@ -42,6 +46,8 @@ public class CowServices implements ICowServices {
     private final IVaccineInjectionRepository vaccineInjectionRepository;
     private final IPenMapper penMapper;
     private final IHealthReportMapper healthReportMapper;
+    private static final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    private static final Validator validator = factory.getValidator();
 
 
 
@@ -422,8 +428,19 @@ public class CowServices implements ICowServices {
         EasyExcel.read(file.getInputStream(), CowExcelCreateRequest.class, new ReadListener<CowExcelCreateRequest>() {
             @Override
             public void invoke(CowExcelCreateRequest cow, AnalysisContext analysisContext) {
+                int rowIndex = analysisContext.readRowHolder().getRowIndex() + 1;
+
+                Set<ConstraintViolation<CowExcelCreateRequest>> violations = validator.validate(cow);
+
+                if (!violations.isEmpty()) {
+                    String rowErrors = violations.stream()
+                            .map(ConstraintViolation::getMessage)
+                            .collect(Collectors.joining(", "));
+                    errors.add("Cow" + rowIndex + ": " + rowErrors);
+                }
                 cowList.add(cow);
             }
+
 
             @Override
             public void doAfterAllAnalysed(AnalysisContext analysisContext) {
@@ -463,7 +480,16 @@ public class CowServices implements ICowServices {
         // Read Excel and store records in the list
         EasyExcel.read(file.getInputStream(), HealthRecordExcelRequest.class, new ReadListener<HealthRecordExcelRequest>() {
             @Override
-            public void invoke(HealthRecordExcelRequest record, AnalysisContext context) {
+            public void invoke(HealthRecordExcelRequest record, AnalysisContext analysisContext) {
+                int rowIndex = analysisContext.readRowHolder().getRowIndex() + 1;
+                Set<ConstraintViolation<HealthRecordExcelRequest>> violations = validator.validate(record);
+
+                if (!violations.isEmpty()) {
+                    String rowErrors = violations.stream()
+                            .map(ConstraintViolation::getMessage)
+                            .collect(Collectors.joining(", "));
+                    errors.add("Cow" + rowIndex + ": " + rowErrors);
+                }
                 healthRecordsList.add(record);
             }
 
