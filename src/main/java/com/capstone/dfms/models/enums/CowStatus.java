@@ -13,6 +13,10 @@ public enum CowStatus {
 
     @JsonCreator
     public static CowStatus fromString(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null; // or throw a custom exception if you want to enforce it
+        }
+
         for (CowStatus status : CowStatus.values()) {
             if (status.name().equalsIgnoreCase(value)) {
                 return status;

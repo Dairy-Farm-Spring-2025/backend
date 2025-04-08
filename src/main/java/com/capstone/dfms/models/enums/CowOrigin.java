@@ -15,6 +15,10 @@ public enum CowOrigin {
 
     @JsonCreator
     public static CowOrigin fromString(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null; // or throw a custom exception if you want to enforce it
+        }
+
         for (CowOrigin status : CowOrigin.values()) {
             if (status.name().equalsIgnoreCase(value)) {
                 return status;
