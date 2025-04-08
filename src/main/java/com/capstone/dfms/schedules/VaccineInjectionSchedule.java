@@ -98,6 +98,10 @@ public class VaccineInjectionSchedule {
                                     });
 
                             CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
+                            AreaEntity area = null;
+                            if (latestCowPen != null && latestCowPen.getPenEntity() != null) {
+                                area = latestCowPen.getPenEntity().getAreaBelongto();
+                            }
 
                             //  Create Task for This Injection
                             TaskEntity newTask = TaskEntity.builder()
@@ -109,7 +113,7 @@ public class VaccineInjectionSchedule {
                                     .shift(TaskShift.dayShift)
                                     .taskTypeId(injectionTaskType)
                                     .vaccineInjection(newInjection)
-                                    .areaId(latestCowPen == null ? latestCowPen.getPenEntity().getAreaBelongto() : null)
+                                    .areaId(area)
                                     .build();
 
                             newTaskEntities.add(newTask);

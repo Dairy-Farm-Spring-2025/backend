@@ -37,21 +37,39 @@ public class TaskService implements ITaskService {
     private final IIllnessRepository illnessRepository;
     private final ITaskMapper taskMapper;
     private final IReportTaskMapper reportTaskMapper;
+    private final ICowPenRepository cowPenRepository;
 
     @Override
     public List<TaskEntity> createMultipleTasks(TaskRequest request) {
         List<TaskEntity> tasks = new ArrayList<>();
 
-        AreaEntity area = areaRepository.findById(request.getAreaId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy khu vực"));
+//        AreaEntity area = areaRepository.findById(request.getAreaId())
+//                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy khu vực"));
 
         TaskTypeEntity taskType = taskTypeRepository.findById(request.getTaskTypeId())
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy loại công việc"));
 
         IllnessEntity illness = null;
-        if(request.getIllnessId() != null){
+        AreaEntity area;
+
+        if (request.getIllnessId() != null) {
             illness = illnessRepository.findById(request.getIllnessId())
                     .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy loại bệnh"));
+
+            CowEntity cow = illness.getCowEntity();
+
+            CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
+            if (latestCowPen == null || latestCowPen.getPenEntity() == null) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Bò đang không ở trong chuồng vui lòng kiểm tra lại");
+            }
+
+            area = latestCowPen.getPenEntity().getAreaBelongto();
+            if (area == null) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy khu vực");
+            }
+        } else {
+            area = areaRepository.findById(request.getAreaId())
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy khu vực"));
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

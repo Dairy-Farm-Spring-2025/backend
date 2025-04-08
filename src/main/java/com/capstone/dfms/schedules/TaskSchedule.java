@@ -82,12 +82,17 @@ public class TaskSchedule {
             CowEntity cow = illnessDetail.getIllnessEntity().getCowEntity();
             CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
 
+            AreaEntity area = null;
+            if (latestCowPen != null && latestCowPen.getPenEntity() != null) {
+                area = latestCowPen.getPenEntity().getAreaBelongto();
+            }
+
             TaskEntity task = TaskEntity.builder()
                     .description("Điều trị bệnh cho bò")
                     .status(TaskStatus.pending)
                     .fromDate(illnessDetail.getDate())
                     .toDate(illnessDetail.getDate())
-                    .areaId(latestCowPen.getPenEntity().getAreaBelongto())
+                    .areaId(area)
                     .assigner(null)
                     .assignee(null)
                     .taskTypeId(treatmentTaskType)
