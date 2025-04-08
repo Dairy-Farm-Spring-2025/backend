@@ -236,7 +236,7 @@ public class IllnessDetailService implements IIllnessDetailService {
     public IllnessDetailEntity reportTreatment(Long id, IllnessDetailReportRequest request) {
         IllnessDetailEntity oldIllnessDetail = this.getIllnessDetailById(id);
         if(!oldIllnessDetail.getDate().equals(LocalDate.now())){
-            throw new AppException(HttpStatus.BAD_REQUEST, "No time to report!");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("report.time.missing"));
         }
         mapper.updateEntityFromDto(request, oldIllnessDetail);
 
@@ -280,7 +280,7 @@ public class IllnessDetailService implements IIllnessDetailService {
         IllnessStatus illnessStatus = illness.getIllnessStatus();
         if(illnessStatus != null) {
             if (!illnessStatus.equals(IllnessStatus.processing)) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "No further to report illness treatment or create new plan!");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("illness.report.restricted"));
             }
         }
     }
