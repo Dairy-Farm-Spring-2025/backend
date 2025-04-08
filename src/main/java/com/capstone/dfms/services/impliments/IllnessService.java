@@ -67,7 +67,7 @@ public class IllnessService implements IIllnessService {
     @Override
     public IllnessEntity getIllnessById(Long id) {
         return illnessRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This illness is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("illness.not.found")));
     }
 
     @Override
@@ -93,7 +93,8 @@ public class IllnessService implements IIllnessService {
         IllnessEntity oldIllness = this.getIllnessById(id);
 
         if(!(oldIllness.getIllnessStatus() == IllnessStatus.pending)){
-            throw new AppException(HttpStatus.BAD_REQUEST, "No further update");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("illness.not.update")
+            );
         }
 
         iIllnessMapper.updateIllnessEntityFromDto(updatedIllness, oldIllness);
@@ -162,13 +163,13 @@ public class IllnessService implements IIllnessService {
     @Override
     public IllnessEntity getIllnessWithDetail(Long id) {
         return illnessRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This illness is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("illness.not.found")));
     }
 
     @Override
     public IllnessEntity createIllness(IllnessCreateRequest request) {
         if (request.getSeverity().equals(IllnessSeverity.none)){
-            throw new AppException(HttpStatus.BAD_REQUEST, "Illness that have severity none does not need to be created!");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("illness.severity.none"));
         }
 
         IllnessEntity illness = iIllnessMapper.toModel(request);
@@ -189,7 +190,8 @@ public class IllnessService implements IIllnessService {
 
                 Long id = detail.getVaccineId();
                 var itemEntity = iItemRepository.findById(id)
-                        .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "There are no item have id" + id));
+                        .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not_exist")
+                        ));
                 illnessDetail.setVaccine(itemEntity);
 
                 illnessDetail.setDescription("Điều trị bệnh cho: " + illness.getCowEntity().getName() +
@@ -217,7 +219,7 @@ public class IllnessService implements IIllnessService {
     //-----------------------------------------------------
     private CowEntity findCowEntity(Long cowId){
         CowEntity cowEntity = cowRepository.findById(cowId)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This cow is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.not.found")));
         return cowEntity;
     }
 
