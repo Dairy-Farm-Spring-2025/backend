@@ -6,13 +6,16 @@ import com.capstone.dfms.components.securities.UserPrincipal;
 import com.capstone.dfms.mappers.IReportTaskMapper;
 import com.capstone.dfms.mappers.ITaskMapper;
 import com.capstone.dfms.models.*;
+import com.capstone.dfms.models.enums.CategoryNotification;
 import com.capstone.dfms.models.enums.TaskShift;
 import com.capstone.dfms.models.enums.TaskStatus;
 import com.capstone.dfms.repositories.*;
+import com.capstone.dfms.requests.NotificationRequest;
 import com.capstone.dfms.requests.TaskRequest;
 import com.capstone.dfms.requests.UpdateTaskRequest;
 import com.capstone.dfms.responses.RangeTaskResponse;
 import com.capstone.dfms.responses.TaskResponse;
+import com.capstone.dfms.services.INotificationService;
 import com.capstone.dfms.services.ITaskService;
 import com.capstone.dfms.services.ITaskTypeService;
 import lombok.AllArgsConstructor;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +42,7 @@ public class TaskService implements ITaskService {
     private final ITaskMapper taskMapper;
     private final IReportTaskMapper reportTaskMapper;
     private final ICowPenRepository cowPenRepository;
+    private final INotificationService notificationService;
 
     @Override
     public List<TaskEntity> createMultipleTasks(TaskRequest request) {
@@ -117,6 +122,18 @@ public class TaskService implements ITaskService {
 
             if(illness != null){
                 task.setMainIllness(illness);
+
+                NotificationRequest notificationRequest = new NotificationRequest();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                String formattedDate = request.getFromDate().format(formatter);
+
+                notificationRequest.setTitle("Công việc chữa khám bệnh khẩn cấp cho bò " + formattedDate);
+                notificationRequest.setDescription("Bạn có một công việc liên quan đến điều trị bệnh cần thực hiện vào ngày " + formattedDate + ".");
+                notificationRequest.setLink("/tasks");
+                notificationRequest.setCategory(CategoryNotification.task);
+                notificationRequest.setUserIds(Collections.singletonList(assignee.getId()));
+
+                notificationService.createNotification(notificationRequest);
             }
             tasks.add(task);
         }
