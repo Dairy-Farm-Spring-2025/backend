@@ -197,5 +197,15 @@ public class UserController {
         return CoreApiResponse.success("FCM token updated successfully");
     }
 
+    @GetMapping("/free")
+    public CoreApiResponse<List<UserEntity>> getFreeUsersByRoleAndDate(
+            @RequestParam Long roleId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+
+        List<UserEntity> freeUsers = userService.getUsersWithoutTaskInRange(roleId, fromDate, toDate);
+        return CoreApiResponse.success(freeUsers);
+    }
+
 
 }

@@ -15,6 +15,7 @@ import com.capstone.dfms.models.TokenEntity;
 import com.capstone.dfms.models.UserEntity;
 import com.capstone.dfms.models.enums.UserStatus;
 import com.capstone.dfms.repositories.IRoleRepository;
+import com.capstone.dfms.repositories.ITaskRepository;
 import com.capstone.dfms.repositories.ITokenRepository;
 import com.capstone.dfms.repositories.IUserRepository;
 import com.capstone.dfms.requests.*;
@@ -42,6 +43,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +53,7 @@ public class UserService implements IUserService {
     private final IRoleRepository roleRepository;
     private final ITokenRepository tokenRepository;
     private final TokenProvider tokenProvider;
+    private final ITaskRepository taskRepository;
 
     @Autowired
     ApplicationEventPublisher applicationEventPublisher;
@@ -355,6 +358,20 @@ public class UserService implements IUserService {
         }
 
         userRepository.save(user);
+    }
+
+    @Override
+    public List<UserEntity> getUsersWithoutTaskInRange(Long roleId, LocalDate fromDate, LocalDate toDate) {
+        // Lấy user theo role và đang active
+        List<UserEntity> activeUsersByRole = userRepository.findAllActiveUsersByRoleId(roleId);
+
+        // Lấy user có task trong khoảng ngày
+        List<Long> userIdsWithTasks = taskRepository.findAssigneeIdsWithTaskBetweenDates(fromDate, toDate);
+
+        // Lọc user không có task
+        return activeUsersByRole.stream()
+                .filter(user -> !userIdsWithTasks.contains(user.getId()))
+                .collect(Collectors.toList());
     }
 
 

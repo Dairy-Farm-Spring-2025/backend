@@ -51,4 +51,6 @@ public interface IUserService {
     UserEntity changeUserRole(Long userId,Long roleId);
 
     void updateFcmToken(FcmTokenRequest request);
+
+    List<UserEntity> getUsersWithoutTaskInRange(Long roleId, LocalDate fromDate, LocalDate toDate);
 }

@@ -32,5 +32,7 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 """)
     List<UserEntity> findAvailableVet(@Param("today") LocalDate today);
 
+    @Query("SELECT u FROM UserEntity u WHERE u.roleId.id = :roleId AND u.isActive = true")
+    List<UserEntity> findAllActiveUsersByRoleId(@Param("roleId") Long roleId);
 
 }
