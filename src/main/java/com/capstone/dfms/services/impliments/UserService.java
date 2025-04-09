@@ -263,6 +263,11 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public List<UserEntity> getAvailableVeterinarians(LocalDate date) {
+        return userRepository.findAvailableVet(date);
+    }
+
+    @Override
     public void banUser(Long id) {
         UserEntity existingUser = userRepository
                 .findById(id)

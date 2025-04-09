@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,5 +19,18 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
     List<UserEntity> findByRoleId(@Param("roleId") Long roleId);
 
     boolean existsByRoleId(RoleEntity role);
+
+    @Query("""
+    SELECT u FROM UserEntity u
+    WHERE u.roleId.id = 3
+      AND NOT EXISTS (
+          SELECT t FROM TaskEntity t
+          WHERE t.assignee = u
+            AND t.taskTypeId.name = 'Khám định kì'
+            AND :today BETWEEN t.fromDate AND t.toDate
+      )
+""")
+    List<UserEntity> findAvailableVet(@Param("today") LocalDate today);
+
 
 }
