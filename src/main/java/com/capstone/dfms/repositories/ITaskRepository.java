@@ -60,7 +60,7 @@ public interface ITaskRepository extends JpaRepository<TaskEntity, Long> {
     List<TaskEntity> findByAssignee_IdAndDate(@Param("assigneeId") Long assigneeId, @Param("date") LocalDate date);
 
 
-    @Query("SELECT t.assignee.id FROM TaskEntity t WHERE t.shift = :shift AND t.fromDate <= :date AND t.toDate >= :date")
-    List<Long> findAssigneeNightShift(@Param("shift") TaskShift shift, @Param("date") LocalDate date);
+    @Query("SELECT t FROM TaskEntity t WHERE t.assignee.id = :userId AND t.shift = :shift AND t.fromDate <= :date AND t.toDate >= :date")
+    List<TaskEntity> findByAssigneeShiftDate(@Param("userId") Long userId, @Param("shift") TaskShift shift, @Param("date") LocalDate date);
 
 }

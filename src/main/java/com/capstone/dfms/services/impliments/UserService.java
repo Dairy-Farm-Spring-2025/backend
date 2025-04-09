@@ -403,11 +403,29 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<UserEntity> getUserNightShift(LocalDate date) {
-        TaskShift shiftNight = TaskShift.nightShift;
+    public List<UserEntity> getUserforNightShift(LocalDate fromDate, LocalDate toDate) {
 
-        List<Long> busyUserIds = taskRepository.findAssigneeNightShift(shiftNight, date);
+        List<UserEntity> users = userRepository.findAllActiveUsersByRoleId(4L);
+        List<UserEntity> availableUsers = new ArrayList<>();
 
-        return userRepository.findWorkerNightShift(4L, busyUserIds);
+        for (UserEntity user : users) {
+            boolean isAvailable = true;
+            LocalDate currentDate = fromDate;
+
+            while (!currentDate.isAfter(toDate)) {
+                List<TaskEntity> tasks = taskRepository.findByAssigneeShiftDate
+                        (user.getId(), TaskShift.nightShift, currentDate);
+                if (!tasks.isEmpty()) {
+                    isAvailable = false;
+                    break;
+                }
+                currentDate = currentDate.plusDays(1);
+            }
+            if (isAvailable) {
+                availableUsers.add(user);
+            }
+        }
+        return availableUsers;
     }
+
 }
