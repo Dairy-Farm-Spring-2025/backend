@@ -198,14 +198,19 @@ public class UserController {
     }
 
     @GetMapping("/free")
-    public CoreApiResponse<List<UserEntity>> getFreeUsersByRoleAndDate(
+    public CoreApiResponse<List<UserEntity>> getAvailableUsers(
             @RequestParam Long roleId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fromDate,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate toDate,
+            @RequestParam(required = false) Long areaId) {
 
-        List<UserEntity> freeUsers = userService.getUsersWithoutTaskInRange(roleId, fromDate, toDate);
-        return CoreApiResponse.success(freeUsers);
+        AvailableUserRequest request = new AvailableUserRequest();
+        request.setRoleId(roleId);
+        request.setFromDate(fromDate);
+        request.setToDate(toDate);
+        request.setAreaId(areaId);
+
+        List<UserEntity> users = userService.getAvailableUsers(request);
+        return CoreApiResponse.success(users);
     }
-
-
 }

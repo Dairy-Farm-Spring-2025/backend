@@ -55,9 +55,7 @@ public interface ITaskRepository extends JpaRepository<TaskEntity, Long> {
     @Query("SELECT t FROM TaskEntity t WHERE t.fromDate <= :date AND t.toDate >= :date")
     List<TaskEntity> findTasksByDate(@Param("date") LocalDate date);
 
-    @Query("SELECT DISTINCT t.assignee.id FROM TaskEntity t WHERE " +
-            "(t.fromDate <= :toDate AND t.toDate >= :fromDate)")
-    List<Long> findAssigneeIdsWithTaskBetweenDates(@Param("fromDate") LocalDate fromDate,
-                                                   @Param("toDate") LocalDate toDate);
+    @Query("SELECT t FROM TaskEntity t WHERE t.assignee.id = :assigneeId AND :date BETWEEN t.fromDate AND t.toDate")
+    List<TaskEntity> findByAssignee_IdAndDate(@Param("assigneeId") Long assigneeId, @Param("date") LocalDate date);
 
 }

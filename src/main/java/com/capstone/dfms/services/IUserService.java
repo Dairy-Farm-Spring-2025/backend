@@ -52,5 +52,5 @@ public interface IUserService {
 
     void updateFcmToken(FcmTokenRequest request);
 
-    List<UserEntity> getUsersWithoutTaskInRange(Long roleId, LocalDate fromDate, LocalDate toDate);
+    List<UserEntity> getAvailableUsers(AvailableUserRequest request);
 }

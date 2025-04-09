@@ -11,6 +11,7 @@ import com.capstone.dfms.components.utils.PasswordUtils;
 import com.capstone.dfms.components.utils.UploadImagesUtils;
 import com.capstone.dfms.mappers.UserMapper;
 import com.capstone.dfms.models.RoleEntity;
+import com.capstone.dfms.models.TaskEntity;
 import com.capstone.dfms.models.TokenEntity;
 import com.capstone.dfms.models.UserEntity;
 import com.capstone.dfms.models.enums.UserStatus;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -361,18 +363,44 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<UserEntity> getUsersWithoutTaskInRange(Long roleId, LocalDate fromDate, LocalDate toDate) {
-        // Lấy user theo role và đang active
-        List<UserEntity> activeUsersByRole = userRepository.findAllActiveUsersByRoleId(roleId);
+    public List<UserEntity> getAvailableUsers(AvailableUserRequest request) {
+        List<UserEntity> allUsers = userRepository.findAllActiveUsersByRoleId(request.getRoleId());
+        List<UserEntity> availableUsers = new ArrayList<>();
 
-        // Lấy user có task trong khoảng ngày
-        List<Long> userIdsWithTasks = taskRepository.findAssigneeIdsWithTaskBetweenDates(fromDate, toDate);
+        for (UserEntity user : allUsers) {
+            boolean isAvailable = true;
+            LocalDate currentDate = request.getFromDate();
 
-        // Lọc user không có task
-        return activeUsersByRole.stream()
-                .filter(user -> !userIdsWithTasks.contains(user.getId()))
-                .collect(Collectors.toList());
+            while (!currentDate.isAfter(request.getToDate())) {
+                List<TaskEntity> tasks = taskRepository.findByAssignee_IdAndDate(user.getId(), currentDate);
+
+                if (request.getRoleId() == 4) {
+                    boolean hasNoTask = tasks.isEmpty();
+                    boolean hasSameAreaTask = tasks.stream().allMatch(t ->
+                            t.getAreaId() != null && t.getAreaId().getAreaId().equals(request.getAreaId()));
+
+                    if (!(hasNoTask || hasSameAreaTask)) {
+                        isAvailable = false;
+                        break;
+                    }
+                } else {
+                    if (!tasks.isEmpty()) {
+                        isAvailable = false;
+                        break;
+                    }
+                }
+
+                currentDate = currentDate.plusDays(1);
+            }
+
+            if (isAvailable) {
+                availableUsers.add(user);
+            }
+        }
+
+        return availableUsers;
     }
+
 
 
 }
