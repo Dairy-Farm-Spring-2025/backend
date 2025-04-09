@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IUserService {
@@ -34,6 +35,8 @@ public interface IUserService {
     List<UserEntity> getWorkers();
 
     List<UserEntity> getVeterinarians();
+
+    List<UserEntity> getAvailableVeterinarians(LocalDate date);
 
     void banUser(Long id);
 

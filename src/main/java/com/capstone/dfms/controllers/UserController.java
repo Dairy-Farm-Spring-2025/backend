@@ -16,12 +16,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 import static com.capstone.dfms.mappers.UserMapper.INSTANCE;
@@ -134,6 +136,13 @@ public class UserController {
     @GetMapping("/veterinarians")
     public CoreApiResponse<List<UserEntity>> getVeterinarians() {
         List<UserEntity> users = userService.getVeterinarians();
+        return CoreApiResponse.success(users);
+    }
+
+    @GetMapping("available/veterinarians")
+    public CoreApiResponse<List<UserEntity>>
+    getAvailableVeterinarians(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<UserEntity> users = userService.getAvailableVeterinarians(date);
         return CoreApiResponse.success(users);
     }
 
