@@ -51,26 +51,17 @@ public class DashboardService implements IDashboardService {
         List<TaskEntity> todayTasks =
                 taskRepository.findTasksByDate(today);
 
-        Map<String, Long> byVaccine = todayTasks.stream()
+        long totalVaccine = todayTasks.stream()
                 .filter(t -> t.getVaccineInjection() != null)
-                .collect(Collectors.groupingBy(
-                        t -> "Vaccine #" + t.getVaccineInjection().getId(),
-                        Collectors.counting()
-                ));
+                .count();
 
-        Map<String, Long> byIllness = todayTasks.stream()
+        long totalIllness = todayTasks.stream()
                 .filter(t -> t.getMainIllness() != null)
-                .collect(Collectors.groupingBy(
-                        t -> "Illness #" + t.getMainIllness().getIllnessId(),
-                        Collectors.counting()
-                ));
+                .count();
 
-        Map<String, Long> byIllnessDetail = todayTasks.stream()
+        long totalIllnessDetail = todayTasks.stream()
                 .filter(t -> t.getIllness() != null)
-                .collect(Collectors.groupingBy(
-                        t -> "Detail #" + t.getIllness().getIllnessDetailId(),
-                        Collectors.counting()
-                ));
+                .count();
 
 
         long dailyTasks = todayTasks.stream()
@@ -100,9 +91,9 @@ public class DashboardService implements IDashboardService {
         dto.setTotalMilkToday(totalMilk);
         dto.setProcessingApplicationsCount(processingCount);
         dto.setProcessingApplications(appDTOs);
-        dto.setTasksByVaccineInjection(byVaccine);
-        dto.setTasksByIllness(byIllness);
-        dto.setTasksByIllnessDetail(byIllnessDetail);
+        dto.setTasksByVaccineInjection(totalVaccine);
+        dto.setTasksByIllness(totalIllness);
+        dto.setTasksByIllnessDetail(totalIllnessDetail);
         dto.setDailyTasks(dailyTasks);
         dto.setUsedItemsToday(exportedItemsMap);
         dto.setTodayReports(reportDTOs);

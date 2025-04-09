@@ -18,4 +18,6 @@ public interface IIllnessDetailRepository extends JpaRepository<IllnessDetailEnt
     @Query("SELECT i FROM IllnessDetailEntity i WHERE i.date BETWEEN :startDate AND :endDate")
     List<IllnessDetailEntity> findByDateBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
+    @Query("SELECT i FROM IllnessDetailEntity i WHERE i.date = :date")
+    List<IllnessDetailEntity> findByDate(@Param("date") LocalDate date);
 }

@@ -61,24 +61,26 @@ public class TaskSchedule {
 
     @Scheduled(cron = "0 0 0 * * *")
     @Transactional
-    public void createTasksForNextWeek() {
-        LocalDate nextMonday = LocalDate.now().plusDays(3);
-        LocalDate nextSunday = nextMonday.plusDays(6);
+    public void createTasksForTomorrow() {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
 
-        List<IllnessDetailEntity> illnessDetails = illnessDetailRepository.findByDateBetween(nextMonday, nextSunday);
+        List<IllnessDetailEntity> illnessDetails = illnessDetailRepository.findByDate(tomorrow);
+
+        if (illnessDetails.isEmpty()) return;
+
+        RoleEntity role = roleRepository.findById(3L).orElseThrow(() ->
+                new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
+
+        TaskTypeEntity treatmentTaskType = taskTypeRepository.findByName("Chữa bệnh")
+                .orElseGet(() -> {
+                    TaskTypeEntity newTaskType = new TaskTypeEntity();
+                    newTaskType.setName("Chữa bệnh");
+                    newTaskType.setRoleId(role);
+                    newTaskType.setDescription("Công việc điều trị bệnh cho bò");
+                    return taskTypeRepository.save(newTaskType);
+                });
 
         for (IllnessDetailEntity illnessDetail : illnessDetails) {
-            RoleEntity role = roleRepository.findById(3L).orElseThrow(()
-                    -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
-
-            TaskTypeEntity treatmentTaskType = taskTypeRepository.findByName("Chữa bệnh")
-                    .orElseGet(() -> {
-                        TaskTypeEntity newTaskType = new TaskTypeEntity();
-                        newTaskType.setName("Chữa bệnh");
-                        newTaskType.setRoleId(role);
-                        newTaskType.setDescription("Công việc điều trị bệnh cho bò");
-                        return taskTypeRepository.save(newTaskType);
-                    });
             CowEntity cow = illnessDetail.getIllnessEntity().getCowEntity();
             CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
 
@@ -90,8 +92,8 @@ public class TaskSchedule {
             TaskEntity task = TaskEntity.builder()
                     .description("Điều trị bệnh cho bò")
                     .status(TaskStatus.pending)
-                    .fromDate(illnessDetail.getDate())
-                    .toDate(illnessDetail.getDate())
+                    .fromDate(tomorrow)
+                    .toDate(tomorrow)
                     .areaId(area)
                     .assigner(null)
                     .assignee(null)
@@ -104,7 +106,4 @@ public class TaskSchedule {
             taskRepository.save(task);
         }
     }
-
-
-
 }
