@@ -19,6 +19,7 @@ public class DashboardResponse {
     private Map<String, Long> tasksByVaccineInjection;
     private Map<String, Long> tasksByIllness;
     private Map<String, Long> tasksByIllnessDetail;
+    private Map<String, Float> usedItemsToday;
     private Long dailyTasks;
     private List<ReportTaskDBResponse> todayReports;
 }

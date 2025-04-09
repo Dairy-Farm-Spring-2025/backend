@@ -142,7 +142,7 @@ public class IllnessService implements IIllnessService {
             NotificationRequest notificationRequest = new NotificationRequest();
             notificationRequest.setTitle("Báo cáo bệnh mới");
             notificationRequest.setDescription("Một báo cáo bệnh mới đã được tạo.");
-            notificationRequest.setLink("/illness/" + savedIllness.getIllnessId());
+            notificationRequest.setLink("dairy/cow-management/health-report/illness");
             notificationRequest.setCategory(CategoryNotification.heathcare);
             notificationRequest.setUserIds(managerIds);
 

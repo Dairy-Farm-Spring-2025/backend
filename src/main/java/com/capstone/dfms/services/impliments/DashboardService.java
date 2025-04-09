@@ -4,10 +4,7 @@ import com.capstone.dfms.models.ApplicationEntity;
 import com.capstone.dfms.models.ReportTaskEntity;
 import com.capstone.dfms.models.TaskEntity;
 import com.capstone.dfms.models.enums.ApplicationStatus;
-import com.capstone.dfms.repositories.IApplicationRepository;
-import com.capstone.dfms.repositories.IDailyMilkRepository;
-import com.capstone.dfms.repositories.IReportTaskRepository;
-import com.capstone.dfms.repositories.ITaskRepository;
+import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.responses.ApplicationDBResponse;
 import com.capstone.dfms.responses.DashboardResponse;
 import com.capstone.dfms.responses.ReportTaskDBResponse;
@@ -27,6 +24,7 @@ public class DashboardService implements IDashboardService {
     private final IApplicationRepository applicationRepository;
     private final ITaskRepository taskRepository;
     private final IReportTaskRepository reportTaskRepository;
+    private final IExportItemRepository exportItemRepository;
 
     @Override
     public DashboardResponse getTodayStats() {
@@ -91,6 +89,13 @@ public class DashboardService implements IDashboardService {
             return dto;
         }).collect(Collectors.toList());
 
+        List<Object[]> exportedItems = exportItemRepository.getExportedItemsByDate(today);
+        Map<String, Float> exportedItemsMap = exportedItems.stream()
+                .collect(Collectors.toMap(
+                        o -> (String) o[0],
+                        o -> ((Double) o[1]).floatValue()
+                ));
+
         DashboardResponse dto = new DashboardResponse();
         dto.setTotalMilkToday(totalMilk);
         dto.setProcessingApplicationsCount(processingCount);
@@ -99,6 +104,7 @@ public class DashboardService implements IDashboardService {
         dto.setTasksByIllness(byIllness);
         dto.setTasksByIllnessDetail(byIllnessDetail);
         dto.setDailyTasks(dailyTasks);
+        dto.setUsedItemsToday(exportedItemsMap);
         dto.setTodayReports(reportDTOs);
 
         return dto;
