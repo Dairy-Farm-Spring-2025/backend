@@ -35,4 +35,7 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
     @Query("SELECT u FROM UserEntity u WHERE u.roleId.id = :roleId AND u.isActive = true")
     List<UserEntity> findAllActiveUsersByRoleId(@Param("roleId") Long roleId);
 
+    @Query("SELECT u FROM UserEntity u WHERE u.roleId.id = :roleId AND u.isActive = true AND (:excludeIds IS NULL OR u.id NOT IN :excludeIds) AND u.id NOT IN :excludeIds")
+    List<UserEntity> findWorkerNightShift(@Param("roleId") Long roleId, @Param("excludeIds") List<Long> excludeIds);
+
 }

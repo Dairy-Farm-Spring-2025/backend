@@ -14,6 +14,7 @@ import com.capstone.dfms.models.RoleEntity;
 import com.capstone.dfms.models.TaskEntity;
 import com.capstone.dfms.models.TokenEntity;
 import com.capstone.dfms.models.UserEntity;
+import com.capstone.dfms.models.enums.TaskShift;
 import com.capstone.dfms.models.enums.UserStatus;
 import com.capstone.dfms.repositories.IRoleRepository;
 import com.capstone.dfms.repositories.ITaskRepository;
@@ -401,6 +402,12 @@ public class UserService implements IUserService {
         return availableUsers;
     }
 
+    @Override
+    public List<UserEntity> getUserNightShift(LocalDate date) {
+        TaskShift shiftNight = TaskShift.nightShift;
 
+        List<Long> busyUserIds = taskRepository.findAssigneeNightShift(shiftNight, date);
 
+        return userRepository.findWorkerNightShift(4L, busyUserIds);
+    }
 }

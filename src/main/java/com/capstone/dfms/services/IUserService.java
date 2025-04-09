@@ -53,4 +53,6 @@ public interface IUserService {
     void updateFcmToken(FcmTokenRequest request);
 
     List<UserEntity> getAvailableUsers(AvailableUserRequest request);
+
+    List<UserEntity> getUserNightShift(LocalDate date);
 }

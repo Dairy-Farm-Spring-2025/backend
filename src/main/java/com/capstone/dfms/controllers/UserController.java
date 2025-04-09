@@ -213,4 +213,11 @@ public class UserController {
         List<UserEntity> users = userService.getAvailableUsers(request);
         return CoreApiResponse.success(users);
     }
+
+    @GetMapping("/free/night")
+    public CoreApiResponse<List<UserEntity>> getFreeNightShiftUsers(
+            @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        List<UserEntity> users = userService.getUserNightShift(date);
+        return CoreApiResponse.success(users);
+    }
 }

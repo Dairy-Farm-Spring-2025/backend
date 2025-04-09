@@ -2,6 +2,7 @@ package com.capstone.dfms.repositories;
 
 import com.capstone.dfms.models.IllnessDetailEntity;
 import com.capstone.dfms.models.TaskEntity;
+import com.capstone.dfms.models.enums.TaskShift;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -57,5 +58,9 @@ public interface ITaskRepository extends JpaRepository<TaskEntity, Long> {
 
     @Query("SELECT t FROM TaskEntity t WHERE t.assignee.id = :assigneeId AND :date BETWEEN t.fromDate AND t.toDate")
     List<TaskEntity> findByAssignee_IdAndDate(@Param("assigneeId") Long assigneeId, @Param("date") LocalDate date);
+
+
+    @Query("SELECT t.assignee.id FROM TaskEntity t WHERE t.shift = :shift AND t.fromDate <= :date AND t.toDate >= :date")
+    List<Long> findAssigneeNightShift(@Param("shift") TaskShift shift, @Param("date") LocalDate date);
 
 }
