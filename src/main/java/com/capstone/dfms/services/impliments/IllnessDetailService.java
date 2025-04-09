@@ -182,36 +182,39 @@ public class IllnessDetailService implements IIllnessDetailService {
                 IllnessDetailEntity createdEntity = this.createIllnessDetail(mapper.toModel(request), true);
                 successes.add(createdEntity);
 
-//                RoleEntity role = roleRepository.findById(3L).orElseThrow(()
-//                        -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
-//
-//                TaskTypeEntity treatmentTaskType = taskTypeRepository.findByName("Chữa bệnh")
-//                        .orElseGet(() -> {
-//                            TaskTypeEntity newTaskType = new TaskTypeEntity();
-//                            newTaskType.setName("Chữa bệnh");
-//                            newTaskType.setRoleId(role);
-//                            newTaskType.setDescription("Công việc điều trị bệnh cho bò");
-//                            return taskTypeRepository.save(newTaskType);
-//                        });
-//                CowEntity cow = createdEntity.getIllnessEntity().getCowEntity();
-//                CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
-//
-//
-//                TaskEntity task = new TaskEntity();
-//
-//                task.setDescription("Điều trị bệnh: " + createdEntity.getDescription());
-//                task.setStatus(TaskStatus.pending);
-//                task.setPriority(PriorityTask.high);
-//                task.setFromDate(createdEntity.getDate());
-//                task.setToDate(createdEntity.getDate());
-//                task.setIllness(createdEntity);
-//                task.setShift(TaskShift.dayShift);
-//                task.setTaskTypeId(treatmentTaskType);
-//                task.setAreaId(latestCowPen.getPenEntity().getAreaBelongto());
-//
-//                taskRepository.save(task);
+                if (createdEntity.getDate().equals(LocalDate.now().plusDays(1))) {
+                    RoleEntity role = roleRepository.findById(3L).orElseThrow(()
+                            -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
 
+                    TaskTypeEntity treatmentTaskType = taskTypeRepository.findByName("Chữa bệnh")
+                            .orElseGet(() -> {
+                                TaskTypeEntity newTaskType = new TaskTypeEntity();
+                                newTaskType.setName("Chữa bệnh");
+                                newTaskType.setRoleId(role);
+                                newTaskType.setDescription("Công việc điều trị bệnh cho bò");
+                                return taskTypeRepository.save(newTaskType);
+                            });
 
+                    CowEntity cow = createdEntity.getIllnessEntity().getCowEntity();
+                    CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
+
+                    TaskEntity task = new TaskEntity();
+                    task.setDescription("Điều trị bệnh: " + createdEntity.getDescription());
+                    task.setStatus(TaskStatus.pending);
+                    task.setPriority(PriorityTask.high);
+                    task.setFromDate(createdEntity.getDate());
+                    task.setToDate(createdEntity.getDate());
+                    task.setIllness(createdEntity);
+                    task.setShift(TaskShift.dayShift);
+                    task.setTaskTypeId(treatmentTaskType);
+
+                    if (latestCowPen != null && latestCowPen.getPenEntity() != null) {
+                        task.setAreaId(latestCowPen.getPenEntity().getAreaBelongto());
+                    }
+
+                    taskRepository.save(task);
+
+                }
             } catch (Exception ex) {
                 // Collect error messages but continue processing.
                 String errorMessage = "Failed to create illness detail for date " + request.getDate()
