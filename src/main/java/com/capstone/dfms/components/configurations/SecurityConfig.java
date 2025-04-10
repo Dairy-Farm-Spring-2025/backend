@@ -135,7 +135,7 @@ public class SecurityConfig {
                     );
                 } else {
                     redirectUrl = String.format(
-                            "http://localhost:5173/login/oauth2/callback?access_token=%s&refresh_token=%s&userId=%s&userName=%s&roleName=%s",
+                            "https://dairyfarmfpt.website/login/oauth2/callback?access_token=%s&refresh_token=%s&userId=%s&userName=%s&roleName=%s",
                             URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
                             URLEncoder.encode(refreshToken, StandardCharsets.UTF_8),
                             URLEncoder.encode(userId, StandardCharsets.UTF_8),
@@ -150,13 +150,13 @@ public class SecurityConfig {
                 System.err.println("OAuth2 error in success handler: " + e.getMessage());
                 String errorCode = e.getError().getErrorCode(); // user_not_found hoặc user_disabled
                 String encodedErrorCode = URLEncoder.encode(errorCode, StandardCharsets.UTF_8);
-                String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + encodedErrorCode;
+                String errorRedirectUrl = "https://dairyfarmfpt.website/login/oauth2/callback?error=" + encodedErrorCode;
                 System.out.println("Redirecting to: " + errorRedirectUrl);
                 response.sendRedirect(errorRedirectUrl);
             } catch (Exception e) {
                 System.err.println("Unexpected error in success handler: " + e.getMessage());
                 e.printStackTrace();
-                String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=internal_error";
+                String errorRedirectUrl = "https://dairyfarmfpt.website/login/oauth2/callback?error=internal_error";
                 System.out.println("Redirecting to: " + errorRedirectUrl);
                 response.sendRedirect(errorRedirectUrl);
             }
@@ -175,12 +175,12 @@ public class SecurityConfig {
                     errorCode = error.getErrorCode();
                 }
                 String encodedErrorCode = URLEncoder.encode(errorCode, StandardCharsets.UTF_8);
-                String errorRedirectUrl = "http://localhost:5173/login/oauth2/callback?error=" + encodedErrorCode;
+                String errorRedirectUrl = "https://dairyfarmfpt.website/login/oauth2/callback?error=" + encodedErrorCode;
                 System.out.println("Redirecting to: " + errorRedirectUrl);
                 response.sendRedirect(errorRedirectUrl);
             } catch (Exception e) {
                 System.err.println("Error in failure handler: " + e.getMessage());
-                String fallbackErrorUrl = "http://localhost:5173/login/oauth2/callback?error=internal_error";
+                String fallbackErrorUrl = "https://dairyfarmfpt.website/login/oauth2/callback?error=internal_error";
                 System.out.println("Redirecting to: " + fallbackErrorUrl);
                 response.sendRedirect(fallbackErrorUrl);
             }
