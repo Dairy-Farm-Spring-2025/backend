@@ -1,6 +1,7 @@
 package com.capstone.dfms.repositories;
 
 import com.capstone.dfms.models.RoleEntity;
+import com.capstone.dfms.models.TaskEntity;
 import com.capstone.dfms.models.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -37,5 +38,13 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 
     @Query("SELECT u FROM UserEntity u WHERE u.roleId.id = :roleId AND u.isActive = true AND (:excludeIds IS NULL OR u.id NOT IN :excludeIds) AND u.id NOT IN :excludeIds")
     List<UserEntity> findWorkerNightShift(@Param("roleId") Long roleId, @Param("excludeIds") List<Long> excludeIds);
+
+    @Query("SELECT t FROM TaskEntity t " +
+            "WHERE t.assignee.id = :userId " +
+            "AND t.fromDate <= :date AND t.toDate >= :date " +
+            "AND t.taskTypeId.name IN ('Tiêm ngừa', 'Chữa bệnh')")
+    List<TaskEntity> findForbiddenTasksForDoctor(@Param("userId") Long userId,
+                                                 @Param("date") LocalDate date);
+
 
 }
