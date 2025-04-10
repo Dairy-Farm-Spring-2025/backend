@@ -10,6 +10,7 @@ import com.capstone.dfms.requests.CowUpdateRequest;
 import com.capstone.dfms.responses.BulkCowHealthRecordResponse;
 import com.capstone.dfms.responses.CowPenBulkResponse;
 import com.capstone.dfms.responses.CowResponse;
+import com.capstone.dfms.responses.CowWithFeedMealResponse;
 import com.capstone.dfms.services.ICowServices;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -107,6 +108,12 @@ public class CowController {
     @GetMapping("/imported-times")
     public CoreApiResponse<Long> getImportedTimes(HttpServletRequest request) {
         return CoreApiResponse.success(cowServices.getImportedTimes());
+    }
+
+    @GetMapping("/area/{areaId}")
+    public CoreApiResponse<List<CowWithFeedMealResponse>> getCowsByArea(@PathVariable Long areaId) {
+        List<CowWithFeedMealResponse> cows = cowServices.getCowsByArea(areaId);
+        return CoreApiResponse.success(cows);
     }
 
 

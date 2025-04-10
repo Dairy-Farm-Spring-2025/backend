@@ -6,10 +6,7 @@ import com.capstone.dfms.requests.BulkCowRequest;
 import com.capstone.dfms.requests.CowCreateRequest;
 import com.capstone.dfms.requests.CowExcelCreateRequest;
 import com.capstone.dfms.requests.CowUpdateRequest;
-import com.capstone.dfms.responses.BulkCowHealthRecordResponse;
-import com.capstone.dfms.responses.BulkCreateCowResponse;
-import com.capstone.dfms.responses.CowPenBulkResponse;
-import com.capstone.dfms.responses.CowResponse;
+import com.capstone.dfms.responses.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -30,5 +27,7 @@ public interface ICowServices {
 
     BulkCreateCowResponse createInformation(BulkCowRequest request);
     Long getImportedTimes();
+
+    List<CowWithFeedMealResponse> getCowsByArea(Long areaId);
 
 }

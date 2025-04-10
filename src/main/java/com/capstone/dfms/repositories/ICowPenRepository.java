@@ -65,4 +65,7 @@ public interface ICowPenRepository extends JpaRepository<CowPenEntity, CowPenPK>
     @Query("SELECT c.cowEntity FROM CowPenEntity c WHERE c.penEntity.penId = :penId AND c.toDate IS NULL AND c.status = 'inPen'")
     List<CowEntity> findCowsByPenId(@Param("penId") Long penId);
 
+    @Query("SELECT c FROM CowPenEntity c WHERE c.penEntity.penId IN :penIds AND c.status = 'inPen'")
+    List<CowPenEntity> findActiveByPenIds(@Param("penIds") List<Long> penIds);
+
 }

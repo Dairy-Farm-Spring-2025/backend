@@ -48,6 +48,8 @@ public class CowServices implements ICowServices {
     private final IHealthReportMapper healthReportMapper;
     private static final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     private static final Validator validator = factory.getValidator();
+    private final IPenRepository penRepository;
+    private final IFeedMealRepository feedMealRepository;
 
 
 
@@ -523,5 +525,59 @@ public class CowServices implements ICowServices {
 
         return new CowPenBulkResponse<>(healthRecordsList, errors);
 
+    }
+
+
+    @Override
+    public List<CowWithFeedMealResponse> getCowsByArea(Long areaId) {
+        List<PenEntity> pens = penRepository.findByArea(areaId);
+
+        if (pens.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Long> penIds = pens.stream()
+                .map(PenEntity::getPenId)
+                .collect(Collectors.toList());
+
+        List<CowPenEntity> activeCowPens = cowPenRepository.findActiveByPenIds(penIds);
+
+        List<CowWithFeedMealResponse> result = new ArrayList<>();
+
+        for (CowPenEntity cowPen : activeCowPens) {
+            CowEntity cow = cowPen.getCowEntity();
+
+            Optional<FeedMealEntity> mealOpt = feedMealRepository
+                    .findByCowTypeAndStatus(
+                            cow.getCowTypeEntity(),
+                            cow.getCowStatus());
+
+            List<FeedMealCowResponse> mealDetails = mealOpt.map(meal ->
+                    meal.getFeedMealDetails().stream()
+                            .map(detail -> {
+                                FeedMealCowResponse dto = new FeedMealCowResponse();
+                                dto.setItemName(detail.getItemEntity().getName());
+                                dto.setQuantity(detail.getQuantity());
+                                return dto;
+                            }).collect(Collectors.toList())
+            ).orElse(Collections.emptyList());
+
+            CowWithFeedMealResponse cowDTO = new CowWithFeedMealResponse();
+            cowDTO.setCowId(cow.getCowId());
+            cowDTO.setName(cow.getName());
+            cowDTO.setCowStatus(cow.getCowStatus());
+            cowDTO.setCowType(cow.getCowTypeEntity().getName());
+
+            cowDTO.setPenId(cowPen.getPenEntity().getPenId());
+            cowDTO.setPenName(cowPen.getPenEntity().getName());
+
+            cowDTO.setFeedMeals(mealDetails);
+            result.add(cowDTO);
+        }
+        result.sort(Comparator
+                .comparing((CowWithFeedMealResponse c) -> c.getPenName().substring(0, 1))
+                .thenComparing(c -> Integer.parseInt(c.getPenName().substring(1)))
+        );
+        return result;
     }
 }
