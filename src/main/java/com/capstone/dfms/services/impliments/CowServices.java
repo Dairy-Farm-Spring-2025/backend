@@ -580,4 +580,21 @@ public class CowServices implements ICowServices {
         );
         return result;
     }
+
+
+    @Override
+    public List<CowEntity> getCowsByAreaSimple(Long areaId) {
+        List<PenEntity> pens = penRepository.findByArea(areaId);
+        if (pens.isEmpty()) return Collections.emptyList();
+
+        List<Long> penIds = pens.stream().map(PenEntity::getPenId).toList();
+
+        List<CowPenEntity> cowPens = cowPenRepository.findActiveByPenIds(penIds);
+
+        return cowPens.stream()
+                .map(CowPenEntity::getCowEntity)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
 }

@@ -30,4 +30,5 @@ public interface ICowServices {
 
     List<CowWithFeedMealResponse> getCowsByArea(Long areaId);
 
+    List<CowEntity> getCowsByAreaSimple(Long areaId);
 }
