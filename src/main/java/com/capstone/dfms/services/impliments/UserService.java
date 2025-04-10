@@ -384,6 +384,19 @@ public class UserService implements IUserService {
                         isAvailable = false;
                         break;
                     }
+
+                } else if (request.getRoleId() == 3) {
+                    boolean hasForbiddenTask = tasks.stream().anyMatch(t ->
+                            t.getTaskTypeId() != null &&
+                                    ("Tiêm ngừa".equalsIgnoreCase(t.getTaskTypeId().getName())
+                                            || "Chữa bệnh".equalsIgnoreCase(t.getTaskTypeId().getName()))
+                    );
+
+                    if (hasForbiddenTask) {
+                        isAvailable = false;
+                        break;
+                    }
+
                 } else {
                     if (!tasks.isEmpty()) {
                         isAvailable = false;
@@ -401,6 +414,7 @@ public class UserService implements IUserService {
 
         return availableUsers;
     }
+
 
     @Override
     public List<UserEntity> getUserforNightShift(LocalDate fromDate, LocalDate toDate) {
