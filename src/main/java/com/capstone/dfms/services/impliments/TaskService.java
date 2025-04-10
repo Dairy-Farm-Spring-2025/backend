@@ -72,9 +72,11 @@ public class TaskService implements ITaskService {
             if (area == null) {
                 throw new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy khu vực");
             }
-        } else {
+        } else if (request.getAreaId() != null) {
             area = areaRepository.findById(request.getAreaId())
                     .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy khu vực"));
+        } else {
+            area = null;
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
