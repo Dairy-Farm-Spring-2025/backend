@@ -116,5 +116,11 @@ public class CowController {
         return CoreApiResponse.success(cows);
     }
 
+    @GetMapping("/by_area/{areaId}")
+    public CoreApiResponse<List<CowEntity>> getCowsArea(@PathVariable Long areaId) {
+        List<CowEntity> cows = cowServices.getCowsByAreaSimple(areaId);
+        return CoreApiResponse.success(cows);
+    }
+
 
 }
