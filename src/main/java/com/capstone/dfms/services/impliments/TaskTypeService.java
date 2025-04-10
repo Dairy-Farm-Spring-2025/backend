@@ -39,7 +39,7 @@ public class TaskTypeService implements ITaskTypeService {
 
     @Override
     public List<TaskTypeEntity> getAllTaskTypes() {
-        return taskTypeRepository.findAll();
+        return taskTypeRepository.findAllExcludingMedical();
     }
 
 
