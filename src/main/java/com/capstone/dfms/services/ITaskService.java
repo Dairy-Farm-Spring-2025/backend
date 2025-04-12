@@ -4,7 +4,9 @@ import com.capstone.dfms.models.TaskEntity;
 import com.capstone.dfms.requests.TaskRequest;
 import com.capstone.dfms.requests.UpdateTaskRequest;
 import com.capstone.dfms.responses.RangeTaskResponse;
+import com.capstone.dfms.responses.TaskExcelResponse;
 import com.capstone.dfms.responses.TaskResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -39,4 +41,6 @@ public interface ITaskService {
     RangeTaskResponse getTaskDetail(Long taskId);
 
     byte[] fillTemplateWithDropdown() throws IOException;
+
+    List<TaskExcelResponse> importAndGroupTasks(MultipartFile file);
 }

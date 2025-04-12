@@ -6,6 +6,7 @@ import com.capstone.dfms.requests.TaskDateRangeRequest;
 import com.capstone.dfms.requests.TaskRequest;
 import com.capstone.dfms.requests.UpdateTaskRequest;
 import com.capstone.dfms.responses.RangeTaskResponse;
+import com.capstone.dfms.responses.TaskExcelResponse;
 import com.capstone.dfms.responses.TaskResponse;
 import com.capstone.dfms.services.ITaskService;
 import jakarta.validation.Valid;
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -126,5 +128,11 @@ public class TaskController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Template_Task_Dairy_Farm.xlsx\"")
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(excelBytes);
+    }
+
+    @PostMapping("/import-tasks")
+    public ResponseEntity<List<TaskExcelResponse>> importTasks(@RequestParam("file") MultipartFile file) {
+        List<TaskExcelResponse> result = taskService.importAndGroupTasks(file);
+        return ResponseEntity.ok(result);
     }
 }

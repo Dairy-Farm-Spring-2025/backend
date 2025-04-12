@@ -1,5 +1,6 @@
 package com.capstone.dfms.services.impliments;
 
+import com.alibaba.excel.EasyExcel;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.securities.UserPrincipal;
@@ -14,10 +15,10 @@ import com.capstone.dfms.requests.NotificationRequest;
 import com.capstone.dfms.requests.TaskRequest;
 import com.capstone.dfms.requests.UpdateTaskRequest;
 import com.capstone.dfms.responses.RangeTaskResponse;
+import com.capstone.dfms.responses.TaskExcelResponse;
 import com.capstone.dfms.responses.TaskResponse;
 import com.capstone.dfms.services.INotificationService;
 import com.capstone.dfms.services.ITaskService;
-import com.capstone.dfms.services.ITaskTypeService;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddressList;
@@ -28,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -36,6 +38,7 @@ import java.io.InputStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -467,6 +470,7 @@ public class TaskService implements ITaskService {
     }
 
 
+    @Override
     public byte[] fillTemplateWithDropdown() throws IOException {
         List<AreaEntity> areaEntities = areaRepository.findAll();
 
@@ -501,4 +505,82 @@ public class TaskService implements ITaskService {
 
         return validationHelper.createValidation(validationConstraint, new CellRangeAddressList(1, 100, 1, 1)); // B2 đến B100
     }
+
+
+    @Override
+    public List<TaskExcelResponse> importAndGroupTasks(MultipartFile file) {
+        List<TaskExcelResponse> result = new ArrayList<>();
+
+        try (InputStream inputStream = file.getInputStream()) {
+            List<TaskExcelResponse> tasks = EasyExcel.read(inputStream)
+                    .head(TaskExcelResponse.class)
+                    .sheet()
+                    .doReadSync();
+
+            for (TaskExcelResponse task : tasks) {
+                List<String> errors = new ArrayList<>();
+
+                if (task.getTaskType() == null || task.getTaskType().isBlank()) {
+                    errors.add("Loại công việc là bắt buộc");
+                }
+                if (task.getArea() == null || task.getArea().isBlank()) {
+                    errors.add("Khu vực là bắt buộc");
+                }
+
+                if (task.getFromDate() == null || task.getFromDate().isBlank()) {
+                    errors.add("Ngày bắt đầu là bắt buộc");
+                } else if (!isValidDate(task.getFromDate())) {
+                    errors.add("Ngày bắt đầu phải có định dạng yyyy-MM-dd");
+                } else if (!isFromDateAfterToday(task.getFromDate())) {
+                    errors.add("Ngày bắt đầu phải sau ngày hôm nay");
+                }
+
+                if (task.getToDate() == null || task.getToDate().isBlank()) {
+                    errors.add("Ngày kết thúc là bắt buộc");
+                } else if (!isValidDate(task.getToDate())) {
+                    errors.add("Ngày kết thúc phải có định dạng yyyy-MM-dd");
+                } else if (!isToDateAfterFromDate(task.getFromDate(), task.getToDate())) {
+                    errors.add("Ngày kết thúc phải bằng hoặc sau ngày bắt đầu");
+                }
+
+                if (errors.isEmpty()) {
+                    // Nếu không có lỗi, thêm vào danh sách kết quả
+                    result.add(task);
+                } else {
+                    // Nếu có lỗi, đánh dấu lỗi và thêm thông báo lỗi vào đối tượng task
+                    task.setError(true);
+                    task.setErrorMessage(String.join("; ", errors));
+                    result.add(task);
+                }
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Lỗi khi đọc file Excel: " + e.getMessage(), e);
+        }
+
+        return result;
+    }
+
+    private boolean isFromDateAfterToday(String fromDate) {
+        LocalDate today = LocalDate.now();
+        LocalDate fromDateLocal = LocalDate.parse(fromDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        return fromDateLocal.isAfter(today);
+    }
+
+    private boolean isToDateAfterFromDate(String fromDate, String toDate) {
+        LocalDate fromDateLocal = LocalDate.parse(fromDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate toDateLocal = LocalDate.parse(toDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        return !toDateLocal.isBefore(fromDateLocal);
+    }
+
+    private boolean isValidDate(String dateStr) {
+        try {
+            LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+
 }
