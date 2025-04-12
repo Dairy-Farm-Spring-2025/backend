@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class BulkCowHealthRecordResponse {
-    CowPenBulkResponse<CowExcelCreateRequest> cowResponseCowPenBulkResponse;
-    CowPenBulkResponse<HealthRecordExcelRequest> healthRecordEntityCowPenBulkResponse;
+    BulkResponse<CowExcelCreateRequest> cowResponseCowPenBulkResponse;
+    BulkResponse<HealthRecordExcelRequest> healthRecordEntityCowPenBulkResponse;
 }
