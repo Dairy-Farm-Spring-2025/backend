@@ -42,5 +42,5 @@ public interface ITaskService {
 
     byte[] fillTemplateWithDropdown() throws IOException;
 
-    List<TaskExcelResponse> importAndGroupTasks(MultipartFile file);
+    Map<String, Map<String, List<TaskExcelResponse>>> importAndGroupTasks(MultipartFile file);
 }

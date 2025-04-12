@@ -508,8 +508,8 @@ public class TaskService implements ITaskService {
 
 
     @Override
-    public List<TaskExcelResponse> importAndGroupTasks(MultipartFile file) {
-        List<TaskExcelResponse> result = new ArrayList<>();
+    public Map<String, Map<String, List<TaskExcelResponse>>> importAndGroupTasks(MultipartFile file) {
+        List<TaskExcelResponse> allTasks = new ArrayList<>();
 
         try (InputStream inputStream = file.getInputStream()) {
             List<TaskExcelResponse> tasks = EasyExcel.read(inputStream)
@@ -523,6 +523,7 @@ public class TaskService implements ITaskService {
                 if (task.getTaskType() == null || task.getTaskType().isBlank()) {
                     errors.add("Loại công việc là bắt buộc");
                 }
+
                 if (task.getArea() == null || task.getArea().isBlank()) {
                     errors.add("Khu vực là bắt buộc");
                 }
@@ -543,23 +544,32 @@ public class TaskService implements ITaskService {
                     errors.add("Ngày kết thúc phải bằng hoặc sau ngày bắt đầu");
                 }
 
-                if (errors.isEmpty()) {
-                    // Nếu không có lỗi, thêm vào danh sách kết quả
-                    result.add(task);
-                } else {
-                    // Nếu có lỗi, đánh dấu lỗi và thêm thông báo lỗi vào đối tượng task
+                if (!errors.isEmpty()) {
                     task.setError(true);
                     task.setErrorMessage(String.join("; ", errors));
-                    result.add(task);
                 }
+
+                allTasks.add(task);
             }
+
+            return allTasks.stream()
+                    .collect(Collectors.groupingBy(
+                            task -> task.getArea() == null || task.getArea().isBlank()
+                                    ? "Chưa rõ khu vực"
+                                    : task.getArea(),
+                            Collectors.groupingBy(
+                                    task -> task.getTaskType() == null || task.getTaskType().isBlank()
+                                            ? "Chưa rõ loại công việc"
+                                            : task.getTaskType()
+                            )
+                    ));
 
         } catch (IOException e) {
             throw new RuntimeException("Lỗi khi đọc file Excel: " + e.getMessage(), e);
         }
-
-        return result;
     }
+
+
 
     private boolean isFromDateAfterToday(String fromDate) {
         LocalDate today = LocalDate.now();
@@ -581,6 +591,4 @@ public class TaskService implements ITaskService {
             return false;
         }
     }
-
-
 }

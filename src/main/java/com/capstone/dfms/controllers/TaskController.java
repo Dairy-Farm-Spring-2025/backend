@@ -131,8 +131,8 @@ public class TaskController {
     }
 
     @PostMapping("/import-tasks")
-    public ResponseEntity<List<TaskExcelResponse>> importTasks(@RequestParam("file") MultipartFile file) {
-        List<TaskExcelResponse> result = taskService.importAndGroupTasks(file);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<Map<String, Map<String, List<TaskExcelResponse>>>> importTasks(@RequestParam("file") MultipartFile file) {
+        Map<String, Map<String, List<TaskExcelResponse>>> groupedTasks = taskService.importAndGroupTasks(file);
+        return ResponseEntity.ok(groupedTasks);
     }
 }
