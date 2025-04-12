@@ -117,6 +117,7 @@ public class TaskController {
         return CoreApiResponse.success(response);
     }
 
+    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @GetMapping("/download-template")
     public ResponseEntity<byte[]> downloadExcelTemplate() throws IOException {
         byte[] excelBytes = taskService.fillTemplateWithDropdown();
