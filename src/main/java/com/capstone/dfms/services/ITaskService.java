@@ -1,6 +1,7 @@
 package com.capstone.dfms.services;
 
 import com.capstone.dfms.models.TaskEntity;
+import com.capstone.dfms.requests.CreateTaskExcelRequest;
 import com.capstone.dfms.requests.TaskRequest;
 import com.capstone.dfms.requests.UpdateTaskRequest;
 import com.capstone.dfms.responses.RangeTaskResponse;
@@ -43,4 +44,6 @@ public interface ITaskService {
     byte[] fillTemplateWithDropdown() throws IOException;
 
     Map<String, Map<String, List<TaskExcelResponse>>> importAndGroupTasks(MultipartFile file);
+
+    List<TaskEntity> createTasksFromExcel(List<CreateTaskExcelRequest> requests);
 }

@@ -2,6 +2,7 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.TaskEntity;
+import com.capstone.dfms.requests.CreateTaskExcelRequest;
 import com.capstone.dfms.requests.TaskDateRangeRequest;
 import com.capstone.dfms.requests.TaskRequest;
 import com.capstone.dfms.requests.UpdateTaskRequest;
@@ -134,5 +135,11 @@ public class TaskController {
     public ResponseEntity<Map<String, Map<String, List<TaskExcelResponse>>>> importTasks(@RequestParam("file") MultipartFile file) {
         Map<String, Map<String, List<TaskExcelResponse>>> groupedTasks = taskService.importAndGroupTasks(file);
         return ResponseEntity.ok(groupedTasks);
+    }
+
+    @PostMapping("/create-from-excel")
+    public CoreApiResponse<List<TaskEntity>> createTasksFromExcel(@RequestBody List<CreateTaskExcelRequest> requests) {
+        List<TaskEntity> createdTasks = taskService.createTasksFromExcel(requests);
+        return  CoreApiResponse.success(createdTasks);
     }
 }

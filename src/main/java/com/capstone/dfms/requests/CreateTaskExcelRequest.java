@@ -1,24 +1,23 @@
 package com.capstone.dfms.requests;
 
-import com.capstone.dfms.models.enums.PriorityTask;
 import com.capstone.dfms.models.enums.TaskShift;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaskRequest {
+@Builder
+public class CreateTaskExcelRequest {
+    private String areaName;
     private String description;
     private LocalDate fromDate;
     private LocalDate toDate;
-    private Long areaId;
-    private List<Long> assigneeIds;
-    private Long taskTypeId;
     private TaskShift shift;
-    private Long illnessId;
+    private Long assigneeId;
+    private String taskType;
 }

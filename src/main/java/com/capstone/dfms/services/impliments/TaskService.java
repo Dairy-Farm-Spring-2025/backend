@@ -8,9 +8,11 @@ import com.capstone.dfms.mappers.IReportTaskMapper;
 import com.capstone.dfms.mappers.ITaskMapper;
 import com.capstone.dfms.models.*;
 import com.capstone.dfms.models.enums.CategoryNotification;
+import com.capstone.dfms.models.enums.PriorityTask;
 import com.capstone.dfms.models.enums.TaskShift;
 import com.capstone.dfms.models.enums.TaskStatus;
 import com.capstone.dfms.repositories.*;
+import com.capstone.dfms.requests.CreateTaskExcelRequest;
 import com.capstone.dfms.requests.NotificationRequest;
 import com.capstone.dfms.requests.TaskRequest;
 import com.capstone.dfms.requests.UpdateTaskRequest;
@@ -78,6 +80,7 @@ public class TaskService implements ITaskService {
             CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
             if (latestCowPen == null || latestCowPen.getPenEntity() == null) {
                 throw new AppException(HttpStatus.BAD_REQUEST, "Bò đang không ở trong chuồng vui lòng kiểm tra lại");
+
             }
 
             area = latestCowPen.getPenEntity().getAreaBelongto();
@@ -113,13 +116,14 @@ public class TaskService implements ITaskService {
                 throw new AppException(HttpStatus.BAD_REQUEST, "Người được giao không có vai trò phù hợp với loại công việc");
             }
             if (!isAssigneeAvailableForTask(assigneeId, request.getFromDate(), request.getToDate())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã đạt giới hạn tối đa 6 ngày làm việc trong tuần.");
+                throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã vượt quá tối đa 6 ngày làm việc trong tuần.");
             }
             if (!assignee.getRoleId().getName().equalsIgnoreCase("Veterinarians") && illness == null) {
                 if (isDuplicateTaskTypeAndArea(assigneeId, request.getTaskTypeId(), request.getAreaId(), request.getFromDate(), request.getToDate())) {
                     throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã có công việc loại này trong khu vực này trong thời gian này.");
                 }
             }
+            PriorityTask priority = determinePriority(taskType.getName());
 
             TaskEntity task = TaskEntity.builder()
                     .description(request.getDescription())
@@ -130,17 +134,15 @@ public class TaskService implements ITaskService {
                     .assigner(assigner)
                     .assignee(assignee)
                     .taskTypeId(taskType)
-                    .priority(request.getPriority())
+                    .priority(priority)
                     .shift(request.getShift())
                     .build();
 
             if(illness != null){
                 task.setMainIllness(illness);
-
                 NotificationRequest notificationRequest = new NotificationRequest();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 String formattedDate = request.getFromDate().format(formatter);
-
                 notificationRequest.setTitle("Công việc chữa khám bệnh khẩn cấp cho bò " + formattedDate);
                 notificationRequest.setDescription("Bạn có một công việc liên quan đến điều trị bệnh cần thực hiện vào ngày " + formattedDate + ".");
                 notificationRequest.setLink("/tasks");
@@ -377,7 +379,7 @@ public class TaskService implements ITaskService {
 
             if (!isAssigneeAvailableForTask(assignee.getId(), newFromDate, toDate)) {
                 throw new AppException(HttpStatus.BAD_REQUEST,
-                        "Người dùng " + assignee.getName() + " đã đạt giới hạn tối đa 6 ngày làm việc trong tuần.");
+                        "Người dùng " + assignee.getName() + " đã vượt quá tối đa 6 ngày làm việc trong tuần.");
             }
 
             task.setFromDate(newFromDate);
@@ -589,6 +591,80 @@ public class TaskService implements ITaskService {
             return true;
         } catch (DateTimeParseException e) {
             return false;
+        }
+    }
+
+
+    @Override
+    public List<TaskEntity> createTasksFromExcel(List<CreateTaskExcelRequest> requests) {
+        List<TaskEntity> createdTasks = new ArrayList<>();
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity assigner = userPrincipal.getUser();
+
+        for (CreateTaskExcelRequest request : requests) {
+            LocalDate today = LocalDate.now();
+            if (request.getFromDate().isBefore(today)) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Ngày bắt đầu phải từ hôm nay hoặc sau");
+            }
+
+            if (request.getToDate().isBefore(request.getFromDate())) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Ngày kết thúc phải sau ngày bắt đầu");
+            }
+            UserEntity assignee = userRepository.findById(request.getAssigneeId())
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy người được giao"));
+
+
+            AreaEntity area = areaRepository.findByName(request.getAreaName());
+            if (area == null) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy khu vực: " + request.getAreaName());
+            }
+
+            TaskTypeEntity taskTypeEntity = taskTypeRepository.findByName(request.getTaskType())
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy loại công việc: " + request.getTaskType()));
+
+            PriorityTask priority = determinePriority(request.getTaskType());
+
+            if (!assignee.getRoleId().equals(taskTypeEntity.getRoleId())) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Người được giao không có vai trò phù hợp với loại công việc");
+            }
+            if (!isAssigneeAvailableForTask(assignee.getId(), request.getFromDate(), request.getToDate())) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã vượt quá tối đa 6 ngày làm việc trong tuần.");
+            }
+            if (isDuplicateTaskTypeAndArea(assignee.getId(), taskTypeEntity.getTaskTypeId(),area.getAreaId(), request.getFromDate(), request.getToDate())) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã có công việc loại này trong khu vực này trong thời gian này.");
+            }
+
+            TaskEntity task = TaskEntity.builder()
+                    .description(request.getDescription())
+                    .status(TaskStatus.pending)
+                    .fromDate(request.getFromDate())
+                    .toDate(request.getToDate())
+                    .areaId(area)
+                    .assigner(assigner)
+                    .assignee(assignee)
+                    .taskTypeId(taskTypeEntity)
+                    .priority(priority)
+                    .shift(request.getShift())
+                    .build();
+
+            createdTasks.add(task);
+        }
+
+        return taskRepository.saveAll(createdTasks);
+    }
+
+    private PriorityTask determinePriority(String taskTypeName) {
+        switch (taskTypeName) {
+            case "Khám định kì":
+            case "Lấy sữa bò":
+            case "Cho bò ăn":
+                return PriorityTask.medium;
+            case "Chữa bệnh":
+                return PriorityTask.critical;
+            default:
+                return PriorityTask.low;
         }
     }
 }
