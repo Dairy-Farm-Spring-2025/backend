@@ -6,6 +6,7 @@ import com.capstone.dfms.requests.UpdateTaskRequest;
 import com.capstone.dfms.responses.RangeTaskResponse;
 import com.capstone.dfms.responses.TaskResponse;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -36,4 +37,6 @@ public interface ITaskService {
     TaskEntity updateAssigneeForTask(Long taskId, Long assignee);
 
     RangeTaskResponse getTaskDetail(Long taskId);
+
+    byte[] fillTemplateWithDropdown() throws IOException;
 }

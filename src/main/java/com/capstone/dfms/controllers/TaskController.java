@@ -10,9 +10,13 @@ import com.capstone.dfms.responses.TaskResponse;
 import com.capstone.dfms.services.ITaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -111,5 +115,15 @@ public class TaskController {
     public CoreApiResponse<RangeTaskResponse> getTaskDetail(@PathVariable Long taskId) {
         RangeTaskResponse response = taskService.getTaskDetail(taskId);
         return CoreApiResponse.success(response);
+    }
+
+    @GetMapping("/download-template")
+    public ResponseEntity<byte[]> downloadExcelTemplate() throws IOException {
+        byte[] excelBytes = taskService.fillTemplateWithDropdown();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Template_Task_Dairy_Farm.xlsx\"")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excelBytes);
     }
 }

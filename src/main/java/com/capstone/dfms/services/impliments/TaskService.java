@@ -19,11 +19,20 @@ import com.capstone.dfms.services.INotificationService;
 import com.capstone.dfms.services.ITaskService;
 import com.capstone.dfms.services.ITaskTypeService;
 import lombok.AllArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -455,5 +464,41 @@ public class TaskService implements ITaskService {
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,"Task not found with id: " + taskId));
 
         return ITaskMapper.INSTANCE.toResponse2(taskEntity);
+    }
+
+
+    public byte[] fillTemplateWithDropdown() throws IOException {
+        List<AreaEntity> areaEntities = areaRepository.findAll();
+
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("static/document/Template Task Dairy Farm.xlsx");
+        if (inputStream == null) {
+            throw new FileNotFoundException("Template file not found!");
+        }
+        Workbook workbook = new XSSFWorkbook(inputStream);
+        Sheet sheet = workbook.getSheetAt(0);
+
+        String[] areaNames = areaEntities.stream().map(AreaEntity::getName).toArray(String[]::new);
+
+        // Tạo vùng dữ liệu cho danh sách chọn (dropdown)
+        CellRangeAddressList addressList = new CellRangeAddressList(1, 100, 1, 1);
+        // Tạo DataValidation cho dropdown
+        DataValidation validation = createDropdownValidation((XSSFSheet) sheet, areaNames);
+
+        // Áp dụng DataValidation cho cột B
+        sheet.addValidationData(validation);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        workbook.write(out);
+        workbook.close();
+
+        return out.toByteArray();
+    }
+
+    private DataValidation createDropdownValidation(XSSFSheet sheet, String[] options) {
+        String optionsString = String.join(",", options);
+        DataValidationHelper validationHelper = new XSSFDataValidationHelper(sheet);
+        DataValidationConstraint validationConstraint = validationHelper.createExplicitListConstraint(optionsString.split(","));
+
+        return validationHelper.createValidation(validationConstraint, new CellRangeAddressList(1, 100, 1, 1)); // B2 đến B100
     }
 }
