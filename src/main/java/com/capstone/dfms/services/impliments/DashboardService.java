@@ -1,11 +1,13 @@
 package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.models.ApplicationEntity;
+import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.ReportTaskEntity;
 import com.capstone.dfms.models.TaskEntity;
 import com.capstone.dfms.models.enums.ApplicationStatus;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.responses.ApplicationDBResponse;
+import com.capstone.dfms.responses.CowTypeStatsResponse;
 import com.capstone.dfms.responses.DashboardResponse;
 import com.capstone.dfms.responses.ReportTaskDBResponse;
 import com.capstone.dfms.services.IDashboardService;
@@ -25,6 +27,7 @@ public class DashboardService implements IDashboardService {
     private final ITaskRepository taskRepository;
     private final IReportTaskRepository reportTaskRepository;
     private final IExportItemRepository exportItemRepository;
+    private final ICowRepository cowRepository;
 
     @Override
     public DashboardResponse getTodayStats() {
@@ -87,6 +90,26 @@ public class DashboardService implements IDashboardService {
                         o -> ((Double) o[1]).floatValue()
                 ));
 
+        List<CowEntity> cows = cowRepository.findAll();
+
+        Map<String, Map<String, Long>> grouped = cows.stream()
+                .collect(Collectors.groupingBy(
+                        c -> c.getCowTypeEntity() != null ? c.getCowTypeEntity().getName() : "Unknown Type",
+                        Collectors.groupingBy(
+                                c -> c.getCowStatus() != null ? c.getCowStatus().name() : "Unknown Status",
+                                Collectors.counting()
+                        )
+                ));
+
+        List<CowTypeStatsResponse> cowStats = grouped.entrySet().stream().map(entry -> {
+            CowTypeStatsResponse typeStats = new CowTypeStatsResponse();
+            typeStats.setCowTypeName(entry.getKey());
+            typeStats.setStatusCount(entry.getValue());
+            typeStats.setTotal(entry.getValue().values().stream().mapToLong(Long::longValue).sum());
+            return typeStats;
+        }).collect(Collectors.toList());
+
+
         DashboardResponse dto = new DashboardResponse();
         dto.setTotalMilkToday(totalMilk);
         dto.setProcessingApplicationsCount(processingCount);
@@ -97,7 +120,8 @@ public class DashboardService implements IDashboardService {
         dto.setDailyTasks(dailyTasks);
         dto.setUsedItemsToday(exportedItemsMap);
         dto.setTodayReports(reportDTOs);
-
+        dto.setTotalCow((long) cows.size());
+        dto.setCowStatsByType(cowStats);
         return dto;
     }
 }

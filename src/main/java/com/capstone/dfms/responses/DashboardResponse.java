@@ -22,4 +22,6 @@ public class DashboardResponse {
     private Map<String, Float> usedItemsToday;
     private Long dailyTasks;
     private List<ReportTaskDBResponse> todayReports;
+    private Long totalCow;
+    private List<CowTypeStatsResponse> cowStatsByType;
 }
