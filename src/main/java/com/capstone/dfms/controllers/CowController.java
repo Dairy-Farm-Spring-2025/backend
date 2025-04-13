@@ -106,6 +106,7 @@ public class CowController {
 //                .build();
 //    }
     public ResponseEntity<InputStreamResource> exportCowTemplate() throws IOException {
+        System.setProperty("java.awt.headless", "true");
         ByteArrayInputStream stream = cowServices.exportCowTemplate();
 
         return ResponseEntity.ok()
