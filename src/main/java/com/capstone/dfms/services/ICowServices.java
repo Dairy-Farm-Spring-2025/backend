@@ -9,6 +9,7 @@ import com.capstone.dfms.requests.CowUpdateRequest;
 import com.capstone.dfms.responses.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -31,4 +32,5 @@ public interface ICowServices {
     List<CowWithFeedMealResponse> getCowsByArea(Long areaId);
 
     List<CowEntity> getCowsByAreaSimple(Long areaId);
+    ByteArrayInputStream exportCowTemplate() throws IOException;
 }

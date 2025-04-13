@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class HealthRecordExcelRequest {
     @NotNull(message = "Cow Name is required")
@@ -51,6 +53,8 @@ public class HealthRecordExcelRequest {
 
     @ExcelProperty("Description")
     private String description;
+
+    private List<String> errorString;
 
     public CowStatus getCowStatus() {
         return CowStatus.fromString(period);

@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -92,17 +93,25 @@ public class CowController {
 
             return ResponseEntity.ok(result);
         } catch (IOException e) {
-            return (ResponseEntity<CowPenBulkResponse<CowResponse>>) ResponseEntity.badRequest();
+            return (ResponseEntity<?>) ResponseEntity.badRequest();
         }
     }
 
 
     @GetMapping("/templates/download/cow-bulk-excel")
-    public ResponseEntity<Void> downloadExcelTemplate(HttpServletRequest request) {
-        String fileUrl = "/document/Template%20Cow%20Import.xlsx";
-        return ResponseEntity.status(HttpStatus.FOUND) // 302 Redirect
-                .location(URI.create(fileUrl))
-                .build();
+//    public ResponseEntity<Void> downloadExcelTemplate(HttpServletRequest request) {
+//        String fileUrl = "/document/Template%20Cow%20Import.xlsx";
+//        return ResponseEntity.status(HttpStatus.FOUND) // 302 Redirect
+//                .location(URI.create(fileUrl))
+//                .build();
+//    }
+    public ResponseEntity<InputStreamResource> exportCowTemplate() throws IOException {
+        ByteArrayInputStream stream = cowServices.exportCowTemplate();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=cow_import_template.xlsx")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new InputStreamResource(stream));
     }
 
     @GetMapping("/imported-times")
