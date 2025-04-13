@@ -25,6 +25,7 @@ import jakarta.validation.ValidatorFactory;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -693,10 +694,10 @@ public class CowServices implements ICowServices {
             }
 
             // Apply drop-downs
-            addDropDownList(sheet, CowStatus.values(), NUM_START, NUM_ROWS, 1);
-            addDropDownList(sheet, CowOrigin.values(), NUM_START, NUM_ROWS, 4);
-            addDropDownList(sheet, Gender.values(), NUM_START, NUM_ROWS, 5);
-            addDropDownList(sheet, cowTypes.toArray(new String[0]), NUM_START, NUM_ROWS, 6);
+            addDropDownList((XSSFSheet) sheet, CowStatus.values(), NUM_START, NUM_ROWS, 1);
+            addDropDownList((XSSFSheet) sheet, CowOrigin.values(), NUM_START, NUM_ROWS, 4);
+            addDropDownList((XSSFSheet) sheet, Gender.values(), NUM_START, NUM_ROWS, 5);
+            addDropDownList((XSSFSheet) sheet, cowTypes.toArray(new String[0]), NUM_START, NUM_ROWS, 6);
 
             for (int i = 0; i < NUM_COLUMN; i++) {
                 sheet.autoSizeColumn(i);
@@ -753,8 +754,8 @@ public class CowServices implements ICowServices {
             sheet.addValidationData(helper.createValidation(cowNameConstraint, cowNameAddress));
 
             // Drop-downs for Status and Period
-            addDropDownList(sheet, HealthRecordStatus.values(), NUM_START, NUM_ROWS, 1); // Status
-            addDropDownList(sheet, CowStatus.values(), NUM_START, NUM_ROWS, 3);          // Period
+            addDropDownList((XSSFSheet) sheet, HealthRecordStatus.values(), NUM_START, NUM_ROWS, 1); // Status
+            addDropDownList((XSSFSheet) sheet, CowStatus.values(), NUM_START, NUM_ROWS, 3);          // Period
 
             // Auto-size columns
             for (int i = 0; i < NUM_COLUMN; i++) {
@@ -768,11 +769,11 @@ public class CowServices implements ICowServices {
 
 
     // Generic drop-down method
-    private void addDropDownList(Sheet sheet, Object[] options, int rowStart, int rowEnd, int colIndex) {
+    private void addDropDownList(XSSFSheet sheet, Object[] options, int rowStart, int rowEnd, int colIndex) {
         addDropDownList(sheet, Arrays.stream(options).map(Object::toString).toArray(String[]::new), rowStart, rowEnd, colIndex);
     }
 
-    private void addDropDownList(Sheet sheet, String[] options, int rowStart, int rowEnd, int colIndex) {
+    private void addDropDownList(XSSFSheet sheet, String[] options, int rowStart, int rowEnd, int colIndex) {
         DataValidationHelper helper = sheet.getDataValidationHelper();
         DataValidationConstraint constraint = helper.createExplicitListConstraint(options);
         CellRangeAddressList addressList = new CellRangeAddressList(rowStart, rowEnd, colIndex, colIndex);
