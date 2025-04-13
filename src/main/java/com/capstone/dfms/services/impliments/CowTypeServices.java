@@ -50,7 +50,11 @@ public class CowTypeServices implements ICowTypeServices {
         existingEntity.setName(request.getName() != null ? request.getName() : existingEntity.getName());
         existingEntity.setDescription(request.getDescription() != null ? request.getDescription() : existingEntity.getDescription());
         existingEntity.setStatus(request.getStatus() != null ? request.getStatus() : existingEntity.getStatus());
+        existingEntity.setStatus(request.getStatus() != null ? request.getStatus() : existingEntity.getStatus());
 
+        existingEntity.setMaxWeight(request.getMaxWeight() != null ? request.getMaxWeight() : existingEntity.getMaxWeight());
+        existingEntity.setMaxLength(request.getMaxLength() != 0 ? request.getMaxLength() : existingEntity.getMaxLength());
+        existingEntity.setMaxHeight(request.getMaxHeight() != 0 ? request.getMaxHeight() : existingEntity.getMaxHeight());
         // Save the updated entity
         CowTypeEntity updatedEntity = cowTypeRepository.save(existingEntity);
 

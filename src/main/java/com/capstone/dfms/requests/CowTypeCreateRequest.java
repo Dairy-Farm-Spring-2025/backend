@@ -15,7 +15,6 @@ public class CowTypeCreateRequest {
     private String description;
     private CowTypeStatus status;
     private Long maxWeight;
-
-
-
+    private Long maxLength;
+    private Long maxHeight;
 }

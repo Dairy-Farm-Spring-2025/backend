@@ -20,4 +20,6 @@ public class CowTypeResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long maxWeight;
+    private Long maxLength;
+    private Long maxHeight;
 }
