@@ -678,7 +678,7 @@ public class CowServices implements ICowServices {
 
             for (int i = NUM_START; i <= NUM_ROWS; i++) {
                 Row row = sheet.getRow(i);
-                addFormatName(row, i + 1, importTime); // Excel row index is 1-based
+//                addFormatName(row, i + 1, importTime); // Excel row index is 1-based
 
 //                for (int j = 0; j < 8; j++) {
 //                    Cell cell = row.getCell(j);
