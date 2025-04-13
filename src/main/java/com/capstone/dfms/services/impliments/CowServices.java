@@ -733,7 +733,6 @@ public class CowServices implements ICowServices {
 //            }
 
             // Fill sample rows
-            // Fill sample rows
             for (int i = 1; i <= NUM_ROWS; i++) {
                 Row row = sheet.getRow(i);
 
@@ -784,22 +783,21 @@ public class CowServices implements ICowServices {
     // Add dynamic formula to generate cow name
     private void addFormatName(Row row, int excelRow, long importTimes) {
         Cell nameCell = row.getCell(0); // Column A
-//        nameCell.setBlank();
         String formula = String.format(
                 "IF(G%d<>\"\",UPPER(LEFT(G%d,1))&\"-%04d\"&\"-\"&TEXT(COUNTIF($G$2:G%d,G%d),\"0000\"),\"\")",
                 excelRow, excelRow, importTimes, excelRow, excelRow
         );
         nameCell.setCellFormula(formula);
     }
-
-    private CellStyle createBorderStyle(Workbook workbook) {
-        CellStyle borderStyle = workbook.createCellStyle();
-        borderStyle.setBorderTop(BorderStyle.THIN);
-        borderStyle.setBorderBottom(BorderStyle.THIN);
-        borderStyle.setBorderLeft(BorderStyle.THIN);
-        borderStyle.setBorderRight(BorderStyle.THIN);
-        return borderStyle;
-    }
+//
+//    private CellStyle createBorderStyle(Workbook workbook) {
+//        CellStyle borderStyle = workbook.createCellStyle();
+//        borderStyle.setBorderTop(BorderStyle.THIN);
+//        borderStyle.setBorderBottom(BorderStyle.THIN);
+//        borderStyle.setBorderLeft(BorderStyle.THIN);
+//        borderStyle.setBorderRight(BorderStyle.THIN);
+//        return borderStyle;
+//    }
 //
 //    private CellStyle createDateStyle(Workbook workbook, CreationHelper creationHelper) {
 //        CellStyle dateStyle = workbook.createCellStyle();
