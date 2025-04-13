@@ -55,4 +55,6 @@ public interface IUserService {
     List<UserEntity> getAvailableUsers(AvailableUserRequest request);
 
     List<UserEntity> getUserforNightShift(LocalDate fromDate, LocalDate toDate);
+
+    List<UserEntity> getAvailableUsersImport(AvailableUserImportRequest request);
 }

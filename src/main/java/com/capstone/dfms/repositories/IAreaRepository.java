@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface IAreaRepository extends JpaRepository<AreaEntity, Long> {
     boolean existsByName(String name);
+
     @Query("SELECT a FROM AreaEntity a WHERE a.name = :name")
     AreaEntity findByName(@Param("name") String name);
 }

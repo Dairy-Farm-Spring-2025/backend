@@ -42,6 +42,11 @@ public class TaskTypeService implements ITaskTypeService {
         return taskTypeRepository.findAllExcludingMedical();
     }
 
+    @Override
+    public List<TaskTypeEntity> getTaskTypesImport() {
+        return taskTypeRepository.findImport();
+    }
+
 
 
     @Override

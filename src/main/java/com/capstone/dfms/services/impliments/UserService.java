@@ -10,16 +10,10 @@ import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.PasswordUtils;
 import com.capstone.dfms.components.utils.UploadImagesUtils;
 import com.capstone.dfms.mappers.UserMapper;
-import com.capstone.dfms.models.RoleEntity;
-import com.capstone.dfms.models.TaskEntity;
-import com.capstone.dfms.models.TokenEntity;
-import com.capstone.dfms.models.UserEntity;
+import com.capstone.dfms.models.*;
 import com.capstone.dfms.models.enums.TaskShift;
 import com.capstone.dfms.models.enums.UserStatus;
-import com.capstone.dfms.repositories.IRoleRepository;
-import com.capstone.dfms.repositories.ITaskRepository;
-import com.capstone.dfms.repositories.ITokenRepository;
-import com.capstone.dfms.repositories.IUserRepository;
+import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.*;
 import com.capstone.dfms.responses.SignInResponse;
 import com.capstone.dfms.services.IUserService;
@@ -57,6 +51,7 @@ public class UserService implements IUserService {
     private final ITokenRepository tokenRepository;
     private final TokenProvider tokenProvider;
     private final ITaskRepository taskRepository;
+    private final IAreaRepository areaRepository;
 
     @Autowired
     ApplicationEventPublisher applicationEventPublisher;
@@ -379,6 +374,48 @@ public class UserService implements IUserService {
                     boolean hasNoTask = tasks.isEmpty();
                     boolean hasSameAreaTask = tasks.stream().allMatch(t ->
                             t.getAreaId() != null && t.getAreaId().getAreaId().equals(request.getAreaId()));
+
+                    if (!(hasNoTask || hasSameAreaTask)) {
+                        isAvailable = false;
+                        break;
+                    }
+                }else if (request.getRoleId() == 3) {
+                    List<TaskEntity> forbiddenTasks = userRepository.findForbiddenTasksForDoctor(user.getId(), currentDate);
+                    if (!forbiddenTasks.isEmpty()) {
+                        isAvailable = false;
+                        break;
+                    }
+                }
+
+                currentDate = currentDate.plusDays(1);
+            }
+
+            if (isAvailable) {
+                availableUsers.add(user);
+            }
+        }
+
+        return availableUsers;
+    }
+
+    @Override
+    public List<UserEntity> getAvailableUsersImport(AvailableUserImportRequest request) {
+        List<UserEntity> allUsers = userRepository.findAllActiveUsersByRoleId(request.getRoleId());
+        List<UserEntity> availableUsers = new ArrayList<>();
+
+        AreaEntity area = areaRepository.findByName(request.getAreaName());
+
+        for (UserEntity user : allUsers) {
+            boolean isAvailable = true;
+            LocalDate currentDate = request.getFromDate();
+
+            while (!currentDate.isAfter(request.getToDate())) {
+                List<TaskEntity> tasks = taskRepository.findByAssignee_IdAndDate(user.getId(), currentDate);
+
+                if (request.getRoleId() == 4) {
+                    boolean hasNoTask = tasks.isEmpty();
+                    boolean hasSameAreaTask = tasks.stream().allMatch(t ->
+                            t.getAreaId() != null && t.getAreaId().getAreaId().equals(area.getAreaId()));
 
                     if (!(hasNoTask || hasSameAreaTask)) {
                         isAvailable = false;

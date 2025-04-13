@@ -9,4 +9,5 @@ public interface ITaskTypeService {
     TaskTypeEntity getTaskTypeById(long id);
     List<TaskTypeEntity> getAllTaskTypes();
     void deleteTaskType(long id);
+    List<TaskTypeEntity> getTaskTypesImport();
 }

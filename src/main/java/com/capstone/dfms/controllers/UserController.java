@@ -214,6 +214,24 @@ public class UserController {
         return CoreApiResponse.success(users);
     }
 
+
+    @GetMapping("import/free")
+    public CoreApiResponse<List<UserEntity>> getAvailableUsersImport(
+            @RequestParam Long roleId,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fromDate,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate toDate,
+            @RequestParam(required = false) String areaName) {
+
+        AvailableUserImportRequest request = new AvailableUserImportRequest();
+        request.setRoleId(roleId);
+        request.setFromDate(fromDate);
+        request.setToDate(toDate);
+        request.setAreaName(areaName);
+
+        List<UserEntity> users = userService.getAvailableUsersImport(request);
+        return CoreApiResponse.success(users);
+    }
+
     @GetMapping("/free/night")
     public CoreApiResponse<List<UserEntity>> getFreeNightShiftUsers(
             @RequestParam("fromDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fromDate,

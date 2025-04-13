@@ -32,6 +32,11 @@ public class TaskTypeController {
         return CoreApiResponse.success(taskTypeService.getAllTaskTypes());
     }
 
+    @GetMapping("/import")
+    public CoreApiResponse<List<TaskTypeEntity>> getImport() {
+        return CoreApiResponse.success(taskTypeService.getTaskTypesImport());
+    }
+
     @GetMapping("/{id}")
     public CoreApiResponse<TaskTypeEntity> getById(@PathVariable Long id) {
         return CoreApiResponse.success(taskTypeService.getTaskTypeById(id));

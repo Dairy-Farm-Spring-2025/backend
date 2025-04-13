@@ -14,4 +14,7 @@ public interface ITaskTypeRepository extends JpaRepository<TaskTypeEntity, Long>
     @Query("SELECT t FROM TaskTypeEntity t WHERE t.name NOT IN ('Tiêm ngừa', 'Chữa bệnh')")
     List<TaskTypeEntity> findAllExcludingMedical();
 
+    @Query("SELECT t FROM TaskTypeEntity t WHERE t.name NOT IN ('Tiêm ngừa', 'Chữa bệnh','Khám bệnh')")
+    List<TaskTypeEntity> findImport();
+
 }
