@@ -19,8 +19,10 @@ FROM openjdk:17-slim
 # set deployment directory
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y libfreetype6 && apt-get clean
-
+# Cài font và freetype để tránh lỗi về font
+RUN apt-get update && \
+    apt-get install -y libfreetype6 fonts-dejavu-core && \
+    apt-get clean
 # copy over the built artifact from the maven image
 COPY --from=stage1 /app/target/*.jar /app
 
