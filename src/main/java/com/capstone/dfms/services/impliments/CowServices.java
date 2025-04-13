@@ -644,7 +644,8 @@ public class CowServices implements ICowServices {
             workbook.write(out);
             return new ByteArrayInputStream(out.toByteArray());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
+            throw new RuntimeException();
         }
     }
 
@@ -672,7 +673,7 @@ public class CowServices implements ICowServices {
 //                cell.setCellStyle(headerStyle);
 //            }
 
-            long importTime = cowRepository.getMaxImportTimes() + 1;
+            long importTime = cowRepository.getMaxImportTimes() == null ? 1 : cowRepository.getMaxImportTimes() + 1;
             List<String> cowTypes = cowTypeRepository.findAll().stream().map(CowTypeEntity::getName).toList();
 
             for (int i = NUM_START; i <= NUM_ROWS; i++) {
