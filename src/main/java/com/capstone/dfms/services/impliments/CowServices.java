@@ -332,7 +332,12 @@ public class CowServices implements ICowServices {
 //        }
 
         BulkResponse<CowExcelCreateRequest> cowBulkResponse = this.getCowsFromExcel(file);
-        BulkResponse<HealthRecordExcelRequest> healthRecordEntityBulkResponse = this.getHealthRecordFromExcel(file, cowBulkResponse.getSuccesses());
+
+        List<CowExcelCreateRequest> allCows = new ArrayList<>();
+        allCows.addAll(cowBulkResponse.getSuccesses());
+        allCows.addAll(cowBulkResponse.getErrors());
+
+        BulkResponse<HealthRecordExcelRequest> healthRecordEntityBulkResponse = this.getHealthRecordFromExcel(file, allCows);
 
         return new BulkCowHealthRecordResponse(cowBulkResponse, healthRecordEntityBulkResponse);
     }
@@ -441,6 +446,12 @@ public class CowServices implements ICowServices {
                 Set<ConstraintViolation<CowExcelCreateRequest>> violations = validator.validate(cow);
                 if (!violations.isEmpty()) {
                     // Optionally, add validation messages to the object (you could add a `List<String> errors` field in DTO)
+                    // Collect messages into a string or list
+                    List<String> messages = violations.stream()
+                            .map(ConstraintViolation::getMessage)
+                            .toList(); // Or use newline "\n"
+
+                    cow.setErrorStrings(messages); // Or cow.getErrors().addAll(...);
                     errors.add(cow);
                 } else {
                     cowList.add(cow);
@@ -467,12 +478,17 @@ public class CowServices implements ICowServices {
                 } else {
                     throw new AppException(HttpStatus.BAD_REQUEST, "Cow type is required.");
                 }
+                if (cowEntity.getDateOfBirth().plusMonths(10).isAfter(LocalDate.now())
+                        && cowEntity.getCowStatus().equals(CowStatus.milkingCow)){
+                    throw new AppException(HttpStatus.BAD_REQUEST, "Milking cow start 10 months");
+                }
 
                 // If all is good, you can add to final list or save
                 validCows.add(row);
 
             } catch (Exception e) {
                 // Optionally log or wrap the error message
+                row.setErrorStrings(new ArrayList<>(List.of(e.getMessage())));
                 errors.add(row); // Or store a wrapper object with error message
             }
         }
@@ -493,6 +509,12 @@ public class CowServices implements ICowServices {
             public void invoke(HealthRecordExcelRequest record, AnalysisContext analysisContext) {
                 Set<ConstraintViolation<HealthRecordExcelRequest>> violations = validator.validate(record);
                 if (!violations.isEmpty()) {
+                    // Collect messages into a string or list
+                    List<String> messages = violations.stream()
+                            .map(ConstraintViolation::getMessage)
+                            .toList(); // Or use newline "\n"
+
+                    record.setErrorString(messages); // Or cow.getErrors().addAll(...);
                     errorRecords.add(record);
                 } else {
                     validRecords.add(record);
@@ -524,7 +546,8 @@ public class CowServices implements ICowServices {
                 finalValidRecords.add(record); // only add if valid cow name
 
             } catch (Exception e) {
-                errorRecords.add(record); // move to errors
+                record.setErrorString(new ArrayList<>(List.of(e.getMessage())));
+                errorRecords.add(record);
             }
 
             rowNum++;

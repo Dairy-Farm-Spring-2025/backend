@@ -9,6 +9,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class CowExcelCreateRequest {
@@ -40,7 +41,10 @@ public class CowExcelCreateRequest {
     @ExcelProperty("Cow Type")
     private String cowTypeName;
 
+    @ExcelProperty("Description")
     private String description;
+
+    private List<String> errorStrings;
 
     // Custom setters to convert String -> Enum
     public CowStatus getCowStatus() {
