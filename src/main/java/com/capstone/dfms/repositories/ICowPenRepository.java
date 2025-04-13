@@ -1,5 +1,6 @@
 package com.capstone.dfms.repositories;
 
+import com.capstone.dfms.models.AreaEntity;
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.CowPenEntity;
 import com.capstone.dfms.models.PenEntity;
@@ -67,5 +68,8 @@ public interface ICowPenRepository extends JpaRepository<CowPenEntity, CowPenPK>
 
     @Query("SELECT c FROM CowPenEntity c WHERE c.penEntity.penId IN :penIds AND c.status = 'inPen'")
     List<CowPenEntity> findActiveByPenIds(@Param("penIds") List<Long> penIds);
+
+    @Query("SELECT COUNT(cp) > 0 FROM CowPenEntity cp WHERE cp.penEntity.areaBelongto = :area AND cp.status = :status")
+    boolean existsByPenEntityAreaBelongtoAndStatus(@Param("area") AreaEntity area, @Param("status") PenCowStatus status);
 
 }
