@@ -19,7 +19,7 @@ FROM openjdk:17-slim
 # set deployment directory
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y libfreetype6 && apt-get clean
+RUN apt-get update && apt-get install -y apt-utils libfreetype6 && apt-get clean
 
 # copy over the built artifact from the maven image
 COPY --from=stage1 /app/target/*.jar /app
