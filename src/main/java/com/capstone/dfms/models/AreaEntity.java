@@ -1,6 +1,7 @@
 package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.AreaType;
+import com.capstone.dfms.models.enums.CowStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,4 +36,11 @@ public class AreaEntity extends  BaseEntity{
 
     @Enumerated(EnumType.STRING)
     private AreaType areaType;
+
+    @Enumerated(EnumType.STRING)
+    private CowStatus cowStatus;
+
+    @ManyToOne
+    @JoinColumn(name = "cow_type_id")
+    private CowTypeEntity cowTypeEntity;
 }

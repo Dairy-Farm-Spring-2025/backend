@@ -5,9 +5,13 @@ import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.IAreaMapper;
 import com.capstone.dfms.models.AreaEntity;
+import com.capstone.dfms.models.CowTypeEntity;
 import com.capstone.dfms.models.PenEntity;
+import com.capstone.dfms.models.enums.PenCowStatus;
 import com.capstone.dfms.models.enums.PenStatus;
 import com.capstone.dfms.repositories.IAreaRepository;
+import com.capstone.dfms.repositories.ICowPenRepository;
+import com.capstone.dfms.repositories.ICowTypeRepository;
 import com.capstone.dfms.repositories.IPenRepository;
 import com.capstone.dfms.requests.AreaUpdateRequest;
 import com.capstone.dfms.responses.AreaResponse;
@@ -26,6 +30,8 @@ public class AreaServices implements IAreaServices {
     private final IAreaRepository areaRepository;
     private final IAreaMapper areaMapper;
     private final IPenRepository penRepository;
+    private final ICowTypeRepository cowTypeRepository;
+    private final ICowPenRepository cowPenRepository;
 
 
     @Override
@@ -35,7 +41,6 @@ public class AreaServices implements IAreaServices {
         if (areaRepository.existsByName(request.getName())) {
             throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("area.exists"));
         }
-
 
         this.validateDimensions(request);
 
@@ -47,12 +52,21 @@ public class AreaServices implements IAreaServices {
                     LocalizationUtils.getMessage("area.invalid_size"));
         }
 
+        if (request.getCowTypeEntity() != null && request.getCowTypeEntity().getCowTypeId() != null) {
+            CowTypeEntity cowType = cowTypeRepository.findById(request.getCowTypeEntity().getCowTypeId())
+                    .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Cow type not found."));
+            request.setCowTypeEntity(cowType);
+        } else {
+            request.setCowTypeEntity(null);
+        }
+
         AreaEntity savedArea = areaRepository.save(request);
 
         List<PenEntity> pens = new ArrayList<>();
         int numberInRow = request.getNumberInRow() != null ? request.getNumberInRow() : 1;
         char rowLetter = 'A';
 
+        String areaName = savedArea.getName();
         for (int i = 1; i <= request.getMaxPen(); i++) {
             int penNumber = ((i - 1) % numberInRow) + 1;
             if (penNumber == 1 && i > 1) {
@@ -62,7 +76,7 @@ public class AreaServices implements IAreaServices {
 
             PenEntity pen = PenEntity.builder()
                     .name(penName)
-                    .description(LocalizationUtils.getMessage("pen.auto_generated", new Object[]{i}, Locale.getDefault()))
+                    .description(areaName + " - " + penName)
                     .penStatus(PenStatus.empty)
                     .areaBelongto(savedArea)
                     .build();
@@ -89,6 +103,18 @@ public class AreaServices implements IAreaServices {
                         LocalizationUtils.getMessage("area.exists"));
             }
         }
+        boolean hasCows = cowPenRepository.existsByPenEntityAreaBelongtoAndStatus(
+                existingEntity, PenCowStatus.inPen);
+        if (hasCows) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Không để cập nhật loại bò và trạng thái vì khu vực đang chứa bò");
+        }
+
+        if (request.getCowTypeId() != null) {
+            CowTypeEntity cowType = cowTypeRepository.findById(request.getCowTypeId())
+                    .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Cow type not found."));
+            existingEntity.setCowTypeEntity(cowType);
+        }
+
 
         areaMapper.updateAreaFromRequest(request, existingEntity);
         validateDimensions(existingEntity);

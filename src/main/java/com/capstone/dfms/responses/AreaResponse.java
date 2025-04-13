@@ -1,6 +1,10 @@
 package com.capstone.dfms.responses;
 
+import com.capstone.dfms.models.CowTypeEntity;
 import com.capstone.dfms.models.enums.AreaType;
+import com.capstone.dfms.models.enums.CowStatus;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,4 +32,6 @@ public class AreaResponse {
     private long occupiedPens;  
     private long emptyPens;
     private long damagedPens;
+    private CowStatus cowStatus;
+    private CowTypeEntity cowTypeEntity;
 }
