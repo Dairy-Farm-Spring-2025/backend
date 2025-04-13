@@ -30,10 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -632,7 +629,13 @@ public class CowServices implements ICowServices {
 
     @Override
     public ByteArrayInputStream exportCowTemplate() throws IOException {
-        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("static/document/cow_import_template.xlsx");
+        if (inputStream == null) {
+            throw new FileNotFoundException("Template file not found!");
+        }
+
+        try (Workbook workbook = new XSSFWorkbook(inputStream);
+             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             int NUM_START = 1;
             int NUM_ROWS = 100;
             this.generateCowImport(workbook, NUM_START, NUM_ROWS);
@@ -647,44 +650,45 @@ public class CowServices implements ICowServices {
 
     private void generateCowImport(Workbook workbook, int NUM_START, int NUM_ROWS) throws Exception {
         try{
-            Sheet sheet = workbook.createSheet("Cow Import");
+            Sheet sheet = workbook.getSheet("Cow Import");
+            int NUM_COLUMN = 8;
 
-            String[] columns = {"Name", "Cow Status", "Date of Birth", "Date of Enter", "Cow Origin", "Gender", "Cow Type", "Description"};
+//            String[] columns = {"Name", "Cow Status", "Date of Birth", "Date of Enter", "Cow Origin", "Gender", "Cow Type", "Description"};
 
-            // Create shared styles
-            CreationHelper creationHelper = workbook.getCreationHelper();
-            CellStyle borderStyle = createBorderStyle(workbook);
-            CellStyle dateStyle = createDateStyle(workbook, creationHelper);
-            CellStyle headerStyle = createHeaderStyle(workbook, borderStyle);
+//            // Create shared styles
+//            CreationHelper creationHelper = workbook.getCreationHelper();
+//            CellStyle borderStyle = createBorderStyle(workbook);
+//            CellStyle dateStyle = createDateStyle(workbook, creationHelper);
+//            CellStyle headerStyle = createHeaderStyle(workbook, borderStyle);
+//
+//            Font headerFont = workbook.createFont();
+//            headerFont.setBold(true);
 
-            Font headerFont = workbook.createFont();
-            headerFont.setBold(true);
-
-            // Create header row
-            Row header = sheet.createRow(0);
-            for (int i = 0; i < columns.length; i++) {
-                Cell cell = header.createCell(i);
-                cell.setCellValue(columns[i]);
-                cell.setCellStyle(headerStyle);
-            }
+//            // Create header row
+//            Row header = sheet.createRow(0);
+//            for (int i = 0; i < columns.length; i++) {
+//                Cell cell = header.createCell(i);
+//                cell.setCellValue(columns[i]);
+//                cell.setCellStyle(headerStyle);
+//            }
 
             long importTime = cowRepository.getMaxImportTimes() + 1;
             List<String> cowTypes = cowTypeRepository.findAll().stream().map(CowTypeEntity::getName).toList();
 
-            for (int i = 1; i <= NUM_ROWS; i++) {
-                Row row = sheet.createRow(i);
+            for (int i = NUM_START; i <= NUM_ROWS; i++) {
+                Row row = sheet.getRow(i);
                 addFormatName(row, i + 1, importTime); // Excel row index is 1-based
 
-                for (int j = 0; j < columns.length; j++) {
-                    Cell cell = row.getCell(j);
-                    if (cell == null) cell = row.createCell(j);
-
-                    if (j == 2 || j == 3) {
-                        cell.setCellStyle(dateStyle);
-                    } else {
-                        cell.setCellStyle(borderStyle);
-                    }
-                }
+//                for (int j = 0; j < 8; j++) {
+//                    Cell cell = row.getCell(j);
+//                    if (cell == null) cell = row.createCell(j);
+//
+//                    if (j == 2 || j == 3) {
+//                        cell.setCellStyle(dateStyle);
+//                    } else {
+//                        cell.setCellStyle(borderStyle);
+//                    }
+//                }
             }
 
             // Apply drop-downs
@@ -693,7 +697,7 @@ public class CowServices implements ICowServices {
             addDropDownList(sheet, Gender.values(), NUM_START, NUM_ROWS, 5);
             addDropDownList(sheet, cowTypes.toArray(new String[0]), NUM_START, NUM_ROWS, 6);
 
-            for (int i = 0; i < columns.length; i++) {
+            for (int i = 0; i < NUM_COLUMN; i++) {
                 sheet.autoSizeColumn(i);
             }
         } catch (Exception ex){
@@ -703,40 +707,38 @@ public class CowServices implements ICowServices {
 
     private void generateHealthRecordImport(Workbook workbook, int NUM_START, int NUM_ROWS) throws Exception {
         try {
-            Sheet sheet = workbook.createSheet("Health Record Import");
-
-
-            String[] columns = {
-                        "Cow Name", "Status", "Size", "Period",
-                        "Body Temperature", "Heart Rate", "Respiratory Rate",
-                        "Ruminate Activity", "Chest Circumference", "Body Length", "Description"
-            };
+            Sheet sheet = workbook.getSheet("Health Record Import");
+            int NUM_COLUMN = 11;
+//
+//
+//            String[] columns = {
+//                        "Cow Name", "Status", "Size", "Period",
+//                        "Body Temperature", "Heart Rate", "Respiratory Rate",
+//                        "Ruminate Activity", "Chest Circumference", "Body Length", "Description"
+//            };
 
             // Create shared styles
-            CellStyle borderStyle = createBorderStyle(workbook);
-            CellStyle headerStyle = createHeaderStyle(workbook, borderStyle);
+//            CellStyle borderStyle = createBorderStyle(workbook);
+//            CellStyle headerStyle = createHeaderStyle(workbook, borderStyle);
 
-            Font headerFont = workbook.createFont();
-            headerFont.setBold(true);
+//            Font headerFont = workbook.createFont();
+//            headerFont.setBold(true);
 
             // Create header row
-            Row header = sheet.createRow(0);
-            for (int i = 0; i < columns.length; i++) {
-                Cell cell = header.createCell(i);
-                cell.setCellValue(columns[i]);
-                cell.setCellStyle(headerStyle);
-            }
+//            Row header = sheet.createRow(0);
+//            for (int i = 0; i < columns.length; i++) {
+//                Cell cell = header.createCell(i);
+//                cell.setCellValue(columns[i]);
+//                cell.setCellStyle(headerStyle);
+//            }
 
             // Fill sample rows
             // Fill sample rows
             for (int i = 1; i <= NUM_ROWS; i++) {
-                Row row = sheet.createRow(i);
+                Row row = sheet.getRow(i);
 
-                for (int j = 0; j < columns.length; j++) {
-                    Cell cell = row.createCell(j);
-                    cell.setCellStyle(borderStyle);
-
-                    // Set Cow Name with formula from 'Cow Import' sheet
+                for (int j = 0; j < NUM_COLUMN; j++) {
+                    Cell cell = row.getCell(j);
                     if (j == 0) {
                         String formula = String.format("'Cow Import'!A%d", i + 1); // i+1 because row index is 1-based in Excel
                         cell.setCellFormula(formula);
@@ -755,7 +757,7 @@ public class CowServices implements ICowServices {
             addDropDownList(sheet, CowStatus.values(), NUM_START, NUM_ROWS, 3);          // Period
 
             // Auto-size columns
-            for (int i = 0; i < columns.length; i++) {
+            for (int i = 0; i < NUM_COLUMN; i++) {
                 sheet.autoSizeColumn(i);
             }
         } catch (Exception e) {
@@ -781,7 +783,8 @@ public class CowServices implements ICowServices {
 
     // Add dynamic formula to generate cow name
     private void addFormatName(Row row, int excelRow, long importTimes) {
-        Cell nameCell = row.createCell(0); // Column A
+        Cell nameCell = row.getCell(0); // Column A
+//        nameCell.setBlank();
         String formula = String.format(
                 "IF(G%d<>\"\",UPPER(LEFT(G%d,1))&\"-%04d\"&\"-\"&TEXT(COUNTIF($G$2:G%d,G%d),\"0000\"),\"\")",
                 excelRow, excelRow, importTimes, excelRow, excelRow
@@ -797,25 +800,25 @@ public class CowServices implements ICowServices {
         borderStyle.setBorderRight(BorderStyle.THIN);
         return borderStyle;
     }
-
-    private CellStyle createDateStyle(Workbook workbook, CreationHelper creationHelper) {
-        CellStyle dateStyle = workbook.createCellStyle();
-        dateStyle.cloneStyleFrom(createBorderStyle(workbook));
-        dateStyle.setDataFormat(creationHelper.createDataFormat().getFormat("yyyy-mm-dd"));
-        return dateStyle;
-    }
-
-    private CellStyle createHeaderStyle(Workbook workbook, CellStyle borderStyle) {
-        Font headerFont = workbook.createFont();
-        headerFont.setBold(true);
-
-        CellStyle headerStyle = workbook.createCellStyle();
-        headerStyle.cloneStyleFrom(borderStyle);
-        headerStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
-        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        headerStyle.setFont(headerFont);
-        return headerStyle;
-    }
+//
+//    private CellStyle createDateStyle(Workbook workbook, CreationHelper creationHelper) {
+//        CellStyle dateStyle = workbook.createCellStyle();
+//        dateStyle.cloneStyleFrom(createBorderStyle(workbook));
+//        dateStyle.setDataFormat(creationHelper.createDataFormat().getFormat("yyyy-mm-dd"));
+//        return dateStyle;
+//    }
+//
+//    private CellStyle createHeaderStyle(Workbook workbook, CellStyle borderStyle) {
+//        Font headerFont = workbook.createFont();
+//        headerFont.setBold(true);
+//
+//        CellStyle headerStyle = workbook.createCellStyle();
+//        headerStyle.cloneStyleFrom(borderStyle);
+//        headerStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
+//        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//        headerStyle.setFont(headerFont);
+//        return headerStyle;
+//    }
 
 
 
