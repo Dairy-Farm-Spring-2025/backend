@@ -644,7 +644,8 @@ public class CowServices implements ICowServices {
             workbook.write(out);
             return new ByteArrayInputStream(out.toByteArray());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
+            throw new RuntimeException();
         }
     }
 
