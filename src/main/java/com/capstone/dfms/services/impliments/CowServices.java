@@ -5,15 +5,11 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.utils.QRCodeUtil;
-import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.ICowMapper;
 import com.capstone.dfms.mappers.IHealthReportMapper;
 import com.capstone.dfms.mappers.IPenMapper;
 import com.capstone.dfms.models.*;
-import com.capstone.dfms.models.enums.CowOrigin;
 import com.capstone.dfms.models.enums.CowStatus;
-import com.capstone.dfms.models.enums.Gender;
-import com.capstone.dfms.models.enums.HealthRecordStatus;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.*;
 import com.capstone.dfms.responses.*;
@@ -24,8 +20,6 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.CellRangeAddressList;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -34,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -630,18 +623,24 @@ public class CowServices implements ICowServices {
 
     @Override
     public ByteArrayInputStream exportCowTemplate() throws IOException {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("static/document/cow_import_template.xlsx");
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("static/document/Template Cow Import.xlsx");
         if (inputStream == null) {
             throw new FileNotFoundException("Template file not found!");
         }
 
         try (Workbook workbook = new XSSFWorkbook(inputStream);
              ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            int NUM_START = 1;
-            int NUM_ROWS = 100;
-            this.generateCowImport(workbook, NUM_START, NUM_ROWS);
-            this.generateHealthRecordImport(workbook, NUM_START, NUM_ROWS);
+//            int NUM_START = 1;
+//            int NUM_ROWS = 100;
+//            this.generateCowImport(workbook, NUM_START, NUM_ROWS);
+//            this.generateHealthRecordImport(workbook, NUM_START, NUM_ROWS);
+            long importTime = cowRepository.getMaxImportTimes() == null ? 1 : cowRepository.getMaxImportTimes() + 1;
 
+            Sheet sheet = workbook.getSheet("Import time");
+            Row row = sheet.getRow(1);
+            Cell cell = row.getCell(0);
+
+            cell.setCellValue(importTime);
             workbook.write(out);
             return new ByteArrayInputStream(out.toByteArray());
         } catch (Exception e) {
@@ -650,177 +649,93 @@ public class CowServices implements ICowServices {
         }
     }
 
-    private void generateCowImport(Workbook workbook, int NUM_START, int NUM_ROWS) throws Exception {
-        try{
-            Sheet sheet = workbook.getSheet("Cow Import");
-            int NUM_COLUMN = 8;
+//    private void generateCowImport(Workbook workbook, int NUM_START, int NUM_ROWS) throws Exception {
+//        try{
+//            Sheet sheet = workbook.getSheet("Cow Import");
+//            int NUM_COLUMN = 8;
 
-//            String[] columns = {"Name", "Cow Status", "Date of Birth", "Date of Enter", "Cow Origin", "Gender", "Cow Type", "Description"};
-
-//            // Create shared styles
-//            CreationHelper creationHelper = workbook.getCreationHelper();
-//            CellStyle borderStyle = createBorderStyle(workbook);
-//            CellStyle dateStyle = createDateStyle(workbook, creationHelper);
-//            CellStyle headerStyle = createHeaderStyle(workbook, borderStyle);
+//            long importTime = cowRepository.getMaxImportTimes() == null ? 1 : cowRepository.getMaxImportTimes() + 1;
+//            List<String> cowTypes = cowTypeRepository.findAll().stream().map(CowTypeEntity::getName).toList();
 //
-//            Font headerFont = workbook.createFont();
-//            headerFont.setBold(true);
-
-//            // Create header row
-//            Row header = sheet.createRow(0);
-//            for (int i = 0; i < columns.length; i++) {
-//                Cell cell = header.createCell(i);
-//                cell.setCellValue(columns[i]);
-//                cell.setCellStyle(headerStyle);
-//            }
-
-            long importTime = cowRepository.getMaxImportTimes() == null ? 1 : cowRepository.getMaxImportTimes() + 1;
-            List<String> cowTypes = cowTypeRepository.findAll().stream().map(CowTypeEntity::getName).toList();
-
-            for (int i = NUM_START; i <= NUM_ROWS; i++) {
-                Row row = sheet.getRow(i);
+//            for (int i = NUM_START; i <= NUM_ROWS; i++) {
+//                Row row = sheet.getRow(i);
 //                addFormatName(row, i + 1, importTime); // Excel row index is 1-based
-
-//                for (int j = 0; j < 8; j++) {
-//                    Cell cell = row.getCell(j);
-//                    if (cell == null) cell = row.createCell(j);
-//
-//                    if (j == 2 || j == 3) {
-//                        cell.setCellStyle(dateStyle);
-//                    } else {
-//                        cell.setCellStyle(borderStyle);
-//                    }
-//                }
-            }
+//            }
 
             // Apply drop-downs
-            addDropDownList((XSSFSheet) sheet, CowStatus.values(), NUM_START, NUM_ROWS, 1);
-            addDropDownList((XSSFSheet) sheet, CowOrigin.values(), NUM_START, NUM_ROWS, 4);
-            addDropDownList((XSSFSheet) sheet, Gender.values(), NUM_START, NUM_ROWS, 5);
-            addDropDownList((XSSFSheet) sheet, cowTypes.toArray(new String[0]), NUM_START, NUM_ROWS, 6);
-
-            for (int i = 0; i < NUM_COLUMN; i++) {
-                sheet.autoSizeColumn(i);
-            }
-        } catch (Exception ex){
-            throw new Exception();
-        }
-    }
-
-    private void generateHealthRecordImport(Workbook workbook, int NUM_START, int NUM_ROWS) throws Exception {
-        try {
-            Sheet sheet = workbook.getSheet("Health Record Import");
-            int NUM_COLUMN = 11;
+//            addDropDownList((XSSFSheet) sheet, CowStatus.values(), NUM_START, NUM_ROWS, 1);
+//            addDropDownList((XSSFSheet) sheet, CowOrigin.values(), NUM_START, NUM_ROWS, 4);
+//            addDropDownList((XSSFSheet) sheet, Gender.values(), NUM_START, NUM_ROWS, 5);
+//            addDropDownList((XSSFSheet) sheet, cowTypes.toArray(new String[0]), NUM_START, NUM_ROWS, 6);
 //
-//
-//            String[] columns = {
-//                        "Cow Name", "Status", "Size", "Period",
-//                        "Body Temperature", "Heart Rate", "Respiratory Rate",
-//                        "Ruminate Activity", "Chest Circumference", "Body Length", "Description"
-//            };
-
-            // Create shared styles
-//            CellStyle borderStyle = createBorderStyle(workbook);
-//            CellStyle headerStyle = createHeaderStyle(workbook, borderStyle);
-
-//            Font headerFont = workbook.createFont();
-//            headerFont.setBold(true);
-
-            // Create header row
-//            Row header = sheet.createRow(0);
-//            for (int i = 0; i < columns.length; i++) {
-//                Cell cell = header.createCell(i);
-//                cell.setCellValue(columns[i]);
-//                cell.setCellStyle(headerStyle);
+//            for (int i = 0; i < NUM_COLUMN; i++) {
+//                sheet.autoSizeColumn(i);
 //            }
-
-            // Fill sample rows
-            for (int i = 1; i <= NUM_ROWS; i++) {
-                Row row = sheet.getRow(i);
-
-                for (int j = 0; j < NUM_COLUMN; j++) {
-                    Cell cell = row.getCell(j);
-                    if (j == 0) {
-                        String formula = String.format("'Cow Import'!A%d", i + 1); // i+1 because row index is 1-based in Excel
-                        cell.setCellFormula(formula);
-                    }
-                }
-            }
-
-
-            DataValidationHelper helper = sheet.getDataValidationHelper();
-            DataValidationConstraint cowNameConstraint = helper.createFormulaListConstraint("CowNames");
-            CellRangeAddressList cowNameAddress = new CellRangeAddressList(NUM_START, NUM_ROWS, 0, 0);
-            sheet.addValidationData(helper.createValidation(cowNameConstraint, cowNameAddress));
-
-            // Drop-downs for Status and Period
-            addDropDownList((XSSFSheet) sheet, HealthRecordStatus.values(), NUM_START, NUM_ROWS, 1); // Status
-            addDropDownList((XSSFSheet) sheet, CowStatus.values(), NUM_START, NUM_ROWS, 3);          // Period
-
-            // Auto-size columns
-            for (int i = 0; i < NUM_COLUMN; i++) {
-                sheet.autoSizeColumn(i);
-            }
-        } catch (Exception e) {
-            throw new Exception("Failed to generate health record import sheet", e);
-        }
-    }
-
-
-
-    // Generic drop-down method
-    private void addDropDownList(XSSFSheet sheet, Object[] options, int rowStart, int rowEnd, int colIndex) {
-        addDropDownList(sheet, Arrays.stream(options).map(Object::toString).toArray(String[]::new), rowStart, rowEnd, colIndex);
-    }
-
-    private void addDropDownList(XSSFSheet sheet, String[] options, int rowStart, int rowEnd, int colIndex) {
-        DataValidationHelper helper = sheet.getDataValidationHelper();
-        DataValidationConstraint constraint = helper.createExplicitListConstraint(options);
-        CellRangeAddressList addressList = new CellRangeAddressList(rowStart, rowEnd, colIndex, colIndex);
-        DataValidation validation = helper.createValidation(constraint, addressList);
-        validation.setSuppressDropDownArrow(true);
-        sheet.addValidationData(validation);
-    }
-
-    // Add dynamic formula to generate cow name
-    private void addFormatName(Row row, int excelRow, long importTimes) {
-        Cell nameCell = row.getCell(0); // Column A
-        String formula = String.format(
-                "IF(G%d<>\"\",UPPER(LEFT(G%d,1))&\"-%04d\"&\"-\"&TEXT(COUNTIF($G$2:G%d,G%d),\"0000\"),\"\")",
-                excelRow, excelRow, importTimes, excelRow, excelRow
-        );
-        nameCell.setCellFormula(formula);
-    }
-//
-//    private CellStyle createBorderStyle(Workbook workbook) {
-//        CellStyle borderStyle = workbook.createCellStyle();
-//        borderStyle.setBorderTop(BorderStyle.THIN);
-//        borderStyle.setBorderBottom(BorderStyle.THIN);
-//        borderStyle.setBorderLeft(BorderStyle.THIN);
-//        borderStyle.setBorderRight(BorderStyle.THIN);
-//        return borderStyle;
+//        } catch (Exception ex){
+//            throw new Exception();
+//        }
 //    }
 //
-//    private CellStyle createDateStyle(Workbook workbook, CreationHelper creationHelper) {
-//        CellStyle dateStyle = workbook.createCellStyle();
-//        dateStyle.cloneStyleFrom(createBorderStyle(workbook));
-//        dateStyle.setDataFormat(creationHelper.createDataFormat().getFormat("yyyy-mm-dd"));
-//        return dateStyle;
+//    private void generateHealthRecordImport(Workbook workbook, int NUM_START, int NUM_ROWS) throws Exception {
+//        try {
+//            Sheet sheet = workbook.getSheet("Health Record Import");
+//            int NUM_COLUMN = 11;
+//
+//            // Fill sample rows
+//            for (int i = 1; i <= NUM_ROWS; i++) {
+//                Row row = sheet.getRow(i);
+//
+//                for (int j = 0; j < NUM_COLUMN; j++) {
+//                    Cell cell = row.getCell(j);
+//                    if (j == 0) {
+//                        String formula = String.format("'Cow Import'!A%d", i + 1); // i+1 because row index is 1-based in Excel
+//                        cell.setCellFormula(formula);
+//                    }
+//                }
+//            }
+//
+//
+//            DataValidationHelper helper = sheet.getDataValidationHelper();
+//            DataValidationConstraint cowNameConstraint = helper.createFormulaListConstraint("CowNames");
+//            CellRangeAddressList cowNameAddress = new CellRangeAddressList(NUM_START, NUM_ROWS, 0, 0);
+//            sheet.addValidationData(helper.createValidation(cowNameConstraint, cowNameAddress));
+//
+//            // Drop-downs for Status and Period
+//            addDropDownList((XSSFSheet) sheet, HealthRecordStatus.values(), NUM_START, NUM_ROWS, 1); // Status
+//            addDropDownList((XSSFSheet) sheet, CowStatus.values(), NUM_START, NUM_ROWS, 3);          // Period
+//
+//            // Auto-size columns
+//            for (int i = 0; i < NUM_COLUMN; i++) {
+//                sheet.autoSizeColumn(i);
+//            }
+//        } catch (Exception e) {
+//            throw new Exception("Failed to generate health record import sheet", e);
+//        }
 //    }
 //
-//    private CellStyle createHeaderStyle(Workbook workbook, CellStyle borderStyle) {
-//        Font headerFont = workbook.createFont();
-//        headerFont.setBold(true);
 //
-//        CellStyle headerStyle = workbook.createCellStyle();
-//        headerStyle.cloneStyleFrom(borderStyle);
-//        headerStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
-//        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-//        headerStyle.setFont(headerFont);
-//        return headerStyle;
+//
+//    // Generic drop-down method
+//    private void addDropDownList(XSSFSheet sheet, Object[] options, int rowStart, int rowEnd, int colIndex) {
+//        addDropDownList(sheet, Arrays.stream(options).map(Object::toString).toArray(String[]::new), rowStart, rowEnd, colIndex);
 //    }
 
+//    private void addDropDownList(XSSFSheet sheet, String[] options, int rowStart, int rowEnd, int colIndex) {
+//        DataValidationHelper helper = sheet.getDataValidationHelper();
+//        DataValidationConstraint constraint = helper.createExplicitListConstraint(options);
+//        CellRangeAddressList addressList = new CellRangeAddressList(rowStart, rowEnd, colIndex, colIndex);
+//        DataValidation validation = helper.createValidation(constraint, addressList);
+//        validation.setSuppressDropDownArrow(true);
+//        sheet.addValidationData(validation);
+//    }
 
-
-
+//    // Add dynamic formula to generate cow name
+//    private void addFormatName(Row row, int excelRow, long importTimes) {
+//        Cell nameCell = row.getCell(0); // Column A
+//        String formula = String.format(
+//                "IF(G%d<>\"\",UPPER(LEFT(G%d,1))&\"-%04d\"&\"-\"&TEXT(COUNTIF($G$2:G%d,G%d),\"0000\"),\"\")",
+//                excelRow, excelRow, importTimes, excelRow, excelRow
+//        );
+//        nameCell.setCellFormula(formula);
+//    }
 }
