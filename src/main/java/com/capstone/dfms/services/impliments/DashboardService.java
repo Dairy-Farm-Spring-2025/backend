@@ -28,6 +28,8 @@ public class DashboardService implements IDashboardService {
     private final IReportTaskRepository reportTaskRepository;
     private final IExportItemRepository exportItemRepository;
     private final ICowRepository cowRepository;
+    private final IUserRepository userRepository;
+    private final IRoleRepository roleRepository;
 
     @Override
     public DashboardResponse getTodayStats() {
@@ -109,6 +111,9 @@ public class DashboardService implements IDashboardService {
             return typeStats;
         }).collect(Collectors.toList());
 
+        Long totalWorkers = userRepository.countActiveUsersByRoleName("Worker");
+        Long totalVeterinarians = userRepository.countActiveUsersByRoleName("Veterinarians");
+
 
         DashboardResponse dto = new DashboardResponse();
         dto.setTotalMilkToday(totalMilk);
@@ -122,6 +127,8 @@ public class DashboardService implements IDashboardService {
         dto.setTodayReports(reportDTOs);
         dto.setTotalCow((long) cows.size());
         dto.setCowStatsByType(cowStats);
+        dto.setTotalWorkers(totalWorkers);
+        dto.setTotalVeterinarians(totalVeterinarians);
         return dto;
     }
 }

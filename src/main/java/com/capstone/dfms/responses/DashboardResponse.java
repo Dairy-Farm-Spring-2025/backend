@@ -24,4 +24,7 @@ public class DashboardResponse {
     private List<ReportTaskDBResponse> todayReports;
     private Long totalCow;
     private List<CowTypeStatsResponse> cowStatsByType;
+    private Long totalWorkers;
+    private Long totalVeterinarians;
+
 }
