@@ -607,6 +607,46 @@ public class CowServices implements ICowServices {
 
 
     @Override
+    public List<CowInPenResponse> getCowsArea(Long areaId) {
+        List<PenEntity> pens = penRepository.findByArea(areaId);
+
+        if (pens.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Long> penIds = pens.stream()
+                .map(PenEntity::getPenId)
+                .toList();
+
+        List<CowPenEntity> activeCowPens = cowPenRepository.findActiveByPenIds(penIds);
+
+        List<CowInPenResponse> result = activeCowPens.stream().map(cowPen -> {
+                    CowEntity cow = cowPen.getCowEntity();
+
+                    return new CowInPenResponse(
+                            cow.getCowId(),
+                            cow.getName(),
+                            cow.getCowStatus(),
+                            cow.getCowTypeEntity().getName(),
+                            cowPen.getPenEntity().getPenId(),
+                            cowPen.getPenEntity().getName()
+                    );
+                }).sorted(Comparator
+                        .comparing((CowInPenResponse c) -> c.getPenName().substring(0, 1))
+                        .thenComparing(c -> {
+                            try {
+                                return Integer.parseInt(c.getPenName().substring(1));
+                            } catch (NumberFormatException e) {
+                                return Integer.MAX_VALUE;
+                            }
+                        }))
+                .toList();
+
+        return result;
+    }
+
+
+    @Override
     public List<CowEntity> getCowsByAreaSimple(Long areaId) {
         List<PenEntity> pens = penRepository.findByArea(areaId);
         if (pens.isEmpty()) return Collections.emptyList();

@@ -7,10 +7,7 @@ import com.capstone.dfms.models.HealthRecordEntity;
 import com.capstone.dfms.requests.BulkCowRequest;
 import com.capstone.dfms.requests.CowCreateRequest;
 import com.capstone.dfms.requests.CowUpdateRequest;
-import com.capstone.dfms.responses.BulkCowHealthRecordResponse;
-import com.capstone.dfms.responses.CowPenBulkResponse;
-import com.capstone.dfms.responses.CowResponse;
-import com.capstone.dfms.responses.CowWithFeedMealResponse;
+import com.capstone.dfms.responses.*;
 import com.capstone.dfms.services.ICowServices;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -122,6 +119,12 @@ public class CowController {
     @GetMapping("/area/{areaId}")
     public CoreApiResponse<List<CowWithFeedMealResponse>> getCowsByArea(@PathVariable Long areaId) {
         List<CowWithFeedMealResponse> cows = cowServices.getCowsByArea(areaId);
+        return CoreApiResponse.success(cows);
+    }
+
+    @GetMapping("/byArea/{areaId}")
+    public CoreApiResponse<List<CowInPenResponse>> getCowArea(@PathVariable Long areaId) {
+        List<CowInPenResponse> cows = cowServices.getCowsArea(areaId);
         return CoreApiResponse.success(cows);
     }
 

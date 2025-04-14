@@ -33,4 +33,6 @@ public interface ICowServices {
 
     List<CowEntity> getCowsByAreaSimple(Long areaId);
     ByteArrayInputStream exportCowTemplate() throws IOException;
+
+    List<CowInPenResponse> getCowsArea(Long areaId);
 }
