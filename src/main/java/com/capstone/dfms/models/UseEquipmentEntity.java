@@ -23,7 +23,7 @@ public class UseEquipmentEntity {
 
     @ManyToOne
     @MapsId("taskTypeId")
-    @JoinColumn(name = "taskType_id")
+    @JoinColumn(name = "task_type_id")
     private TaskTypeEntity taskType;
 
     private Long requiredQuantity;
