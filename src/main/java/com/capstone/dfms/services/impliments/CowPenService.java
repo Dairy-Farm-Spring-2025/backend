@@ -3,6 +3,7 @@ package com.capstone.dfms.services.impliments;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.ICowPenMapper;
+import com.capstone.dfms.models.AreaEntity;
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.CowPenEntity;
 import com.capstone.dfms.models.PenEntity;
@@ -188,10 +189,19 @@ public class CowPenService implements ICowPenService {
 
             if (latestCowPen.isPresent() && latestCowPen.get().getToDate() == null) {
                 String cowName = cow.getName();
-                throw new AppException(HttpStatus.BAD_REQUEST,  cowName + " is already in pen " );
+                throw new AppException(HttpStatus.BAD_REQUEST, cowName + " is already in pen");
             }
+
             if (pen.getPenStatus() == PenStatus.occupied) {
                 throw new AppException(HttpStatus.BAD_REQUEST, "Pen '" + pen.getName() + "' is already occupied!");
+            }
+
+            AreaEntity area = pen.getAreaBelongto();
+            if (!cow.getCowTypeEntity().getCowTypeId().equals(area.getCowTypeEntity().getCowTypeId())) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Cow '" + cow.getName() + "' does not match cow type of area '" + area.getName() + "'");
+            }
+            if (!cow.getCowStatus().equals(area.getCowStatus())) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Cow '" + cow.getName() + "' does not match cow status of area '" + area.getName() + "'");
             }
 
             CowPenPK cowPenPK = new CowPenPK(pen.getPenId(), cow.getCowId(), fromDate);
@@ -202,11 +212,11 @@ public class CowPenService implements ICowPenService {
             cowPenEntity.setStatus(PenCowStatus.inPen);
             cowPenRepository.save(cowPenEntity);
             CowPenResponse response = mapper.toResponse(cowPenEntity);
-            //CowPenResponse response = this.create(cowPenEntity);
             responses.add(response);
             pen.setPenStatus(PenStatus.occupied);
             penRepository.save(pen);
         }
+
 
 
         return new CowPenBulkResponse<>(responses, errorList);
@@ -255,6 +265,13 @@ public class CowPenService implements ICowPenService {
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found with ID: " + request.getId().getCowId()));
         PenEntity penEntity = penRepository.findById(request.getId().getPenId())
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Pen not found with ID: " + request.getId().getPenId()));
+        AreaEntity area = penEntity.getAreaBelongto();
+        if (!cowEntity.getCowTypeEntity().getCowTypeId().equals(area.getCowTypeEntity().getCowTypeId())) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Loại bò không phù hợp với khu vực của chuồng.");
+        }
+        if (!cowEntity.getCowStatus().equals(area.getCowStatus())) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Trạng thái bò không phù hợp với khu vực của chuồng.");
+        }
 
         Optional<CowPenEntity> latestCowPen = cowPenRepository.findLatestCowPenByCowId(cowEntity.getCowId());
         PenEntity oldPen = null;

@@ -3,6 +3,7 @@ package com.capstone.dfms.repositories;
 import com.capstone.dfms.models.AreaEntity;
 import com.capstone.dfms.models.PenEntity;
 import com.capstone.dfms.models.TokenEntity;
+import com.capstone.dfms.models.enums.CowStatus;
 import com.capstone.dfms.models.enums.PenStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -34,5 +35,12 @@ public interface IPenRepository extends JpaRepository<PenEntity, Long> {
     List<PenEntity> findByArea(@Param("areaId") Long areaId);
 
     int countByAreaBelongto(AreaEntity areaBelongto);
+
+    @Query("SELECT p FROM PenEntity p " +
+            "WHERE p.areaBelongto.cowTypeEntity.cowTypeId = :cowTypeId " +
+            "AND p.areaBelongto.cowStatus = :cowStatus " +
+            "AND p.penStatus = com.capstone.dfms.models.enums.PenStatus.empty")
+    List<PenEntity> findAvailablePensByCowTypeAndStatus(@Param("cowTypeId") Long cowTypeId,
+                                                        @Param("cowStatus") CowStatus cowStatus);
 
 }

@@ -2,6 +2,7 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.PenEntity;
+import com.capstone.dfms.models.enums.CowStatus;
 import com.capstone.dfms.requests.PenCreateRequest;
 import com.capstone.dfms.requests.PenUpdateRequest;
 import com.capstone.dfms.responses.PenResponse;
@@ -68,5 +69,14 @@ public class PenController {
     public CoreApiResponse<PenStatusCountResponse> getPenStatusCount(@PathVariable Long areaId) {
         PenStatusCountResponse result = penServices.getPenStatusCountByArea(areaId);
         return CoreApiResponse.success(result);
+    }
+
+    @GetMapping("/available")
+    public CoreApiResponse<List<PenResponse>> getAvailablePens(
+            @RequestParam Long cowTypeId,
+            @RequestParam CowStatus cowStatus
+    ) {
+        List<PenResponse> pens = penServices.getPensByCowTypeAndStatus(cowTypeId, cowStatus);
+        return CoreApiResponse.success(pens);
     }
 }
