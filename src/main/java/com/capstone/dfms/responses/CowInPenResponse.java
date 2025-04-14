@@ -1,6 +1,7 @@
 package com.capstone.dfms.responses;
 
 import com.capstone.dfms.models.enums.CowStatus;
+import com.capstone.dfms.models.enums.PenStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,4 +18,6 @@ public class CowInPenResponse {
     private String cowType;
     private Long penId;
     private String penName;
+    private PenStatus penStatus;
+
 }
