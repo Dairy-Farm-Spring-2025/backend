@@ -71,7 +71,7 @@ public class PenController {
         return CoreApiResponse.success(result);
     }
 
-    @GetMapping("/available")
+    @GetMapping("/available/cow")
     public CoreApiResponse<List<PenResponse>> getAvailablePens(
             @RequestParam Long cowTypeId,
             @RequestParam CowStatus cowStatus
