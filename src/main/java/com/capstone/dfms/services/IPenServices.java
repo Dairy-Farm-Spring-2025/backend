@@ -1,6 +1,7 @@
 package com.capstone.dfms.services;
 
 import com.capstone.dfms.models.PenEntity;
+import com.capstone.dfms.models.enums.AreaType;
 import com.capstone.dfms.models.enums.CowStatus;
 import com.capstone.dfms.requests.PenUpdateRequest;
 import com.capstone.dfms.responses.PenResponse;
@@ -18,5 +19,5 @@ public interface IPenServices {
     List<PenEntity> getAvailablePens(LocalDate currentDate);
     PenStatusCountResponse getPenStatusCountByArea(Long areaId);
     List<PenEntity> getPenByArea(Long areaId);
-    List<PenResponse> getPensByCowTypeAndStatus(Long cowTypeId, CowStatus cowStatus);
+    List<PenResponse> getPensByCowTypeAndStatus(Long cowTypeId, CowStatus cowStatus, AreaType areaType);
 }

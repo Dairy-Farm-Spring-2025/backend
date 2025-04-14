@@ -5,6 +5,7 @@ import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.IPenMapper;
 import com.capstone.dfms.models.AreaEntity;
 import com.capstone.dfms.models.PenEntity;
+import com.capstone.dfms.models.enums.AreaType;
 import com.capstone.dfms.models.enums.CowStatus;
 import com.capstone.dfms.models.enums.PenStatus;
 import com.capstone.dfms.repositories.IAreaRepository;
@@ -114,8 +115,9 @@ public class PenServices implements IPenServices {
         return new PenStatusCountResponse(occupied, empty, underMaintenance);
     }
 
-    public List<PenResponse> getPensByCowTypeAndStatus(Long cowTypeId, CowStatus cowStatus) {
-        List<PenEntity> pens = penRepository.findAvailablePensByCowTypeAndStatus(cowTypeId, cowStatus);
+    @Override
+    public List<PenResponse> getPensByCowTypeAndStatus(Long cowTypeId, CowStatus cowStatus, AreaType areaType) {
+        List<PenEntity> pens = penRepository.findAvailablePens(cowTypeId, cowStatus, areaType);
         return pens.stream().map(penMapper::toResponse).collect(Collectors.toList());
     }
 
