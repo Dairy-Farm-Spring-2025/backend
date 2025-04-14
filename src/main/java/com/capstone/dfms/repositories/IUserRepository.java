@@ -46,5 +46,6 @@ public interface IUserRepository extends JpaRepository<UserEntity, Long> {
     List<TaskEntity> findForbiddenTasksForDoctor(@Param("userId") Long userId,
                                                  @Param("date") LocalDate date);
 
-
+    @Query("SELECT COUNT(u) FROM UserEntity u WHERE u.roleId.name = :roleName AND u.status = com.capstone.dfms.models.enums.UserStatus.active")
+    Long countActiveUsersByRoleName(@Param("roleName") String roleName);
 }

@@ -1,6 +1,7 @@
 package com.capstone.dfms.requests;
 
 import com.capstone.dfms.models.enums.AreaType;
+import com.capstone.dfms.models.enums.CowStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -37,4 +38,9 @@ public class AreaCreateRequest {
 
     @NotNull(message = "Area type is required.")
     private AreaType areaType;
+
+    private Long cowTypeId;
+
+    private CowStatus cowStatus;
+
 }
