@@ -23,9 +23,9 @@ public class HealthRecordExcelRequest {
     @ExcelProperty("Size")
     private Float size;
 
-    @NotBlank(message = "Period is required")
-    @ExcelProperty("Period")
-    private String period;
+//    @NotBlank(message = "Period is required")
+//    @ExcelProperty("Period")
+//    private String period;
 
     @NotNull(message = "Body Temperature is required")
     @ExcelProperty("Body Temperature")
@@ -56,9 +56,9 @@ public class HealthRecordExcelRequest {
 
     private List<String> errorString;
 
-    public CowStatus getCowStatus() {
-        return CowStatus.fromString(period);
-    }
+//    public CowStatus getCowStatus() {
+//        return CowStatus.fromString(period);
+//    }
 
     public HealthRecordStatus getHealthRecordStatus() {
         return HealthRecordStatus.fromString(status);
