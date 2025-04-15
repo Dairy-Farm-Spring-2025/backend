@@ -27,9 +27,11 @@ public class IllnessController {
     private final  IIllnessService illnessService;
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
-    @PostMapping("/create")
-    public CoreApiResponse<IllnessEntity> createIllness(@RequestBody IllnessCreateRequest request) {
-        return CoreApiResponse.success(illnessService.createIllness(request));
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CoreApiResponse<IllnessEntity> createIllness(
+            @Valid @ModelAttribute   IllnessCreateRequest request,
+            @RequestPart(name = "newImages", required = false) List<MultipartFile> newImages) throws IOException {
+        return CoreApiResponse.success(illnessService.createIllness(request, newImages));
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
@@ -70,6 +72,7 @@ public class IllnessController {
         return CoreApiResponse.success("Delete successfully!");
     }
 
+    @PreAuthorize("hasAnyRole('WORKER')")
     @PostMapping(value = "/report", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CoreApiResponse<IllnessEntity> reportIllness(
             @Valid @ModelAttribute  IllnessReportRequest request,

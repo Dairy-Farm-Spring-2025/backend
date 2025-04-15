@@ -49,40 +49,7 @@ public class IllnessService implements IIllnessService {
         illness.setUserEntity(UserStatic.getCurrentUser());
         illness.setIllnessStatus(IllnessStatus.pending);
 
-        if (mediaFiles != null && !mediaFiles.isEmpty()) {
-            if (illness.getMediaList() != null) {
-                illness.getMediaList().clear();
-            } else {
-                illness.setMediaList(new ArrayList<>());
-            }
-
-            for (MultipartFile mediaFile : mediaFiles) {
-                if (!mediaFile.isEmpty()) {
-                    String url = null;
-
-                    String contentType = mediaFile.getContentType();
-                    String type = "unknown";
-
-                    if (contentType != null) {
-                        if (contentType.startsWith("image")) {
-                            url = UploadImagesUtils.storeFile(mediaFile, ImageContants.ILLNESS_IMAGE_PATH);
-                            type = "image";
-                        } else if (contentType.startsWith("video")) {
-                            url = UploadImagesUtils.storeVideo(mediaFile, ImageContants.ILLNESS_IMAGE_PATH);
-                            type = "video";
-                        }
-                    }
-
-                    IllnessMediaEntity media = IllnessMediaEntity.builder()
-                            .url(url)
-                            .type(type)
-                            .illness(illness)
-                            .build();
-
-                    illness.getMediaList().add(media);
-                }
-            }
-        }
+        this.attachMedia(illness, mediaFiles);
 
         return illnessRepository.save(illness);
     }
@@ -200,7 +167,7 @@ public class IllnessService implements IIllnessService {
     }
 
     @Override
-    public IllnessEntity createIllness(IllnessCreateRequest request) {
+    public IllnessEntity createIllness(IllnessCreateRequest request, List<MultipartFile> mediaFiles) throws IOException {
         if (request.getSeverity().equals(IllnessSeverity.none)){
             throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("illness.severity.none"));
         }
@@ -242,6 +209,8 @@ public class IllnessService implements IIllnessService {
         for (IllnessDetailEntity detail : createdEntity.getIllnessDetails()) {
             createTaskForIllnessDetail(createdEntity, detail);
         }
+
+        this.attachMedia(illness, mediaFiles);
 
         return createdEntity;
     }
@@ -287,6 +256,41 @@ public class IllnessService implements IIllnessService {
         taskRepository.save(task);
     }
 
+    private void attachMedia(IllnessEntity illness, List<MultipartFile> mediaFiles) throws IOException {
+        if (mediaFiles != null && !mediaFiles.isEmpty()) {
+            if (illness.getMediaList() != null) {
+                illness.getMediaList().clear();
+            } else {
+                illness.setMediaList(new ArrayList<>());
+            }
 
+            for (MultipartFile mediaFile : mediaFiles) {
+                if (!mediaFile.isEmpty()) {
+                    String url = null;
+
+                    String contentType = mediaFile.getContentType();
+                    String type = "unknown";
+
+                    if (contentType != null) {
+                        if (contentType.startsWith("image")) {
+                            url = UploadImagesUtils.storeFile(mediaFile, ImageContants.ILLNESS_IMAGE_PATH);
+                            type = "image";
+                        } else if (contentType.startsWith("video")) {
+                            url = UploadImagesUtils.storeVideo(mediaFile, ImageContants.ILLNESS_IMAGE_PATH);
+                            type = "video";
+                        }
+                    }
+
+                    IllnessMediaEntity media = IllnessMediaEntity.builder()
+                            .url(url)
+                            .type(type)
+                            .illness(illness)
+                            .build();
+
+                    illness.getMediaList().add(media);
+                }
+            }
+        }
+    }
 
 }
