@@ -316,11 +316,11 @@ public class CowServices implements ICowServices {
 
     @Override
     public BulkCowHealthRecordResponse getInformationFromExcel(MultipartFile file) throws IOException {
-//        Long importTimes = Long.parseLong(this.getCellFromImportTimeA2(file));
-//        Long maxImportTimes = cowRepository.getMaxImportTimes() == null ? 1 : cowRepository.getMaxImportTimes() + 1;
-//        if(maxImportTimes != importTimes){
-//            throw new AppException(HttpStatus.BAD_REQUEST, "Invalid import times");
-//        }
+        Long importTimes = Long.parseLong(this.getCellFromImportTimeA2(file));
+        Long maxImportTimes = cowRepository.getMaxImportTimes() == null ? 1 : cowRepository.getMaxImportTimes() + 1;
+        if(maxImportTimes != importTimes){
+            throw new AppException(HttpStatus.BAD_REQUEST, "Invalid import times");
+        }
 
         BulkResponse<CowExcelCreateRequest> cowBulkResponse = this.getCowsFromExcel(file);
 
@@ -377,7 +377,7 @@ public class CowServices implements ICowServices {
 
                 entity.setCowEntity(cowEntity);
                 entity.setWeight(90 * (record.getChestCircumference() * record.getChestCircumference() * record.getBodyLength()));
-
+                entity.setPeriod(cowEntity.getCowStatus());
                 healthRecordEntities.add(healthRecordRepository.save(entity));
             }
             catch (Exception ex){
