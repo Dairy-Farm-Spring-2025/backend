@@ -42,6 +42,31 @@ public class UploadImagesUtils {
         return uniqueFileName;
     }
 
+    public static String storeVideo(MultipartFile videoFile, String path) throws IOException {
+        if (videoFile.getSize() == 0) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Please select a video to upload");
+        }
+        if (!isVideoFile(videoFile) || videoFile.getOriginalFilename() == null) {
+            throw new AppException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Invalid video format");
+        }
+        if (videoFile.getSize() > 100 * 1024 * 1024) { // Limit 100MB
+            throw new AppException(HttpStatus.PAYLOAD_TOO_LARGE, "Video must be <= 100MB");
+        }
+
+        String originalFileName = videoFile.getOriginalFilename();
+        String uniqueFileName = System.currentTimeMillis() + "_" + originalFileName;
+        Path uploadDir = Paths.get(path);
+
+        if (!Files.exists(uploadDir)) {
+            Files.createDirectories(uploadDir);
+        }
+
+        Path destination = Paths.get(uploadDir.toString(), uniqueFileName);
+        Files.copy(videoFile.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+        return uniqueFileName;
+    }
+
+
     private static boolean isImageFile(MultipartFile file) {
         String contentType = file.getContentType();
         if (contentType != null && contentType.startsWith("image/")) {
@@ -49,6 +74,16 @@ public class UploadImagesUtils {
         }
         return false;
     }
+
+    public static boolean isVideoFile(MultipartFile file) {
+        String filename = file.getOriginalFilename();
+        if (filename != null) {
+            return filename.toLowerCase().endsWith(".mp4") || filename.toLowerCase().endsWith(".mov") || filename.toLowerCase().endsWith(".avi");
+        }
+        return false;
+    }
+
+
     public static BufferedImage resize(BufferedImage originalImage, int newWidth, int newHeight) {
         BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = resizedImage.createGraphics();

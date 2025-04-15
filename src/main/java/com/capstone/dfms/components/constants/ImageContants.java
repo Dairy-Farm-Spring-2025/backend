@@ -5,6 +5,7 @@ public class ImageContants {
 
     public static final String USERS_IMAGE_PATH = System.getProperty("user.dir") + "/uploads/users";
     public static final String REPORT_IMAGE_PATH = System.getProperty("user.dir") + "/uploads/reportTasks";
+    public static final String ILLNESS_IMAGE_PATH = System.getProperty("user.dir") + "/uploads/illness";
 
 
 

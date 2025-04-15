@@ -49,4 +49,7 @@ public class IllnessEntity extends BaseEntity{
     @OneToMany(mappedBy = "illnessEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<IllnessDetailEntity> illnessDetails;
+
+    @OneToMany(mappedBy = "illness", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<IllnessMediaEntity> mediaList;
 }

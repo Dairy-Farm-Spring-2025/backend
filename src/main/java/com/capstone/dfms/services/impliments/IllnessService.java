@@ -1,9 +1,10 @@
 package com.capstone.dfms.services.impliments;
 
+import com.capstone.dfms.components.constants.ImageContants;
 import com.capstone.dfms.components.exceptions.AppException;
-import com.capstone.dfms.components.securities.UserPrincipal;
 import com.capstone.dfms.components.statics.UserStatic;
 import com.capstone.dfms.components.utils.LocalizationUtils;
+import com.capstone.dfms.components.utils.UploadImagesUtils;
 import com.capstone.dfms.mappers.IIllnessDetailMapper;
 import com.capstone.dfms.mappers.IIllnessMapper;
 import com.capstone.dfms.models.*;
@@ -12,19 +13,15 @@ import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.*;
 import com.capstone.dfms.services.IIllnessService;
 import com.capstone.dfms.services.INotificationService;
-import com.capstone.dfms.services.IUserService;
-import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -46,11 +43,47 @@ public class IllnessService implements IIllnessService {
 
 
     @Override
-    public IllnessEntity createIllness(IllnessEntity illness) {
+    public IllnessEntity createIllness(IllnessEntity illness, List<MultipartFile> mediaFiles) throws IOException {
         CowEntity cowEntity = this.findCowEntity(illness.getCowEntity().getCowId());
         illness.setCowEntity(cowEntity);
         illness.setUserEntity(UserStatic.getCurrentUser());
         illness.setIllnessStatus(IllnessStatus.pending);
+
+        if (mediaFiles != null && !mediaFiles.isEmpty()) {
+            if (illness.getMediaList() != null) {
+                illness.getMediaList().clear();
+            } else {
+                illness.setMediaList(new ArrayList<>());
+            }
+
+            for (MultipartFile mediaFile : mediaFiles) {
+                if (!mediaFile.isEmpty()) {
+                    String url = null;
+
+                    String contentType = mediaFile.getContentType();
+                    String type = "unknown";
+
+                    if (contentType != null) {
+                        if (contentType.startsWith("image")) {
+                            url = UploadImagesUtils.storeFile(mediaFile, ImageContants.ILLNESS_IMAGE_PATH);
+                            type = "image";
+                        } else if (contentType.startsWith("video")) {
+                            url = UploadImagesUtils.storeVideo(mediaFile, ImageContants.ILLNESS_IMAGE_PATH);
+                            type = "video";
+                        }
+                    }
+
+                    IllnessMediaEntity media = IllnessMediaEntity.builder()
+                            .url(url)
+                            .type(type)
+                            .illness(illness)
+                            .build();
+
+                    illness.getMediaList().add(media);
+                }
+            }
+        }
+
         return illnessRepository.save(illness);
     }
 
@@ -126,11 +159,11 @@ public class IllnessService implements IIllnessService {
 
     //-------------------MAIN FUNCTION---------------------
     @Override
-    public IllnessEntity reportIllness(IllnessEntity illness) {
+    public IllnessEntity reportIllness(IllnessEntity illness, List<MultipartFile> mediaFiles) throws IOException {
         LocalDate currentDate = LocalDate.now();
         illness.setStartDate(currentDate);
 
-        IllnessEntity savedIllness = this.createIllness(illness);
+        IllnessEntity savedIllness = this.createIllness(illness, mediaFiles);
 
         RoleEntity role = roleRepository.findById(2L).orElseThrow(() ->
                 new AppException(HttpStatus.NOT_FOUND,

@@ -8,10 +8,14 @@ import com.capstone.dfms.requests.IllnessPrognosisRequest;
 import com.capstone.dfms.requests.IllnessReportRequest;
 import com.capstone.dfms.requests.IllnessUpdateRequest;
 import com.capstone.dfms.services.IIllnessService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.capstone.dfms.mappers.IIllnessMapper.INSTANCE;
@@ -66,12 +70,14 @@ public class IllnessController {
         return CoreApiResponse.success("Delete successfully!");
     }
 
-    @PreAuthorize("hasAnyRole('WORKER')")
-    @PostMapping("/report")
-    public CoreApiResponse<IllnessEntity> reportIllness(@RequestBody IllnessReportRequest request) {
-        IllnessEntity illness = INSTANCE.toModel(request);
-        return CoreApiResponse.success(illnessService.reportIllness(illness));
+    @PostMapping(value = "/report", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CoreApiResponse<IllnessEntity> reportIllness(
+            @Valid @ModelAttribute  IllnessReportRequest request,
+            @RequestPart(name = "newImages", required = false) List<MultipartFile> newImages
+    ) throws IOException {
+        return CoreApiResponse.success(illnessService.reportIllness(INSTANCE.toModel(request), newImages));
     }
+
 
     @PreAuthorize("hasAnyRole('VETERINARIANS')")
     @PutMapping("/prognosis/{id}")
