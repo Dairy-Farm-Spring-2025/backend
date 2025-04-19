@@ -26,7 +26,6 @@ public class UseEquipmentEntity {
     @ManyToOne
     @MapsId("taskTypeId")
     @JoinColumn(name = "task_type_id")
-    @JsonManagedReference
     private TaskTypeEntity taskType;
 
     private Long requiredQuantity;
