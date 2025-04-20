@@ -38,6 +38,8 @@ public class UserController {
 
     @Autowired
     private AppProperties appProperties;
+
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/create")
     public CoreApiResponse<?> createAccountManager(
             @Valid @RequestBody CreateAccountRequest accountRequest
@@ -45,6 +47,7 @@ public class UserController {
          userService.createAccount(INSTANCE.toModel(accountRequest));
         return CoreApiResponse.success(LocalizationUtils.getMessage("user.create.successfully"));
     }
+
 
     @PostMapping("/signin")
     public CoreApiResponse<SignInResponse> signin(@Valid @RequestBody UserSignInRequest request, HttpServletResponse response) {
@@ -109,13 +112,13 @@ public class UserController {
         return CoreApiResponse.success(LocalizationUtils.getMessage("user.password.change"));
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
     @GetMapping("/profile")
     public CoreApiResponse<?> getCurrentUserProfile() {
         UserEntity currentUser = userService.getMyProfile();
         return CoreApiResponse.success(currentUser);
     }
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/update")
     public CoreApiResponse<UserEntity> updateUser(
             @Valid @ModelAttribute PersonalUpdateRequest updateUserRequest,
@@ -123,6 +126,7 @@ public class UserController {
         return CoreApiResponse.success(userService.updatePersonalInformation(updateUserRequest,imageAvatar),LocalizationUtils.getMessage("user.update.info"));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("/all")
     public CoreApiResponse<List<UserEntity>> getAllUsers() {
         return CoreApiResponse.success(userService.getAllUser());
@@ -133,12 +137,14 @@ public class UserController {
         return CoreApiResponse.success(userService.getUserById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("/veterinarians")
     public CoreApiResponse<List<UserEntity>> getVeterinarians() {
         List<UserEntity> users = userService.getVeterinarians();
         return CoreApiResponse.success(users);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("available/veterinarians")
     public CoreApiResponse<List<UserEntity>>
     getAvailableVeterinarians(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
@@ -146,35 +152,41 @@ public class UserController {
         return CoreApiResponse.success(users);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("/workers")
     public CoreApiResponse<List<UserEntity>> getworkers() {
         List<UserEntity> users = userService.getWorkers();
         return CoreApiResponse.success(users);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/ban/{id}")
     public CoreApiResponse<?> banUser(@PathVariable Long id) {
         userService.banUser(id);
         return CoreApiResponse.success(LocalizationUtils.getMessage("user.update.lock"));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/unban/{id}")
     public CoreApiResponse<?> unbanUser(@PathVariable Long id) {
         userService.unbanUser(id);
         return CoreApiResponse.success(LocalizationUtils.getMessage("user.update.unlock"));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/onleave/{id}")
     public CoreApiResponse<?> updateUser(@PathVariable Long id) {
         userService.updateOnLeave(id);
         return CoreApiResponse.success(LocalizationUtils.getMessage("user.update.status"));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
     @GetMapping("/roles")
     public CoreApiResponse<List<RoleEntity>> getAllRoles() {
         return CoreApiResponse.success(userService.getAllRoles());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/changerole/{userId}/{roleId}")
     public CoreApiResponse<?> changeUserRole(@PathVariable Long userId, @PathVariable Long roleId ) {
          userService.changeUserRole(userId,roleId);
@@ -189,7 +201,7 @@ public class UserController {
         return parts.length == 3;
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("/update/fcmToken")
     public CoreApiResponse<String> updateFcmToken(
             @RequestBody FcmTokenRequest request) {
@@ -214,7 +226,7 @@ public class UserController {
         return CoreApiResponse.success(users);
     }
 
-
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("import/free")
     public CoreApiResponse<List<UserEntity>> getAvailableUsersImport(
             @RequestParam Long roleId,
@@ -232,6 +244,7 @@ public class UserController {
         return CoreApiResponse.success(users);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("/free/night")
     public CoreApiResponse<List<UserEntity>> getFreeNightShiftUsers(
             @RequestParam("fromDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fromDate,

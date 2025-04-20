@@ -7,6 +7,7 @@ import com.capstone.dfms.requests.CategoryRequest;
 import com.capstone.dfms.services.ICategoryServices;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.List;
 public class CategoryController {
     private final ICategoryServices categoryServices;
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/create")
     public CoreApiResponse<?> createCategory(
             @Valid @RequestBody CategoryRequest request
@@ -26,16 +28,19 @@ public class CategoryController {
         return CoreApiResponse.success(LocalizationUtils.getMessage("category.create.success"));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping
     public CoreApiResponse<List<CategoryEntity>> getAll() {
         return CoreApiResponse.success(categoryServices.getAllCategorys());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/{id}")
     public CoreApiResponse<CategoryEntity> getById(@PathVariable Long id) {
         return CoreApiResponse.success(categoryServices.getCategoryById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<?> deleteCategory(
             @PathVariable Long id
@@ -44,6 +49,7 @@ public class CategoryController {
         return CoreApiResponse.success(LocalizationUtils.getMessage("category.delete.success"));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/{id}")
     public CoreApiResponse<?> updateCategory(
             @PathVariable Long id,

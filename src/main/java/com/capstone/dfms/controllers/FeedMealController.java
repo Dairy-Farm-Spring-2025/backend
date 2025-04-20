@@ -12,6 +12,7 @@ import com.capstone.dfms.responses.AreaResponse;
 import com.capstone.dfms.responses.DryMatterResponse;
 import com.capstone.dfms.services.IFeedMealService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -24,24 +25,28 @@ import java.util.Map;
 public class FeedMealController {
     private final IFeedMealService feedMealService;
 
+    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS','MANAGER')")
     @PostMapping
     public CoreApiResponse<?> createFeedMeal(@RequestBody FeedMealRequest request) {
         FeedMealEntity feedMealEntity = feedMealService.createFeedMeal(request);
         return CoreApiResponse.success(feedMealEntity,"Create feed meal successfully");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/{id}")
     public CoreApiResponse<FeedMealEntity> getFeedMealById(@PathVariable Long id) {
         FeedMealEntity feedMealEntity = feedMealService.getFeedMealById(id);
         return CoreApiResponse.success(feedMealEntity);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping
     public CoreApiResponse<List<FeedMealEntity>> getAllFeedMeals() {
 
         return CoreApiResponse.success(feedMealService.getAllFeedMeals());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS','MANAGER')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<?> deleteFeedMeal(
             @PathVariable Long id
@@ -50,6 +55,7 @@ public class FeedMealController {
         return CoreApiResponse.success("Delete feed meal successfully");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS','MANAGER')")
     @PostMapping("drymatter")
     public CoreApiResponse<DryMatterResponse> calculateDryMatter(@RequestBody DryMatterRequest request) {
         double dryMatter = feedMealService.calculateDryMatter(request.getCowStatus(), request.getCowTypeId());
@@ -57,11 +63,13 @@ public class FeedMealController {
         return CoreApiResponse.success(response);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/calculate/{areaId}")
     public CoreApiResponse<?> getFeedForArea(@PathVariable Long areaId) {
         return CoreApiResponse.success(feedMealService.calculateFeedForArea(areaId));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS','MANAGER')")
     @PutMapping("/{id}")
     public CoreApiResponse<FeedMealEntity> updateFeedMeal(
             @PathVariable Long id,
@@ -70,6 +78,7 @@ public class FeedMealController {
         return CoreApiResponse.success(updatedFeedMeal);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS','MANAGER')")
     @PutMapping("detail/{id}")
     public CoreApiResponse<FeedMealDetailEntity> updateFeedMealDetail(
             @PathVariable Long id,
@@ -78,6 +87,7 @@ public class FeedMealController {
         return CoreApiResponse.success(updatedDetail);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS','MANAGER')")
     @PostMapping("addDetail/{feedMealId}")
     public CoreApiResponse<String> addFeedMealDetail(
             @PathVariable Long feedMealId,
@@ -86,6 +96,7 @@ public class FeedMealController {
         return CoreApiResponse.success("Thêm nguyên liệu vào khẩu phần ăn thành công");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS','MANAGER')")
     @DeleteMapping("detail/{feedMealDetailId}")
     public CoreApiResponse<String> removeFeedMealDetail(@PathVariable Long feedMealDetailId) {
         feedMealService.removeFeedMealDetail(feedMealDetailId);

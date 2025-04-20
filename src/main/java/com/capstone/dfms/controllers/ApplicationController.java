@@ -23,7 +23,7 @@ public class ApplicationController {
     private final IApplicationService applicationService;
     private final MessageSource messageSource;  // Inject MessageSource
 
-    @PreAuthorize("hasAnyRole('WORKER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS')")
     @PostMapping("/request")
     public CoreApiResponse<ApplicationEntity> requestApplication(@RequestBody ApplicationCreateRequest request) {
         ApplicationEntity application = applicationService.createApplication(request);
@@ -31,7 +31,7 @@ public class ApplicationController {
         return CoreApiResponse.success(application, message);
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
     @GetMapping("/{id}")
     public CoreApiResponse<ApplicationEntity> getApplicationById(@PathVariable Long id) {
         ApplicationEntity application = applicationService.getApplicationById(id);
@@ -39,7 +39,7 @@ public class ApplicationController {
         return CoreApiResponse.success(application, message);
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
     @GetMapping()
     public CoreApiResponse<List<ApplicationEntity>> getApplication() {
         List<ApplicationEntity> applications = applicationService.getApplications();
@@ -47,7 +47,7 @@ public class ApplicationController {
         return CoreApiResponse.success(applications, message);
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/approval-request/{id}")
     public CoreApiResponse<ApplicationEntity> updateApplication(@PathVariable Long id, @RequestBody ApplicationApproveRequest request) {
         ApplicationEntity application = applicationService.updateApplication(id, request);
@@ -55,7 +55,7 @@ public class ApplicationController {
         return CoreApiResponse.success(application, message);
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @DeleteMapping("/{id}")
     public CoreApiResponse deleteApplication(@PathVariable Long id) {
         applicationService.deleteApplication(id);
@@ -63,7 +63,7 @@ public class ApplicationController {
         return CoreApiResponse.success(message);
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','VETERINARIANS','MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @PutMapping("/cancel-request/{id}")
     public CoreApiResponse<ApplicationEntity> cancelApplication(@PathVariable Long id, @RequestBody ApplicationApproveRequest request) {
         ApplicationEntity application = applicationService.cancelApplication(id, request);
@@ -71,7 +71,7 @@ public class ApplicationController {
         return CoreApiResponse.success(application, message);
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("/by-type/{typeId}")
     public CoreApiResponse<List<ApplicationEntity>> getApplicationsByApplicationType(@PathVariable Long typeId) {
         List<ApplicationEntity> applications = applicationService.getApplicationsByApplicationType(typeId);
@@ -79,7 +79,7 @@ public class ApplicationController {
         return CoreApiResponse.success(applications, message);
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS')")
     @GetMapping("/my-request")
     public CoreApiResponse<List<ApplicationEntity>> getApplicationsByRequestBy() {
         List<ApplicationEntity> applications = applicationService.getApplicationsByRequestBy();
@@ -87,6 +87,7 @@ public class ApplicationController {
         return CoreApiResponse.success(applications, message);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("/findApplication")
     public CoreApiResponse<ApplicationEntity> getApplicationsByUserAndType(
             @RequestParam Long userId,

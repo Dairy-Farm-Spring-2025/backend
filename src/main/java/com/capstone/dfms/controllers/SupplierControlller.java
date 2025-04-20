@@ -6,6 +6,7 @@ import com.capstone.dfms.requests.SupplierRequest;
 import com.capstone.dfms.services.ISupplierServices;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import static com.capstone.dfms.mappers.ISupplierMapper.INSTANCE;
 public class SupplierControlller {
     private final ISupplierServices supplierServices;
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/create")
     public CoreApiResponse<?> createSupplier(
             @Valid @RequestBody SupplierRequest request
@@ -25,16 +27,19 @@ public class SupplierControlller {
         return CoreApiResponse.success("Create supplier successfully.");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping
     public CoreApiResponse<List<SupplierEntity>> getAll() {
         return CoreApiResponse.success(supplierServices.getAllSuppliers());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/{id}")
     public CoreApiResponse<SupplierEntity> getById(@PathVariable Long id) {
         return CoreApiResponse.success(supplierServices.getSupplierById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<?> deleteSupplier(
             @PathVariable Long id
@@ -43,6 +48,7 @@ public class SupplierControlller {
         return CoreApiResponse.success("Delete supplier successfully");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/{id}")
     public CoreApiResponse<?> updateWarehouse(
             @PathVariable Long id,

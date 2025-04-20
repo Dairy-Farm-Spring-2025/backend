@@ -30,7 +30,7 @@ import java.util.Map;
 public class TaskController {
     private final ITaskService taskService;
 
-    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/create")
     public CoreApiResponse<?> createTask(
             @Valid @RequestBody TaskRequest request
@@ -38,7 +38,7 @@ public class TaskController {
         taskService.createMultipleTasks(request);
         return CoreApiResponse.success("Create task successfully.");
     }
-
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping
     public CoreApiResponse<List<TaskEntity>> getAll() {
         return CoreApiResponse.success(taskService.getAllTasks());
@@ -49,29 +49,30 @@ public class TaskController {
         return CoreApiResponse.success(taskService.getTaskById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @DeleteMapping("/{id}")
-    public CoreApiResponse<?> deleteCategory(
+    public CoreApiResponse<?> deleteTask(
             @PathVariable Long id
     ){
         taskService.deleteTask(id);
         return CoreApiResponse.success("Delete task successfully");
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
     @PostMapping("/by-date-range")
     public CoreApiResponse<Map<LocalDate, List<TaskResponse>>> getTasksByDateRange(
             @RequestBody @Valid TaskDateRangeRequest request) {
         return CoreApiResponse.success(taskService.getTasksByDateRange(request.getFromDate(), request.getToDate()));
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
     @GetMapping("/myTasks")
     public CoreApiResponse<List<TaskEntity>> getMyTasks() {
         List<TaskEntity> tasks = taskService.getMyTasks();
         return CoreApiResponse.success(tasks);
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
     @PostMapping("/myTasks/by-date-range/mb")
     public CoreApiResponse<Map<LocalDate, List<RangeTaskResponse>>> getMyTasksByDateRange2(
             @RequestBody @Valid TaskDateRangeRequest request) {
@@ -80,7 +81,7 @@ public class TaskController {
         return CoreApiResponse.success(tasksByDateRange);
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
     @PostMapping("/myTasks/by-date-range")
     public CoreApiResponse<Map<LocalDate, List<TaskResponse>>> getMyTasksByDateRange(
             @RequestBody @Valid TaskDateRangeRequest request) {
@@ -97,7 +98,7 @@ public class TaskController {
         return CoreApiResponse.success(task);
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("update/{taskId}")
     public CoreApiResponse<TaskEntity> updateTask(@PathVariable Long taskId,
                                                  @RequestBody UpdateTaskRequest updateTaskRequest) {
@@ -105,7 +106,7 @@ public class TaskController {
         return CoreApiResponse.success(updatedTask,"Update task successfully");
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/{taskId}/assign/{assigneeId}")
     public CoreApiResponse<TaskEntity> assginVeterinarians(@PathVariable Long taskId,
                                                            @PathVariable Long assigneeId) {
@@ -120,7 +121,7 @@ public class TaskController {
         return CoreApiResponse.success(response);
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("/download-template")
     public ResponseEntity<byte[]> downloadExcelTemplate() throws IOException {
         byte[] excelBytes = taskService.fillTemplateWithDropdown();
@@ -131,12 +132,14 @@ public class TaskController {
                 .body(excelBytes);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/import-tasks")
     public ResponseEntity<Map<String, Map<String, List<TaskExcelResponse>>>> importTasks(@RequestParam("file") MultipartFile file) {
         Map<String, Map<String, List<TaskExcelResponse>>> groupedTasks = taskService.importAndGroupTasks(file);
         return ResponseEntity.ok(groupedTasks);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/create-from-excel")
     public CoreApiResponse<List<TaskEntity>> createTasksFromExcel(@RequestBody List<CreateTaskExcelRequest> requests) {
         List<TaskEntity> createdTasks = taskService.createTasksFromExcel(requests);

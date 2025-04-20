@@ -25,7 +25,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DailyMilkController {
     private final DailyMilkService dailyMilkService;
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @PostMapping("/create")
     public CoreApiResponse<?> createDailyMilk(
             @Valid @RequestBody DailyMilkRequest dailyMilkRequest
@@ -35,12 +36,15 @@ public class DailyMilkController {
         );
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @GetMapping("/cow/{cowId}")
     public CoreApiResponse<List<DailyMilkEntity>> getDailyMilksByCowId(@PathVariable Long cowId) {
         List<DailyMilkEntity> dailyMilks = dailyMilkService.getDailyMilksByCowId(cowId);
         return CoreApiResponse.success(dailyMilks);
     }
 
+
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
 
     @GetMapping("/search")
     public CoreApiResponse<List<DailyMilkEntity>> searchDailyMilk(
@@ -52,6 +56,7 @@ public class DailyMilkController {
         return CoreApiResponse.success(results);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @GetMapping("/search_available")
     public CoreApiResponse<List<DailyMilkEntity>> searchDailyMilkAvailable (
             @RequestParam(required = false) Long cowId,
@@ -62,6 +67,7 @@ public class DailyMilkController {
         return CoreApiResponse.success(results);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @PutMapping("/volume/{dailyMilkId}")
     public CoreApiResponse<?> updateDailyMilkVolume(
             @PathVariable Long dailyMilkId,
@@ -71,6 +77,7 @@ public class DailyMilkController {
         );
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<?> deleteDailyMilk(@PathVariable long id) {
         dailyMilkService.deleteDailyMilk(id);
@@ -78,6 +85,7 @@ public class DailyMilkController {
         );
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @GetMapping("/total/day")
     public CoreApiResponse<TotalMilkTodayResponse> getTotalMilk(
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate milkDate) {
@@ -85,6 +93,7 @@ public class DailyMilkController {
         return CoreApiResponse.success(response);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @GetMapping("/total/month")
     public CoreApiResponse<List<MonthlyMilkSummaryResponse>> getMonthlyMilkSummary(
             @RequestParam int year) {
@@ -92,6 +101,7 @@ public class DailyMilkController {
         return CoreApiResponse.success(summary);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @GetMapping("/total/{cowId}/day")
     public CoreApiResponse<TotalMilkTodayResponse> getTotalMilkByCowAndDate(
             @PathVariable Long cowId,
@@ -101,6 +111,7 @@ public class DailyMilkController {
         return CoreApiResponse.success(response);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @GetMapping("/total/{cowId}/month")
     public CoreApiResponse<List<MonthlyMilkSummaryResponse>> getTotalMilkByMonthAndCow(
             @RequestParam int year,
@@ -109,6 +120,7 @@ public class DailyMilkController {
         return CoreApiResponse.success(response);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @GetMapping("range/{cowId}")
     public CoreApiResponse<List<RangeDailyMilkResponse>> getDailyMilkByCowAndDateRange(
             @PathVariable Long cowId,

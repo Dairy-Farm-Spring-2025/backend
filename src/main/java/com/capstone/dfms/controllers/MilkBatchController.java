@@ -21,6 +21,7 @@ import java.util.List;
 public class MilkBatchController {
     private final IMilkBatchService milkBatchService;
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @PostMapping
     public CoreApiResponse<?> createMilkBatch(
             @RequestBody @RequestParam(name = "dailyMilkIds", required = false) List<Long> dailyMilkIds) {
@@ -28,12 +29,14 @@ public class MilkBatchController {
         return CoreApiResponse.success(LocalizationUtils.getMessage("milk.batch.create.success"));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/dailymilks/{milkBatchId}")
     public CoreApiResponse<List<DailyMilkEntity>> getDailyMilksInBatch(@PathVariable Long milkBatchId) {
         List<DailyMilkEntity> dailyMilks = milkBatchService.getDailyMilksInBatch(milkBatchId);
         return CoreApiResponse.success(dailyMilks);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @PutMapping("/{milkBatchId}")
     public CoreApiResponse<?> updateMilkBatch(
             @PathVariable Long milkBatchId,
@@ -42,16 +45,19 @@ public class MilkBatchController {
         return CoreApiResponse.success(LocalizationUtils.getMessage("milk.batch.update.success"));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping
     public CoreApiResponse<List<MilkBatchEntity>> getAll() {
         return CoreApiResponse.success(milkBatchService.getAllMilkBatch());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/{id}")
     public CoreApiResponse<MilkBatchEntity> getById(@PathVariable Long id) {
         return CoreApiResponse.success(milkBatchService.getMilkBatchById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<?> deleteMilkBatch(
             @PathVariable Long id
@@ -61,7 +67,7 @@ public class MilkBatchController {
     }
 
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER')")
     @PostMapping("/create")
     public CoreApiResponse<MilkBatchEntity> createMilkBatchWithDailyMilks(@RequestBody @Valid MilkBatchRequest request) {
         MilkBatchEntity milkBatch = milkBatchService.createMilkBatchWithDailyMilks(request);

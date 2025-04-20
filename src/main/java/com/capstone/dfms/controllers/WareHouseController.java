@@ -6,6 +6,7 @@ import com.capstone.dfms.requests.WarehouseUpdateRequest;
 import com.capstone.dfms.services.IWarehouseLocationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,8 @@ import static com.capstone.dfms.mappers.IWarehouseMapper.INSTANCE;
 public class WareHouseController {
     private final IWarehouseLocationService warehouseLocationService;
 
+
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/create")
     public CoreApiResponse<?> createWarehouse(
             @Valid @RequestBody WarehouseUpdateRequest request
@@ -26,16 +29,19 @@ public class WareHouseController {
         return CoreApiResponse.success("Create warehouse successfully.");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping
     public CoreApiResponse<List<WarehouseLocationEntity>> getAll() {
         return CoreApiResponse.success(warehouseLocationService.getAllWareHouses());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/{id}")
     public CoreApiResponse<WarehouseLocationEntity> getById(@PathVariable Long id) {
         return CoreApiResponse.success(warehouseLocationService.getWarehouseById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<?> deleteWarehouse(
             @PathVariable Long id
@@ -44,6 +50,7 @@ public class WareHouseController {
         return CoreApiResponse.success("Delete warehouse successfully");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/{id}")
     public CoreApiResponse<?> updateWarehouse(
             @PathVariable Long id,

@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ import static com.capstone.dfms.mappers.IAreaMapper.INSTANCE;
 public class AreaController {
     private final IAreaServices areaServices;
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/create")
     public CoreApiResponse<AreaResponse> createArea(@Valid @RequestBody AreaCreateRequest areaCreateRequest) {
         var areaResponse = areaServices.createArea(INSTANCE.toModel(areaCreateRequest));
@@ -29,6 +31,7 @@ public class AreaController {
         return CoreApiResponse.success(areaResponse, message);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/{id}")
     public CoreApiResponse<AreaResponse> updateArea(
             @PathVariable Long id,
@@ -39,6 +42,7 @@ public class AreaController {
         return CoreApiResponse.success(areaResponse, message);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/{id}")
     public CoreApiResponse<AreaResponse> getAreaById(@PathVariable Long id) {
         AreaResponse areaResponse = areaServices.getAreaById(id);
@@ -46,6 +50,7 @@ public class AreaController {
         return CoreApiResponse.success(areaResponse, message);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping
     public CoreApiResponse<List<AreaResponse>> getAllAreas() {
         List<AreaResponse> areas = areaServices.getAllAreas();

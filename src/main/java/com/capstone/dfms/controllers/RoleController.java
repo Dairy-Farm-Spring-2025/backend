@@ -8,6 +8,7 @@ import com.capstone.dfms.requests.RoleRequest;
 import com.capstone.dfms.services.IRoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.List;
 public class RoleController {
     private final IRoleService roleService;
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/create")
     public CoreApiResponse<?> createRole(
             @Valid @RequestBody RoleRequest request
@@ -26,16 +28,19 @@ public class RoleController {
         return CoreApiResponse.success("Create role successfully.");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping
     public CoreApiResponse<List<RoleEntity>> getAll() {
         return CoreApiResponse.success(roleService.getAllRoles());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/{id}")
     public CoreApiResponse<RoleEntity> getById(@PathVariable Long id) {
         return CoreApiResponse.success(roleService.getRoleById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<?> deleteCategory(
             @PathVariable Long id

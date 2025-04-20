@@ -6,6 +6,7 @@ import com.capstone.dfms.requests.TaskTypeRequest;
 import com.capstone.dfms.services.ITaskTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static com.capstone.dfms.mappers.ITaskTypeMapper.INSTANCE;
@@ -19,6 +20,7 @@ import java.util.List;
 public class TaskTypeController {
     private final ITaskTypeService taskTypeService;
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/create")
     public CoreApiResponse<?> createTaskType(
             @Valid @RequestBody TaskTypeRequest  request
@@ -27,21 +29,25 @@ public class TaskTypeController {
         return CoreApiResponse.success("Create task type successfully.");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping
     public CoreApiResponse<List<TaskTypeEntity>> getAll() {
         return CoreApiResponse.success(taskTypeService.getAllTaskTypes());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("/import")
     public CoreApiResponse<List<TaskTypeEntity>> getImport() {
         return CoreApiResponse.success(taskTypeService.getTaskTypesImport());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/{id}")
     public CoreApiResponse<TaskTypeEntity> getById(@PathVariable Long id) {
         return CoreApiResponse.success(taskTypeService.getTaskTypeById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<?> deleteTaskType(
             @PathVariable Long id

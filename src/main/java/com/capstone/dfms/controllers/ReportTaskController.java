@@ -26,7 +26,7 @@ import static com.capstone.dfms.mappers.IReportTaskMapper.INSTANCE;
 public class ReportTaskController {
     private final IReportTaskService reportTaskService;
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS')")
     @PostMapping("/joinTask/{taskId}")
     public CoreApiResponse<?> joinTask(
             @PathVariable Long taskId){
@@ -34,6 +34,7 @@ public class ReportTaskController {
         return CoreApiResponse.success("Join task successfully.");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS')")
     @PostMapping("/create/{id}")
     public CoreApiResponse<?> create(
             @PathVariable Long id,
@@ -43,6 +44,7 @@ public class ReportTaskController {
         return CoreApiResponse.success("Report task successfully.");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS')")
     @PutMapping("/update/{id}")
     public CoreApiResponse<?> update(
             @PathVariable Long id,
@@ -52,6 +54,7 @@ public class ReportTaskController {
         return CoreApiResponse.success("Report task updated successfully.");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/review/{id}")
     public CoreApiResponse<?> reviewReportTask(
             @PathVariable Long id,
@@ -60,16 +63,19 @@ public class ReportTaskController {
         return CoreApiResponse.success("Report task review successfully.");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping
     public CoreApiResponse<List<ReportTaskEntity>> getAll() {
         return CoreApiResponse.success(reportTaskService.getAllReportTasks());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/{id}")
     public CoreApiResponse<ReportTaskEntity> getById(@PathVariable Long id) {
         return CoreApiResponse.success(reportTaskService.getReportTaskById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<?> delete(
             @PathVariable Long id
@@ -78,12 +84,14 @@ public class ReportTaskController {
         return CoreApiResponse.success("Delete report task successfully");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/task/{taskId}")
     public CoreApiResponse<?> getReportsByTask(@PathVariable Long taskId) {
         List<ReportTaskEntity> reports = reportTaskService.getReportsByTask(taskId);
         return CoreApiResponse.success(reports);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/task/{taskId}/date")
     public CoreApiResponse<?> getReportsByTaskAndDate(
             @PathVariable Long taskId,
@@ -92,6 +100,7 @@ public class ReportTaskController {
         return CoreApiResponse.success(report);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/by-date")
     public CoreApiResponse<List<ReportTaskResponse>> getReportTasksByDate(
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
