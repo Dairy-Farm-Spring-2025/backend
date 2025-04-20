@@ -48,7 +48,15 @@ public class CowController {
     }
 
     @PostMapping("/create-bulk")
-    public CoreApiResponse<?> createBulkCow(@Valid @RequestBody BulkCowRequest requests) {
+    public ResponseEntity<?> createBulkCow(@Valid @RequestBody BulkCowRequest requests) {
+
+        BulkCreateCowResponse result = cowServices.createInformation(requests);
+
+        if (!result.getCowsResponse().getErrors().isEmpty() ||
+                !result.getHealthRecordsResponse().getErrors().isEmpty()) {
+            return CoreApiResponse.status(400).body(result);
+        }
+
         return CoreApiResponse.success(cowServices.createInformation(requests));
     }
 

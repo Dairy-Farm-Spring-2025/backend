@@ -10,6 +10,7 @@ import com.capstone.dfms.mappers.IHealthReportMapper;
 import com.capstone.dfms.mappers.IPenMapper;
 import com.capstone.dfms.models.*;
 import com.capstone.dfms.models.enums.CowStatus;
+import com.capstone.dfms.models.enums.Gender;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.*;
 import com.capstone.dfms.responses.*;
@@ -56,6 +57,16 @@ public class CowServices implements ICowServices {
     public CowResponse createCow(CowEntity request) {
         if (cowRepository.existsByName(request.getName())) {
             throw new AppException(HttpStatus.OK, "Cow with the name '" + request.getName() + "' already exists.");
+        }
+
+        if (request.getDateOfBirth().plusMonths(10).isAfter(LocalDate.now())
+                && request.getCowStatus().equals(CowStatus.milkingCow)){
+            throw new AppException(HttpStatus.BAD_REQUEST, "Milking cow start 10 months");
+        }
+
+        if (request.getGender().equals(Gender.male)
+                && request.getCowStatus().equals(CowStatus.milkingCow)){
+            throw new AppException(HttpStatus.BAD_REQUEST, "Male Cow dont have status milkingCow");
         }
 
         CowTypeEntity cowType = cowTypeRepository.findById(request.getCowTypeEntity().getCowTypeId())
@@ -342,6 +353,14 @@ public class CowServices implements ICowServices {
         List<String> errors = new ArrayList<>();
         request.getCows().forEach((cow) -> {
             try {
+                Set<ConstraintViolation<CowExcelCreateRequest>> violations = validator.validate(cow);
+                if (!violations.isEmpty()) {
+                    String errorMessage = violations.stream()
+                            .map(v -> v.getPropertyPath() + " " + v.getMessage())
+                            .collect(Collectors.joining(", "));
+                    throw new AppException(HttpStatus.BAD_REQUEST, errorMessage);
+                }
+
                 if(Long.parseLong(cow.getName().split("-")[1]) != importTimes){
                     throw new AppException(HttpStatus.BAD_REQUEST, "Invalid name!");
                 }
@@ -370,6 +389,14 @@ public class CowServices implements ICowServices {
         List<String> errors2 = new ArrayList<>();
         request.getHealthRecords().forEach((record) -> {
             try {
+                Set<ConstraintViolation<HealthRecordExcelRequest>> violations = validator.validate(record);
+                if (!violations.isEmpty()) {
+                    String errorMessage = violations.stream()
+                            .map(v -> v.getPropertyPath() + " " + v.getMessage())
+                            .collect(Collectors.joining(", "));
+                    throw new AppException(HttpStatus.BAD_REQUEST, errorMessage);
+                }
+
                 CowEntity cowEntity = cowRepository.findByName(record.getCowName())
                         .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Invalid Cow name"));
 
@@ -472,6 +499,11 @@ public class CowServices implements ICowServices {
                 if (cowEntity.getDateOfBirth().plusMonths(10).isAfter(LocalDate.now())
                         && cowEntity.getCowStatus().equals(CowStatus.milkingCow)){
                     throw new AppException(HttpStatus.BAD_REQUEST, "Milking cow start 10 months");
+                }
+
+                if (cowEntity.getGender().equals(Gender.male)
+                        && cowEntity.getCowStatus().equals(CowStatus.milkingCow)){
+                    throw new AppException(HttpStatus.BAD_REQUEST, "Male Cow dont have status milkingCow");
                 }
 
                 // If all is good, you can add to final list or save
