@@ -2,11 +2,8 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.VaccineCycleEntity;
-import com.capstone.dfms.models.WarehouseLocationEntity;
 import com.capstone.dfms.requests.UpdateVaccineCycleRequest;
 import com.capstone.dfms.requests.VaccineCycleRequest;
-import com.capstone.dfms.requests.VaccineCycleUpdateInfo;
-import com.capstone.dfms.requests.WarehouseUpdateRequest;
 import com.capstone.dfms.services.IVaccineCycleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.capstone.dfms.mappers.IVaccineCycleMapper.INSTANCE;
 
 @RestController
 @RequestMapping("${app.api.version.v1}/vaccinecycles")

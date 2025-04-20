@@ -27,7 +27,6 @@ public class TokenProvider {
     private ITokenRepository tokenRepository;
     private final AppProperties appProperties;
 
-    // Constructor Injection
     @Autowired
     public TokenProvider(AppProperties appProperties) {
         this.appProperties = appProperties;

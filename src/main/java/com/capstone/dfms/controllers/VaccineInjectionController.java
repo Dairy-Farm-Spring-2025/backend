@@ -5,9 +5,7 @@ import com.capstone.dfms.models.VaccineInjectionEntity;
 import com.capstone.dfms.models.enums.InjectionStatus;
 import com.capstone.dfms.requests.VaccineInjectionRequest;
 import com.capstone.dfms.services.IVaccineInjectionService;
-import com.capstone.dfms.services.impliments.VaccineInjectionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

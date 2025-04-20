@@ -1,8 +1,6 @@
 package com.capstone.dfms.mappers;
 
-import com.capstone.dfms.models.ApplicationEntity;
 import com.capstone.dfms.models.EquipmentEntity;
-import com.capstone.dfms.requests.ApplicationApproveRequest;
 import com.capstone.dfms.requests.EquipmentRequest;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;

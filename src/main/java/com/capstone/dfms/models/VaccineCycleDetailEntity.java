@@ -51,7 +51,6 @@ public class VaccineCycleDetailEntity extends BaseEntity{
 
     @ManyToOne
     @JoinColumn(name = "vaccine_cycle_id")
-//    @JsonIgnoreProperties("vaccineCycleDetails")
     @JsonIgnore
     private VaccineCycleEntity vaccineCycleEntity;
 }

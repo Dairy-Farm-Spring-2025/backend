@@ -2,9 +2,7 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.models.VaccineCycleDetailEntity;
-import com.capstone.dfms.requests.UpdateVaccineCycleDetailRequest;
 import com.capstone.dfms.requests.VaccineCycleDetailCreateRequest;
-import com.capstone.dfms.requests.VaccineCycleDetailRequest;
 import com.capstone.dfms.requests.VaccineCycleDetailUpdateRequest;
 import com.capstone.dfms.services.IVaccineCycleDetailService;
 import lombok.RequiredArgsConstructor;

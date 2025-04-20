@@ -30,7 +30,5 @@ public class NotificationEntity extends BaseEntity{
 
     private CategoryNotification category;
 
-//    @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<UserNotificationEntity> userNotifications;
 
 }

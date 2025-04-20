@@ -22,7 +22,6 @@ public class FirebaseConfig {
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
 
-        //FileInputStream serviceAccount = new FileInputStream(serviceAccountPath);
         ByteArrayInputStream serviceAccountStream =
                 new ByteArrayInputStream(serviceAccountPath.getBytes(StandardCharsets.UTF_8));
 

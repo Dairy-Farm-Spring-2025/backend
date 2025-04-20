@@ -1,10 +1,8 @@
 package com.capstone.dfms.mappers;
 
 import com.capstone.dfms.models.HealthRecordEntity;
-import com.capstone.dfms.models.IllnessDetailEntity;
 import com.capstone.dfms.requests.HealthRecordExcelRequest;
 import com.capstone.dfms.requests.HealthReportRequest;
-import com.capstone.dfms.requests.IllnessDetailUpdateRequest;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 

@@ -1,9 +1,7 @@
 package com.capstone.dfms.mappers;
 
 import com.capstone.dfms.models.SupplierEntity;
-import com.capstone.dfms.models.WarehouseLocationEntity;
 import com.capstone.dfms.requests.SupplierRequest;
-import com.capstone.dfms.requests.WarehouseUpdateRequest;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

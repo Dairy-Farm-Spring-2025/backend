@@ -13,8 +13,4 @@ public interface IItemBatchMapper {
     @Mapping(source = "supplierId", target = "supplierEntity.supplierId")
     ItemBatchEntity toModel(ItemBatchRequest request);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(source = "itemId", target = "itemEntity.itemId")
-    @Mapping(source = "supplierId", target = "supplierEntity.supplierId")
-    void updateItemBatchFromRequest(ItemBatchRequest updateRequest, @MappingTarget ItemBatchEntity itemBatch);
 }

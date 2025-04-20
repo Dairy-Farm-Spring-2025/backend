@@ -47,8 +47,6 @@ public interface IDailyMilkRepository extends JpaRepository<DailyMilkEntity, Lon
             @Param("shift") MilkShift shift
     );
 
-    @Query("SELECT d FROM DailyMilkEntity d WHERE d.dailyMilkId IN :ids")
-    List<DailyMilkEntity> findByDailyMilkIdIn(@Param("ids") List<Long> ids);
 
     @Query("SELECT COUNT(dm) FROM DailyMilkEntity dm WHERE dm.cow = :cow AND dm.milkDate = :milkDate")
     long countByCowAndMilkDate(@Param("cow") CowEntity cow, @Param("milkDate") LocalDate milkDate);

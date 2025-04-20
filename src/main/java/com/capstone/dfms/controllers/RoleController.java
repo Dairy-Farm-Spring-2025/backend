@@ -1,9 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
-import com.capstone.dfms.models.CategoryEntity;
 import com.capstone.dfms.models.RoleEntity;
-import com.capstone.dfms.requests.CategoryRequest;
 import com.capstone.dfms.requests.RoleRequest;
 import com.capstone.dfms.services.IRoleService;
 import jakarta.validation.Valid;

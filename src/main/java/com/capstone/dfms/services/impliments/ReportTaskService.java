@@ -4,6 +4,7 @@ import com.capstone.dfms.components.constants.ImageContants;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.securities.UserPrincipal;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.UploadImagesUtils;
 import com.capstone.dfms.mappers.IReportTaskMapper;
 import com.capstone.dfms.models.ReportTaskEntity;
@@ -43,18 +44,19 @@ public class ReportTaskService implements IReportTaskService {
     @Override
     public ReportTaskEntity createReportTask(long reportTaskId,ReportTaskEntity updatedReportTask,List<MultipartFile> images) throws IOException {
         ReportTaskEntity existingReport = reportTaskRepository.findById(reportTaskId)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "No pending report found for this task."));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("report.task.not_found")
+                ));
         TaskEntity task = existingReport.getTaskId();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         UserEntity user = userPrincipal.getUser();
 
         if (!task.getAssignee().getId().equals(user.getId())) {
-            throw new AppException(HttpStatus.FORBIDDEN, "You are not assigned to this task.");
+            throw new AppException(HttpStatus.FORBIDDEN, LocalizationUtils.getMessage("report.task.not_assigned"));
         }
 
         if (!existingReport.getStartTime().toLocalDate().equals(LocalDate.now())) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "You can only report on the creation date.");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("report.task.invalid_date"));
         }
         existingReport.setDescription(updatedReportTask.getDescription());
         existingReport.setComment(updatedReportTask.getComment());
@@ -85,7 +87,7 @@ public class ReportTaskService implements IReportTaskService {
     public ReportTaskEntity joinTask(long taskId) {
         boolean exists = reportTaskRepository.existsByTaskAndDate(taskId, LocalDate.now());
         if (exists) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "A pending report for this task already exists.");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("report.task.already_exists"));
         }
         ReportTaskEntity reportTask = new ReportTaskEntity();
         TaskEntity task = taskRepository.findById(taskId)
@@ -96,11 +98,13 @@ public class ReportTaskService implements IReportTaskService {
         UserEntity user = userPrincipal.getUser();
 
         if (!task.getAssignee().getId().equals(user.getId())) {
-            throw new AppException(HttpStatus.FORBIDDEN, "You are not assigned to this task.");
+            throw new AppException(HttpStatus.FORBIDDEN, LocalizationUtils.getMessage("report.task.not_assigned")
+            );
         }
         LocalDate date = LocalDate.now();
         if (date.isBefore(task.getFromDate()) || date.isAfter(task.getToDate())) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Report date must be within the task duration.");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("report.task.out_of_range")
+            );
         }
         reportTask.setDate(date);
         reportTask.setStartTime(LocalDateTime.now());
@@ -114,7 +118,8 @@ public class ReportTaskService implements IReportTaskService {
     @Override
     public ReportTaskEntity getReportTaskById(long id) {
         return reportTaskRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This reportTask is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                        LocalizationUtils.getMessage("report.task.not_exist")));
     }
 
     @Override
@@ -127,11 +132,13 @@ public class ReportTaskService implements IReportTaskService {
             Long id, ReportTaskUpdateRequest request, List<MultipartFile> newImages)
             throws IOException {
         ReportTaskEntity reportTask = reportTaskRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("ReportTask", "id", id));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                LocalizationUtils.getMessage("report.task.not_exist")));
 
         LocalDate today = LocalDate.now();
         if (!reportTask.getDate().isEqual(today)) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "You can only update the report on the same day it was created.");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("report.task.update_date_invalid")
+            );
         }
 
         if (request.getDescription() != null) {

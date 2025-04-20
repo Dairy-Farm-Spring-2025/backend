@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.models.CategoryEntity;
 import com.capstone.dfms.models.RoleEntity;
@@ -31,7 +32,7 @@ public class RoleService implements IRoleService {
     @Override
     public RoleEntity getRoleById(long id) {
         return roleRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This role is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("role.not_found")));
     }
 
     @Override
@@ -47,7 +48,8 @@ public class RoleService implements IRoleService {
                 .orElseThrow(() -> new DataNotFoundException("Role", "id", id));
         boolean hasUsers = userRepository.existsByRoleId(roleEntity);
         if (hasUsers) {
-            throw new AppException(HttpStatus.BAD_REQUEST,"Cannot delete role because it is assigned to one or more users.");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("role.delete.assigned_users")
+            );
         }
         roleRepository.delete(roleEntity);
     }
