@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.securities.UserPrincipal;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.IReportTaskMapper;
 import com.capstone.dfms.mappers.ITaskMapper;
 import com.capstone.dfms.models.*;
@@ -62,34 +63,38 @@ public class TaskService implements ITaskService {
     public List<TaskEntity> createMultipleTasks(TaskRequest request) {
         List<TaskEntity> tasks = new ArrayList<>();
 
-//        AreaEntity area = areaRepository.findById(request.getAreaId())
-//                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy khu vực"));
-
         TaskTypeEntity taskType = taskTypeRepository.findById(request.getTaskTypeId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy loại công việc"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                        LocalizationUtils.getMessage("task.task_type_not_found")
+                ));
 
         IllnessEntity illness = null;
         AreaEntity area;
 
         if (request.getIllnessId() != null) {
             illness = illnessRepository.findById(request.getIllnessId())
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy loại bệnh"));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                            LocalizationUtils.getMessage("illness.not.found")
+                    ));
 
             CowEntity cow = illness.getCowEntity();
 
             CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
             if (latestCowPen == null || latestCowPen.getPenEntity() == null) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Bò đang không ở trong chuồng vui lòng kiểm tra lại");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.not.in.pen")
+                );
 
             }
 
             area = latestCowPen.getPenEntity().getAreaBelongto();
             if (area == null) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy khu vực");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.area_not_found")
+                );
             }
         } else if (request.getAreaId() != null) {
             area = areaRepository.findById(request.getAreaId())
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy khu vực"));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.area_not_found")
+                    ));
         } else {
             area = null;
         }
@@ -101,11 +106,13 @@ public class TaskService implements ITaskService {
         LocalDate today = LocalDate.now();
 
         if (request.getFromDate().isBefore(today)) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Ngày bắt đầu phải từ hôm nay hoặc sau");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.invalid_start_date")
+            );
         }
 
         if (request.getToDate().isBefore(request.getFromDate())) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Ngày kết thúc phải sau ngày bắt đầu");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.invalid_end_date")
+            );
         }
 
         for (Long assigneeId : request.getAssigneeIds()) {
@@ -113,14 +120,17 @@ public class TaskService implements ITaskService {
                     .orElseThrow(() -> new DataNotFoundException("User", "id", assigneeId));
 
             if (!assignee.getRoleId().equals(taskType.getRoleId())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Người được giao không có vai trò phù hợp với loại công việc");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.invalid_assignee_role=")
+                );
             }
             if (!isAssigneeAvailableForTask(assigneeId, request.getFromDate(), request.getToDate())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã vượt quá tối đa 6 ngày làm việc trong tuần.");
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        String.format(LocalizationUtils.getMessage("task.overload"), assignee.getName()));
             }
             if (!assignee.getRoleId().getName().equalsIgnoreCase("Veterinarians") && illness == null) {
                 if (isDuplicateTaskTypeAndArea(assigneeId, request.getTaskTypeId(), request.getAreaId(), request.getFromDate(), request.getToDate())) {
-                    throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã có công việc loại này trong khu vực này trong thời gian này.");
+                    throw new AppException(HttpStatus.BAD_REQUEST,
+                            String.format(LocalizationUtils.getMessage("task.duplicate"), assignee.getName()));
                 }
             }
             PriorityTask priority = determinePriority(taskType.getName());
@@ -160,7 +170,7 @@ public class TaskService implements ITaskService {
     @Override
     public TaskEntity getTaskById(long id) {
         return taskRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Task is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.not_found")));
     }
 
     @Override
@@ -171,7 +181,7 @@ public class TaskService implements ITaskService {
     @Override
     public void deleteTask(long id) {
         TaskEntity task = taskRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Task is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.not_found")));
         taskRepository.delete(task);
     }
 
@@ -253,7 +263,7 @@ public class TaskService implements ITaskService {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         UserEntity assignee = userPrincipal.getUser();
         return taskRepository.findMyTaskById(taskId, assignee.getId())
-                .orElseThrow(() -> new AppException(HttpStatus.FORBIDDEN,"Bạn không có quyền truy cập task này!"));
+                .orElseThrow(() -> new AppException(HttpStatus.FORBIDDEN, LocalizationUtils.getMessage("task.access.denied")));
     }
 
 
@@ -315,7 +325,7 @@ public class TaskService implements ITaskService {
                             (task.getFromDate().isEqual(dateToCheck) || task.getFromDate().isBefore(dateToCheck)) &&
                                     (task.getToDate().isEqual(dateToCheck) || task.getToDate().isAfter(dateToCheck)))
                     .map(task -> {
-                        RangeTaskResponse taskResponse = ITaskMapper.INSTANCE.toResponse2(task); // map lại mỗi lần
+                        RangeTaskResponse taskResponse = ITaskMapper.INSTANCE.toResponse2(task);
                         List<ReportTaskEntity> reports = reportTaskMap.get(task.getTaskId());
                         if (reports != null) {
                             ReportTaskEntity reportForDay = reports.stream()
@@ -339,7 +349,7 @@ public class TaskService implements ITaskService {
     @Override
     public TaskEntity updateAssigneeForTask(Long taskId, Long assigneeId){
         TaskEntity task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Task not found with ID: " + taskId));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("task.not_found")));
 
         UserEntity assignee = userRepository.findById(assigneeId)
                 .orElseThrow(() -> new DataNotFoundException("User", "id", assigneeId));
@@ -356,7 +366,8 @@ public class TaskService implements ITaskService {
     @Override
     public TaskEntity updateTask(Long taskId, UpdateTaskRequest request) {
         TaskEntity task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Task not found with ID: " + taskId));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("task.not_found")
+                ));
 
         LocalDate toDate = task.getToDate();
         LocalDate fromDate = task.getFromDate();
@@ -370,16 +381,16 @@ public class TaskService implements ITaskService {
             LocalDate newFromDate = request.getFromDate();
 
             if (LocalDate.now().isAfter(task.getFromDate())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Cannot update task as the from date is already in the future.");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.invalid_from_date_update"));
             }
 
             if (newFromDate.isBefore(LocalDate.now())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Ngày bắt đầu phải từ hôm nay hoặc sau.");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.invalid_start_date"));
             }
 
             if (!isAssigneeAvailableForTask(assignee.getId(), newFromDate, toDate)) {
                 throw new AppException(HttpStatus.BAD_REQUEST,
-                        "Người dùng " + assignee.getName() + " đã vượt quá tối đa 6 ngày làm việc trong tuần.");
+                        String.format(LocalizationUtils.getMessage("task.overload"), assignee.getName()));
             }
 
             task.setFromDate(newFromDate);
@@ -389,7 +400,7 @@ public class TaskService implements ITaskService {
         if (request.getToDate() != null) {
             if (!isAssigneeAvailableForTask(assignee.getId(), fromDate, request.getToDate())) {
                 throw new AppException(HttpStatus.BAD_REQUEST,
-                        "Người dùng " + assignee.getName() + " đã đạt giới hạn tối đa 6 ngày làm việc trong tuần.");
+                        String.format(LocalizationUtils.getMessage("task.overload"), assignee.getName()));
             }else{
                 task.setToDate(request.getToDate());
 
@@ -398,7 +409,7 @@ public class TaskService implements ITaskService {
 
         if (request.getAreaId() != null) {
             AreaEntity area = areaRepository.findById(request.getAreaId())
-                    .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Area not found with ID: " + request.getAreaId()));
+                    .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("task.area_not_found")));
             task.setAreaId(area);
         }
 
@@ -417,14 +428,16 @@ public class TaskService implements ITaskService {
             for (LocalDate offDate : offDates) {
                 if (offDate.isBefore(fromDate) || offDate.isAfter(toDate)) {
                     throw new AppException(HttpStatus.BAD_REQUEST,
-                            "Ngày nghỉ " + offDate + " không nằm trong khoảng " + fromDate + " - " + toDate);
+                            String.format("%s %s %s %s - %s",
+                                    LocalizationUtils.getMessage("task.invalid_off_date_range"),
+                                    offDate, fromDate, toDate));
                 }
             }
 
             for (int i = 1; i < offDates.size(); i++) {
                 if (!offDates.get(i).equals(offDates.get(i - 1).plusDays(1))) {
                     throw new AppException(HttpStatus.BAD_REQUEST,
-                            "Danh sách ngày nghỉ phải liên tiếp nhau.");
+                            LocalizationUtils.getMessage("task.off_dates_must_be_consecutive"));
                 }
             }
 
@@ -466,7 +479,8 @@ public class TaskService implements ITaskService {
     @Override
     public RangeTaskResponse getTaskDetail(Long taskId) {
         TaskEntity taskEntity = taskRepository.findById(taskId)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,"Task not found with id: " + taskId));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                        LocalizationUtils.getMessage("task.not_found")));
 
         return ITaskMapper.INSTANCE.toResponse2(taskEntity);
     }
@@ -606,34 +620,37 @@ public class TaskService implements ITaskService {
         for (CreateTaskExcelRequest request : requests) {
             LocalDate today = LocalDate.now();
             if (request.getFromDate().isBefore(today)) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Ngày bắt đầu phải từ hôm nay hoặc sau");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.invalid_start_date")
+                );
             }
 
             if (request.getToDate().isBefore(request.getFromDate())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Ngày kết thúc phải sau ngày bắt đầu");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.invalid_end_date"));
             }
             UserEntity assignee = userRepository.findById(request.getAssigneeId())
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy người được giao"));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.assignee_not_found")));
 
 
             AreaEntity area = areaRepository.findByName(request.getAreaName());
             if (area == null) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy khu vực: " + request.getAreaName());
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.area_not_found") + request.getAreaName());
             }
 
             TaskTypeEntity taskTypeEntity = taskTypeRepository.findByName(request.getTaskType())
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Không tìm thấy loại công việc: " + request.getTaskType()));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.task_type_not_found") + request.getTaskType()));
 
             PriorityTask priority = determinePriority(request.getTaskType());
 
             if (!assignee.getRoleId().equals(taskTypeEntity.getRoleId())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Người được giao không có vai trò phù hợp với loại công việc");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.invalid_assignee_role"));
             }
             if (!isAssigneeAvailableForTask(assignee.getId(), request.getFromDate(), request.getToDate())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã vượt quá tối đa 6 ngày làm việc trong tuần.");
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        String.format(LocalizationUtils.getMessage("task.overload"), assignee.getName()));
             }
             if (isDuplicateTaskTypeAndArea(assignee.getId(), taskTypeEntity.getTaskTypeId(),area.getAreaId(), request.getFromDate(), request.getToDate())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Người dùng " + assignee.getName() + " đã có công việc loại này trong khu vực này trong thời gian này.");
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        String.format(LocalizationUtils.getMessage("task.duplicate"), assignee.getName()));
             }
 
             TaskEntity task = TaskEntity.builder()

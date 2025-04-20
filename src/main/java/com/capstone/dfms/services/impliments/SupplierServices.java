@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.ISupplierMapper;
 import com.capstone.dfms.models.SupplierEntity;
@@ -31,7 +32,8 @@ public class SupplierServices implements ISupplierServices {
     @Override
     public SupplierEntity getSupplierById(long id) {
         return supplierRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This supplier is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("supplier.not_found")
+                ));
     }
 
     @Override
