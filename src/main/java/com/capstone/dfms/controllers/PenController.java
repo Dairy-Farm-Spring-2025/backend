@@ -11,6 +11,7 @@ import com.capstone.dfms.responses.PenStatusCountResponse;
 import com.capstone.dfms.services.IPenServices;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ import static com.capstone.dfms.mappers.IPenMapper.INSTANCE;
 @RequiredArgsConstructor
 public class PenController {
     private final IPenServices penServices;
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/create")
     public CoreApiResponse<PenResponse> createPen(
             @Valid @RequestBody PenCreateRequest penCreateRequest
@@ -31,6 +33,7 @@ public class PenController {
         return CoreApiResponse.success(penResponse);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/{id}")
     public CoreApiResponse<PenResponse> updatePen(
             @PathVariable Long id,
@@ -40,18 +43,21 @@ public class PenController {
         return CoreApiResponse.success(penResponse);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping("/{id}")
     public CoreApiResponse<PenResponse> getPenById(@PathVariable Long id) {
         PenResponse penResponse = penServices.getPenById(id);
         return CoreApiResponse.success(penResponse);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping
     public CoreApiResponse<List<PenResponse>> getAllPens() {
         List<PenResponse> pens = penServices.getAllPens();
         return CoreApiResponse.success(pens);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping("/available")
     public CoreApiResponse<List<PenEntity>> getAvailablePen() {
         // Get available pens
@@ -61,17 +67,20 @@ public class PenController {
         return CoreApiResponse.success(availablePens);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping("/area/{id}")
     public CoreApiResponse<List<PenEntity>> getPenByArea(@PathVariable Long id) {
         return CoreApiResponse.success(penServices.getPenByArea(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping("/status-count/{areaId}")
     public CoreApiResponse<PenStatusCountResponse> getPenStatusCount(@PathVariable Long areaId) {
         PenStatusCountResponse result = penServices.getPenStatusCountByArea(areaId);
         return CoreApiResponse.success(result);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping("/available/cow")
     public CoreApiResponse<List<PenResponse>> getAvailablePens(
             @RequestParam Long cowTypeId,

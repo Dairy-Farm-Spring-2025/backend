@@ -10,6 +10,7 @@ import com.capstone.dfms.requests.WarehouseUpdateRequest;
 import com.capstone.dfms.services.IVaccineCycleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,22 +22,26 @@ import static com.capstone.dfms.mappers.IVaccineCycleMapper.INSTANCE;
 @RequiredArgsConstructor
 public class VaccineCycleController {
     private final IVaccineCycleService vaccineCycleService;
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     @PostMapping("/create")
     public CoreApiResponse<VaccineCycleEntity> createVaccineCycle(@RequestBody VaccineCycleRequest request) {
         VaccineCycleEntity savedVaccineCycle = vaccineCycleService.createVaccineCycle(request);
         return CoreApiResponse.success(savedVaccineCycle,"Create Vaccine cycle successfully");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping
     public CoreApiResponse<List<VaccineCycleEntity>> getAll() {
         return CoreApiResponse.success(vaccineCycleService.getAllVaccineCycles());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping("/{id}")
     public CoreApiResponse<VaccineCycleEntity> getById(@PathVariable Long id) {
         return CoreApiResponse.success(vaccineCycleService.getVaccineCycleById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<?> deleteVaccineCycle(
             @PathVariable Long id
@@ -45,20 +50,14 @@ public class VaccineCycleController {
         return CoreApiResponse.success("Delete vaccine cycle successfully");
     }
 
-//    @PutMapping("/{id}")
-//    public CoreApiResponse<?> updateVaccineCycle(
-//            @PathVariable Long id,
-//            @RequestBody VaccineCycleUpdateInfo request) {
-//        vaccineCycleService.updateVaccineCycle(id,request );
-//        return CoreApiResponse.success("Vaccine cylce update successfully.");
-//    }
-
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     @PutMapping("/{id}")
     public CoreApiResponse<VaccineCycleEntity> updateVaccineCycle(@PathVariable Long id,
                                                                   @RequestBody @Valid UpdateVaccineCycleRequest request) {
         return CoreApiResponse.success(vaccineCycleService.updateVaccineCycle(id, request));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping("/cowType/{cowTypeId}")
     public CoreApiResponse<List<VaccineCycleEntity>> getByCowType(@PathVariable Long cowTypeId) {
         List<VaccineCycleEntity> vaccineCycles = vaccineCycleService.getByCowTypeId(cowTypeId);

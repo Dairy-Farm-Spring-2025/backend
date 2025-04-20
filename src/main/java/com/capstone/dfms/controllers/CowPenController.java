@@ -7,6 +7,7 @@ import com.capstone.dfms.responses.CowPenResponse;
 import com.capstone.dfms.services.ICowPenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.*;
@@ -24,25 +25,28 @@ import static com.capstone.dfms.mappers.ICowPenMapper.INSTANCE;
 public class CowPenController {
     private final ICowPenService cowPenService;
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @PostMapping
     public CoreApiResponse<CowPenResponse> create(@Valid @RequestBody CowPenCreateRequest request) {
         CowPenResponse response = cowPenService.create(INSTANCE.toModel(request));
         return CoreApiResponse.success(response);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @PostMapping("/create")
     public CoreApiResponse<CowPenResponse> createCowPen(@Valid @RequestBody CowPenCreateRequest request) {
         CowPenResponse response = cowPenService.createCowPen(INSTANCE.toModel(request));
         return CoreApiResponse.success(response,response.getMessage());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping
     public CoreApiResponse<List<CowPenResponse>> getAll() {
         List<CowPenResponse> responseList = cowPenService.getAll();
         return CoreApiResponse.success(responseList);
     }
 
-    // Read by ID
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping("/{penId}/{cowId}/{fromDate}")
     public CoreApiResponse<CowPenResponse> getById(
             @PathVariable Long penId,
@@ -54,19 +58,18 @@ public class CowPenController {
         return CoreApiResponse.success(response);
     }
 
-    // Update
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @PutMapping("/{penId}/{cowId}/{fromDate}")
     public CoreApiResponse<CowPenResponse> update(
             @PathVariable Long penId,
             @PathVariable Long cowId,
             @PathVariable LocalDateTime fromDate,
             @RequestBody CowPenUpdateRequest request) {
-//        LocalDate date = LocalDate.parse(fromDate);
         CowPenResponse response = cowPenService.update(penId, cowId, fromDate, INSTANCE.toModel(request));
         return CoreApiResponse.success(response);
     }
 
-    // Delete
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @DeleteMapping("/{penId}/{cowId}/{fromDate}")
     public CoreApiResponse<Void> delete(
             @PathVariable Long penId,
@@ -76,6 +79,7 @@ public class CowPenController {
         return CoreApiResponse.success("Delete successfully");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping("/pen/{penId}")
     public CoreApiResponse<List<CowPenResponse>> getByPenId(
             @PathVariable Long penId) {
@@ -83,6 +87,7 @@ public class CowPenController {
         return CoreApiResponse.success(response);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping("/cow/{cowId}")
     public CoreApiResponse<List<CowPenResponse>> getByCowId(
             @PathVariable Long cowId) {
@@ -90,27 +95,7 @@ public class CowPenController {
         return CoreApiResponse.success(response);
     }
 
-//    @GetMapping("/approve")
-//    public CoreApiResponse<CowPenResponse> approve(
-//            @Valid @RequestBody CowPenApproveRequest cowPenApproveRequest) {
-////        LocalDate date = LocalDate.parse();
-//        cowPenService.approveOrRejectMovePen(cowPenApproveRequest.getPenId(),
-//                cowPenApproveRequest.getCowId(),
-//                cowPenApproveRequest.getFromDate(),
-//                cowPenApproveRequest.isApproval());
-//        return CoreApiResponse.success("");
-//    }
-
-    @GetMapping("/approve/{penId}/{cowId}/{fromDate}/{approval}")
-    public CoreApiResponse<CowPenResponse> approve(
-            @PathVariable Long penId,
-            @PathVariable Long cowId,
-            @PathVariable LocalDateTime fromDate,
-            @PathVariable boolean approval) {
-        CowPenResponse cowPenResponse = cowPenService.approveOrRejectMovePen(penId, cowId, fromDate, approval);
-        return CoreApiResponse.success(cowPenResponse);
-    }
-
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @PostMapping("/create-bulk")
     public CoreApiResponse<CowPenBulkResponse> createBulk(@Valid @RequestBody CowPenBulkRequest cowPenBulkRequest){
         CowPenBulkResponse<CowPenResponse> cowPenBulkResponse =
@@ -118,6 +103,7 @@ public class CowPenController {
         return CoreApiResponse.success(cowPenBulkResponse);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @PostMapping("/moving-pen")
     public CoreApiResponse<CowPenResponse> movingPen(@Valid @RequestBody CowPenMovingRequest request){
         CowPenResponse cowPenResponse = cowPenService.movingPen(request);

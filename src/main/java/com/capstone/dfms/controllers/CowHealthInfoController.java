@@ -18,7 +18,7 @@ import java.util.List;
 public class CowHealthInfoController {
     private final ICowHealthInfoService cowHealthInfoService;
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','WORKER','VETERINARIANS')")
     @GetMapping("/{cowId}")
     public CoreApiResponse<List<CowHealthInfoResponse<?>>> getAllCowHealthInfo(@PathVariable Long cowId) {
         List<CowHealthInfoResponse<?>> responses = cowHealthInfoService.getAllHealthInfoOrderedDesc(cowId);

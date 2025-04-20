@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -41,12 +42,14 @@ public class CowController {
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/create")
     public CoreApiResponse<CowResponse> createCow(@Valid @RequestBody CowCreateRequest cowCreateRequest) {
         CowResponse cowResponse = cowServices.createCow(INSTANCE.toModel(cowCreateRequest));
         return CoreApiResponse.success(cowResponse);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/create-bulk")
     public ResponseEntity<?> createBulkCow(@Valid @RequestBody BulkCowRequest requests) {
 
@@ -60,24 +63,28 @@ public class CowController {
         return CoreApiResponse.success(cowServices.createInformation(requests));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @PutMapping("/{id}")
     public CoreApiResponse<CowResponse> updateCow(@PathVariable Long id, @Valid @RequestBody CowUpdateRequest cowUpdateRequest) {
         CowResponse cowResponse = cowServices.updateCow(id, cowUpdateRequest);
         return CoreApiResponse.success(cowResponse);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/{id}")
     public CoreApiResponse<CowResponse> getCowById(@PathVariable Long id) {
         CowResponse cowResponse = cowServices.getCowById(id);
         return CoreApiResponse.success(cowResponse);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping
     public CoreApiResponse<List<CowResponse>> getAllCows() {
         List<CowResponse> cowResponses = cowServices.getAllCows();
         return CoreApiResponse.success(cowResponses);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/qr/{id}")
     public ResponseEntity<byte[]> generateCowQRCode(@PathVariable Long id) {
             byte[] qrCodeImage = cowServices.generateCowQRCode(id);
@@ -86,6 +93,7 @@ public class CowController {
                     .body(qrCodeImage);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping("/cow-from-excel")
     public ResponseEntity<?> getCowsFromExcel(@RequestParam("file") MultipartFile file) {
         try {
@@ -103,6 +111,7 @@ public class CowController {
     }
 
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("/templates/download/cow-bulk-excel")
 //    public ResponseEntity<Void> downloadExcelTemplate(HttpServletRequest request) {
 //        String fileUrl = "/document/Template%20Cow%20Import.xlsx";
@@ -119,23 +128,27 @@ public class CowController {
                 .body(new InputStreamResource(stream));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','WORKER','VETERINARIANS')")
     @GetMapping("/imported-times")
     public CoreApiResponse<Long> getImportedTimes(HttpServletRequest request) {
         return CoreApiResponse.success(cowServices.getImportedTimes());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','WORKER','VETERINARIANS')")
     @GetMapping("/area/{areaId}")
     public CoreApiResponse<List<CowWithFeedMealResponse>> getCowsByArea(@PathVariable Long areaId) {
         List<CowWithFeedMealResponse> cows = cowServices.getCowsByArea(areaId);
         return CoreApiResponse.success(cows);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','WORKER','VETERINARIANS')")
     @GetMapping("/byArea/{areaId}")
     public CoreApiResponse<List<CowInPenResponse>> getCowArea(@PathVariable Long areaId) {
         List<CowInPenResponse> cows = cowServices.getCowsArea(areaId);
         return CoreApiResponse.success(cows);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','WORKER','VETERINARIANS')")
     @GetMapping("/by_area/{areaId}")
     public CoreApiResponse<List<CowEntity>> getCowsArea(@PathVariable Long areaId) {
         List<CowEntity> cows = cowServices.getCowsByAreaSimple(areaId);

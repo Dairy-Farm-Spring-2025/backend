@@ -6,6 +6,7 @@ import com.capstone.dfms.requests.UseEquipmentEntityRequest;
 import com.capstone.dfms.requests.UseEquipmentUpdateRequest;
 import com.capstone.dfms.services.IUseEquipmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,22 +19,26 @@ import java.util.List;
 public class UseEquipmentController {
     private final IUseEquipmentService service;
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping
     public CoreApiResponse<List<UseEquipmentEntity>> getAll() {
         return CoreApiResponse.success(service.getAll());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping("/{equipmentId}/{taskTypeId}")
     public CoreApiResponse<UseEquipmentEntity> getById(@PathVariable Long equipmentId,
                                                       @PathVariable Long taskTypeId) {
         return CoreApiResponse.success(service.getById(equipmentId, taskTypeId));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping
     public CoreApiResponse<UseEquipmentEntity> create(@RequestBody UseEquipmentEntityRequest request) {
         return CoreApiResponse.success(service.create(request));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @PutMapping("/{equipmentId}/{taskTypeId}")
     public CoreApiResponse<UseEquipmentEntity> update(@PathVariable Long equipmentId,
                                                      @PathVariable Long taskTypeId,
@@ -41,6 +46,7 @@ public class UseEquipmentController {
         return CoreApiResponse.success(service.update(equipmentId, taskTypeId, request));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @DeleteMapping("/{equipmentId}/{taskTypeId}")
     public CoreApiResponse<Void> delete(@PathVariable Long equipmentId,
                                        @PathVariable Long taskTypeId) {

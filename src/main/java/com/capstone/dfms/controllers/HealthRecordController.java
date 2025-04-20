@@ -17,41 +17,41 @@ import java.util.List;
 public class HealthRecordController {
     private final IHealthRecordService healthRecordService;
 
-//    @PreAuthorize("hasAnyRole('VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS')")
     @PostMapping
     public CoreApiResponse<HealthRecordEntity> createHealthReport(@RequestBody HealthReportRequest request) {
         HealthRecordEntity createdRecord = healthRecordService.createHealthReport(request);
         return CoreApiResponse.success(createdRecord);
     }
 
-//    @PreAuthorize("hasAnyRole('VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS')")
     @PostMapping("/create-bulk")
     public CoreApiResponse<CowPenBulkResponse<HealthRecordEntity>> createBulkHealthReport(@RequestBody List<HealthReportRequest> requests) {
         return CoreApiResponse.success(healthRecordService.createBulkHealthReport(requests));
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
     @GetMapping("/{id}")
     public CoreApiResponse<HealthRecordEntity> getHealthReportById(@PathVariable Long id) {
         HealthRecordEntity record = healthRecordService.getHealthReportById(id);
         return CoreApiResponse.success(record);
     }
 
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
     @GetMapping
     public CoreApiResponse<List<HealthRecordEntity>> getAllHealthReports() {
         List<HealthRecordEntity> records = healthRecordService.getAllHealthReports();
         return CoreApiResponse.success(records);
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     @PutMapping("/{id}")
     public CoreApiResponse<HealthRecordEntity> updateHealthReport(@PathVariable Long id, @RequestBody HealthReportRequest request) {
         HealthRecordEntity updatedRecord = healthRecordService.updateHealthReport(id, request);
         return CoreApiResponse.success(updatedRecord);
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<Void> deleteHealthReport(@PathVariable Long id) {
         healthRecordService.deleteHealthReport(id);
