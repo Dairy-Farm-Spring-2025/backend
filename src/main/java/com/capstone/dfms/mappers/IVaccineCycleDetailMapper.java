@@ -25,7 +25,7 @@ public interface IVaccineCycleDetailMapper {
     void updateEntityFromDto(UpdateVaccineCycleDetailRequest dto, @MappingTarget VaccineCycleDetailEntity entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(source = "itemId", target = "itemEntity.itemId")
+    @Mapping(target = "itemEntity", ignore = true)
 //    @Mapping(target = "vaccineCycleDetailId", ignore = true)
     void updateEntityFromDto(VaccineCycleDetailUpdateRequest dto, @MappingTarget VaccineCycleDetailEntity entity);
 }
