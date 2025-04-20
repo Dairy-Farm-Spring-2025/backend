@@ -1,6 +1,8 @@
 package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.compositeKeys.UseEquipmentPK;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,7 +1,11 @@
 package com.capstone.dfms.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "task_types")
@@ -22,4 +26,9 @@ public class TaskTypeEntity {
     private RoleEntity roleId;
 
     private String description;
+
+    @OneToMany(mappedBy = "taskType", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @JsonIgnoreProperties("taskType")
+    private List<UseEquipmentEntity> useEquipments;
 }
