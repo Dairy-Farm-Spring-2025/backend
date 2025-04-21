@@ -3,6 +3,7 @@ package com.capstone.dfms.services.impliments;
 import com.capstone.dfms.components.constants.ImageContants;
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.statics.UserStatic;
+import com.capstone.dfms.components.utils.CowUtlis;
 import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.UploadImagesUtils;
 import com.capstone.dfms.mappers.IIllnessDetailMapper;
@@ -45,6 +46,8 @@ public class IllnessService implements IIllnessService {
     @Override
     public IllnessEntity createIllness(IllnessEntity illness, List<MultipartFile> mediaFiles) throws IOException {
         CowEntity cowEntity = this.findCowEntity(illness.getCowEntity().getCowId());
+
+        CowUtlis.validateCow(cowEntity);
         illness.setCowEntity(cowEntity);
         illness.setUserEntity(UserStatic.getCurrentUser());
         illness.setIllnessStatus(IllnessStatus.pending);
@@ -88,9 +91,12 @@ public class IllnessService implements IIllnessService {
     @Override
     public IllnessEntity updateIllness(Long id, IllnessUpdateRequest updatedIllness, Boolean isPrognosis) {
         CowEntity cowEntity = null;
-        if(updatedIllness.getCowId() != null)
-            cowEntity = this.findCowEntity(updatedIllness.getCowId());
         IllnessEntity oldIllness = this.getIllnessById(id);
+        if(updatedIllness.getCowId() != null) {
+            cowEntity = this.findCowEntity(updatedIllness.getCowId());
+            oldIllness.setCowEntity(cowEntity);
+        }
+        CowUtlis.validateCow(oldIllness.getCowEntity());
 
         if(!(oldIllness.getIllnessStatus() == IllnessStatus.pending)){
             throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("illness.not.update")

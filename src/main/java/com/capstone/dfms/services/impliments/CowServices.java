@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.CowUtlis;
 import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.QRCodeUtil;
 import com.capstone.dfms.mappers.ICowMapper;
@@ -101,6 +102,8 @@ public class CowServices implements ICowServices {
     public CowResponse updateCow(Long id, CowUpdateRequest request) {
         CowEntity existingEntity = cowRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow with ID '" + id + "' not found."));
+
+        CowUtlis.validateCow(existingEntity);
 
         cowMapper.updateCowFromRequest(request, existingEntity);
 
