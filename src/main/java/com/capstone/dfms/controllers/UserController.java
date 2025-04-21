@@ -102,7 +102,7 @@ public class UserController {
         userService.setPassword(userId, token, request);
         return CoreApiResponse.success(LocalizationUtils.getMessage("user.password.change"));
     }
-    @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("/changepassword")
     public CoreApiResponse<?> changePassword(
             @RequestBody UserChangePasswordRequest request
@@ -117,7 +117,7 @@ public class UserController {
         UserEntity currentUser = userService.getMyProfile();
         return CoreApiResponse.success(currentUser);
     }
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
     @PutMapping("/update")
     public CoreApiResponse<UserEntity> updateUser(
             @Valid @ModelAttribute PersonalUpdateRequest updateUserRequest,
