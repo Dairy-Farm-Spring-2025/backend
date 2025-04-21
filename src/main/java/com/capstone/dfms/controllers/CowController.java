@@ -110,7 +110,6 @@ public class CowController {
     }
 
 
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping("/templates/download/cow-bulk-excel")
 //    public ResponseEntity<Void> downloadExcelTemplate(HttpServletRequest request) {
 //        String fileUrl = "/document/Template%20Cow%20Import.xlsx";
