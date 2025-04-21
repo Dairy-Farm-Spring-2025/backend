@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.IWarehouseMapper;
 import com.capstone.dfms.models.WarehouseLocationEntity;
@@ -31,7 +32,7 @@ public class WarehouseLocationService implements IWarehouseLocationService {
     @Override
     public WarehouseLocationEntity getWarehouseById(long id) {
         return warehouseLocationRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This warehouse is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("warehouse.not_exist")));
     }
 
     @Override
@@ -42,7 +43,7 @@ public class WarehouseLocationService implements IWarehouseLocationService {
     @Override
     public WarehouseLocationEntity updateWarehouse(Long id, WarehouseUpdateRequest request) {
         WarehouseLocationEntity warehouseLocation = warehouseLocationRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Warehouse", "id", id));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("warehouse.not_exist")));
         warehouseMapper.updateWarehouseFromRequest(request, warehouseLocation);
         return warehouseLocationRepository.save(warehouseLocation);
     }
@@ -50,7 +51,7 @@ public class WarehouseLocationService implements IWarehouseLocationService {
     @Override
     public void deleteWareHouse(long id) {
         WarehouseLocationEntity warehouseLocation = warehouseLocationRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Warehouse", "id", id));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("warehouse.not_exist")));
 
         warehouseLocationRepository.delete(warehouseLocation);
     }

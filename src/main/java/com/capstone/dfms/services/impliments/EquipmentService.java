@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.IEquipmentMapper;
 import com.capstone.dfms.models.EquipmentEntity;
@@ -30,7 +31,7 @@ public class EquipmentService implements IEquipmentService {
 
         Optional<EquipmentEntity> entity = equipmentRepository.findEquipmentEntityByName(request.getName());
         if(entity.isPresent()){
-            throw new AppException(HttpStatus.BAD_REQUEST, "Equipment is already existed!");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("equipment.already_exists"));
         }
 
         EquipmentEntity equipment = equipmentMapper.toModel(request);
@@ -45,7 +46,7 @@ public class EquipmentService implements IEquipmentService {
     @Override
     public EquipmentEntity getEquipmentById(Long id) {
         return equipmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Equipment not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException(LocalizationUtils.getMessage("equipment.not_found")));
     }
 
     @Override
@@ -55,7 +56,8 @@ public class EquipmentService implements IEquipmentService {
 
             Optional<EquipmentEntity> entity = equipmentRepository.findEquipmentEntityByName(request.getName());
             if(entity.isPresent()){
-                throw new AppException(HttpStatus.BAD_REQUEST, "Equipment is already existed!");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("equipment.already_exists")
+                );
             }
         }
 
@@ -63,7 +65,7 @@ public class EquipmentService implements IEquipmentService {
         EquipmentEntity existingEquipment = getEquipmentById(id);
         if (request.getLocationId() != null) {
             WarehouseLocationEntity locationEntity = locationRepository.findById(request.getLocationId())
-                    .orElseThrow(() -> new DataNotFoundException("WarehouseLocation", "id", request.getLocationId()));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("warehouse.not_exist")));
             existingEquipment.setWarehouseLocationEntity(locationEntity);
         }
         equipmentMapper.updateEntityFromDto(request, existingEquipment);

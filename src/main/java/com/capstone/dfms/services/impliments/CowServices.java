@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.QRCodeUtil;
 import com.capstone.dfms.mappers.ICowMapper;
 import com.capstone.dfms.mappers.IHealthReportMapper;
@@ -56,21 +57,21 @@ public class CowServices implements ICowServices {
     @Override
     public CowResponse createCow(CowEntity request) {
         if (cowRepository.existsByName(request.getName())) {
-            throw new AppException(HttpStatus.OK, "Cow with the name '" + request.getName() + "' already exists.");
+            LocalizationUtils.getMessage("cow.name_already_exists", request.getName());
         }
 
         if (request.getDateOfBirth().plusMonths(10).isAfter(LocalDate.now())
                 && request.getCowStatus().equals(CowStatus.milkingCow)){
-            throw new AppException(HttpStatus.BAD_REQUEST, "Milking cow start 10 months");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.milking_start_condition"));
         }
 
         if (request.getGender().equals(Gender.male)
                 && request.getCowStatus().equals(CowStatus.milkingCow)){
-            throw new AppException(HttpStatus.BAD_REQUEST, "Male Cow dont have status milkingCow");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.male_cannot_be_milking"));
         }
 
         CowTypeEntity cowType = cowTypeRepository.findById(request.getCowTypeEntity().getCowTypeId())
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow type not found."));
+                .orElseThrow(() -> new AppException(HttpStatus.OK, LocalizationUtils.getMessage("cow_type.not_found")));
         request.setCowTypeEntity(cowType);
 
         if(request.getName() == null)
@@ -105,7 +106,7 @@ public class CowServices implements ICowServices {
 
         if(request.getCowTypeId() != null){
             CowTypeEntity cowType = cowTypeRepository.findById(request.getCowTypeId())
-                    .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow type not found."));
+                    .orElseThrow(() -> new AppException(HttpStatus.OK, LocalizationUtils.getMessage("cow_type.not_found")));
             existingEntity.setCowTypeEntity(cowType);
         }
 
@@ -498,12 +499,12 @@ public class CowServices implements ICowServices {
                 }
                 if (cowEntity.getDateOfBirth().plusMonths(10).isAfter(LocalDate.now())
                         && cowEntity.getCowStatus().equals(CowStatus.milkingCow)){
-                    throw new AppException(HttpStatus.BAD_REQUEST, "Milking cow start 10 months");
+                    throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.milking_start_condition"));
                 }
 
                 if (cowEntity.getGender().equals(Gender.male)
                         && cowEntity.getCowStatus().equals(CowStatus.milkingCow)){
-                    throw new AppException(HttpStatus.BAD_REQUEST, "Male Cow dont have status milkingCow");
+                    throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.male_cannot_be_milking"));
                 }
 
                 // If all is good, you can add to final list or save

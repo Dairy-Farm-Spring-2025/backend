@@ -198,10 +198,10 @@ public class CowPenService implements ICowPenService {
 
             AreaEntity area = pen.getAreaBelongto();
             if (!cow.getCowTypeEntity().getCowTypeId().equals(area.getCowTypeEntity().getCowTypeId())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Cow '" + cow.getName() + "' does not match cow type of area '" + area.getName() + "'");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.invalid_type_for_area"));
             }
             if (!cow.getCowStatus().equals(area.getCowStatus())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Cow '" + cow.getName() + "' does not match cow status of area '" + area.getName() + "'");
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.invalid_status_for_area"));
             }
 
             CowPenPK cowPenPK = new CowPenPK(pen.getPenId(), cow.getCowId(), fromDate);
@@ -267,10 +267,10 @@ public class CowPenService implements ICowPenService {
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Pen not found with ID: " + request.getId().getPenId()));
         AreaEntity area = penEntity.getAreaBelongto();
         if (!cowEntity.getCowTypeEntity().getCowTypeId().equals(area.getCowTypeEntity().getCowTypeId())) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Loại bò không phù hợp với khu vực của chuồng.");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.invalid_type_for_area"));
         }
         if (!cowEntity.getCowStatus().equals(area.getCowStatus())) {
-            throw new AppException(HttpStatus.BAD_REQUEST, "Trạng thái bò không phù hợp với khu vực của chuồng.");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.invalid_status_for_area"));
         }
 
         Optional<CowPenEntity> latestCowPen = cowPenRepository.findLatestCowPenByCowId(cowEntity.getCowId());
@@ -313,7 +313,9 @@ public class CowPenService implements ICowPenService {
         penRepository.save(penEntity);
         CowPenEntity savedEntity = cowPenRepository.save(request);
 
-        String message = isWaiting ? "Bò phải chờ trước khi vào chuồng!" : "Chuyển vào chuồng thành công!";
+        String message = isWaiting
+                ? LocalizationUtils.getMessage("cow.must_wait_before_entering_pen")
+                : LocalizationUtils.getMessage("cow.enter_pen_success");
         CowPenResponse response = mapper.toResponse(savedEntity);
         response.setMessage(message);
 
