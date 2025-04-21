@@ -279,7 +279,7 @@ public class IllnessService implements IIllnessService {
 
                     String contentType = mediaFile.getContentType();
                     String type = "unknown";
-                    url = UploadImagesUtils.storeFile(mediaFile, ImageContants.ILLNESS_IMAGE_PATH);
+
 
                     if (contentType != null) {
                         if (contentType.startsWith("image")) {
