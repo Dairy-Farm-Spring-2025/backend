@@ -280,6 +280,7 @@ public class IllnessService implements IIllnessService {
                     String contentType = mediaFile.getContentType();
                     String type = "unknown";
 
+
                     if (contentType != null) {
                         if (contentType.startsWith("image")) {
                             url = UploadImagesUtils.storeFile(mediaFile, ImageContants.ILLNESS_IMAGE_PATH);
@@ -288,6 +289,9 @@ public class IllnessService implements IIllnessService {
                             url = UploadImagesUtils.storeVideo(mediaFile, ImageContants.ILLNESS_IMAGE_PATH);
                             type = "video";
                         }
+                    }else{
+                        url = UploadImagesUtils.storeFile(mediaFile, ImageContants.ILLNESS_IMAGE_PATH);
+
                     }
 
                     IllnessMediaEntity media = IllnessMediaEntity.builder()
