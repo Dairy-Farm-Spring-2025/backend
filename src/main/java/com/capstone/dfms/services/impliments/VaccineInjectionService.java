@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.statics.UserStatic;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.IVaccineInjectionMapper;
 import com.capstone.dfms.models.*;
 import com.capstone.dfms.models.enums.InjectionStatus;
@@ -26,11 +27,12 @@ public class VaccineInjectionService implements IVaccineInjectionService {
     public VaccineInjectionEntity createVaccineInjection(VaccineInjectionRequest request) {
         // Validate cow
         CowEntity cow = cowRepository.findById(request.getCowId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.not.found")
+                ));
 
         // Validate vaccine cycle detail
         VaccineCycleDetailEntity vaccineCycleDetail = vaccineCycleDetailRepository.findById(request.getVaccineCycleDetailId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Vaccine Cycle Detail not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("vaccine_cycle_detail.not_found")));
 
         UserEntity vet = UserStatic.getCurrentUser();
 
@@ -52,7 +54,7 @@ public class VaccineInjectionService implements IVaccineInjectionService {
     @Override
     public VaccineInjectionEntity getVaccineInjectionById(Long id) {
         VaccineInjectionEntity entity = vaccineInjectionRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Vaccine Injection not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("vaccine_injection.not_found")));
 
         return entity;
     }
@@ -60,7 +62,7 @@ public class VaccineInjectionService implements IVaccineInjectionService {
     @Override
     public VaccineInjectionEntity updateVaccineInjection(Long id, VaccineInjectionRequest request) {
         VaccineInjectionEntity entity = vaccineInjectionRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Vaccine Injection not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("vaccine_injection.not_found")));
 
         entity.setInjectionDate(request.getInjectionDate());
         return null;
@@ -69,7 +71,7 @@ public class VaccineInjectionService implements IVaccineInjectionService {
     @Override
     public void deleteVaccineInjection(Long id) {
         VaccineInjectionEntity entity = vaccineInjectionRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Vaccine Injection not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("vaccine_injection.not_found")));
 
         vaccineInjectionRepository.delete(entity);
     }
@@ -77,10 +79,10 @@ public class VaccineInjectionService implements IVaccineInjectionService {
     @Override
     public VaccineInjectionEntity reportVaccineInjection(Long id, InjectionStatus status) {
         VaccineInjectionEntity entity = vaccineInjectionRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Vaccine Injection not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("vaccine_injection.not_found")));
 
         if(entity.getInjectionDate().equals(LocalDate.now())){
-            throw new AppException(HttpStatus.BAD_REQUEST, "No time to report!");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("report.no_time"));
         }
 
         entity.setAdministeredBy(UserStatic.getCurrentUser());

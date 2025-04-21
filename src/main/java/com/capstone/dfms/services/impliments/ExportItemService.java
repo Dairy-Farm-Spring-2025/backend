@@ -115,60 +115,6 @@ public class ExportItemService implements IExportItemService {
         }
     }
 
-
-//    @Override
-//    public ExportItemEntity approveExportItem (Long id){
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-//        UserEntity user = userPrincipal.getUser();
-//        ExportItemEntity exportItem = exportItemRepository.findById(id)
-//                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist")));
-//
-//        exportItem.setStatus(ExportItemStatus.approved);
-//        exportItem.setExporter(user);
-//
-//        return exportItemRepository.save(exportItem);
-//    }
-
-//    @Override
-//    public List<ExportItemEntity> approveMultipleExportItems(List<Long> listId) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-//        UserEntity user = userPrincipal.getUser();
-//
-//        List<ExportItemEntity> exportItems = exportItemRepository.findAllById(listId);
-//
-//        if (exportItems.isEmpty()) {
-//            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.no.valid.items"));
-//        }
-//
-//        for (ExportItemEntity exportItem : exportItems) {
-//            if (exportItem.getStatus() != ExportItemStatus.pending) {
-//                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.approve.invalid.status"));
-//            }
-//            exportItem.setStatus(ExportItemStatus.approved);
-//            exportItem.setExporter(user);
-//        }
-//
-//        return exportItemRepository.saveAll(exportItems);
-//    }
-
-
-//    @Override
-//    public ExportItemEntity rejectExportItem (Long id){
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-//        UserEntity user = userPrincipal.getUser();
-//        ExportItemEntity exportItem = exportItemRepository.findById(id)
-//                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist")));
-//
-//        exportItem.setStatus(ExportItemStatus.reject);
-//        exportItem.setExporter(user);
-//
-//        return exportItemRepository.save(exportItem);
-//    }
-
-
     @Override
     public ExportItemEntity cancelExportItem(Long id) {
         ExportItemEntity exportItem = exportItemRepository.findById(id)
@@ -192,17 +138,6 @@ public class ExportItemService implements IExportItemService {
     }
 
 
-//    @Override
-//    public ExportItemEntity updateExportItem(Long id, float quantiy) {
-//        ExportItemEntity exportItem = exportItemRepository.findById(id)
-//                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This export item is not existed!"));
-//        if (exportItem.getStatus() != ExportItemStatus.pending) {
-//            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.update.invalid.status"));
-//        }
-//        exportItem.setQuantity(quantiy);
-//
-//        return exportItemRepository.save(exportItem);
-//    }
 
     @Override
     public ExportItemEntity exportItem(Long id) {
@@ -231,8 +166,6 @@ public class ExportItemService implements IExportItemService {
         UserEntity user = userPrincipal.getUser();
         return exportItemRepository.findByPicker_Id(user.getId());
     }
-
-
 
 
 

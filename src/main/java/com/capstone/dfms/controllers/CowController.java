@@ -84,7 +84,6 @@ public class CowController {
         return CoreApiResponse.success(cowResponses);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/qr/{id}")
     public ResponseEntity<byte[]> generateCowQRCode(@PathVariable Long id) {
             byte[] qrCodeImage = cowServices.generateCowQRCode(id);

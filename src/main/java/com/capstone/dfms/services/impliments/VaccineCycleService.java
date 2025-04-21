@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.exceptions.DataNotFoundException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.components.utils.StringUtils;
 import com.capstone.dfms.mappers.IVaccineCycleDetailMapper;
 import com.capstone.dfms.mappers.IVaccineCycleMapper;
@@ -41,7 +42,7 @@ public class VaccineCycleService implements IVaccineCycleService {
     @Override
     public VaccineCycleEntity createVaccineCycle(VaccineCycleRequest request) {
         CowTypeEntity cowType = cowTypeRepository.findById(request.getCowTypeId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Invalid Cow Type ID"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow_type.not_found")));
 
         VaccineCycleEntity vaccineCycle = VaccineCycleEntity.builder()
                 .name(StringUtils.NameStandardlizing(request.getName()))
@@ -61,11 +62,11 @@ public class VaccineCycleService implements IVaccineCycleService {
 
     private VaccineCycleDetailEntity mapToVaccineCycleDetail(VaccineCycleDetailRequest detailRequest, VaccineCycleEntity vaccineCycle) {
         ItemEntity item = itemRepository.findById(detailRequest.getItemId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Invalid Item ID"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not_exist")));
 
         if(!(item.getCategoryEntity().getName().equalsIgnoreCase("Vaccine") ||
                 item.getCategoryEntity().getName().equalsIgnoreCase("Vắc-xin"))){
-            throw new AppException(HttpStatus.BAD_REQUEST, "Item is not vaccine!");
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not_vaccine"));
         }
 
         VaccineCycleDetailEntity entity = vaccineCycleDetailMapper.toModel(detailRequest);
@@ -78,7 +79,7 @@ public class VaccineCycleService implements IVaccineCycleService {
     @Override
     public VaccineCycleEntity getVaccineCycleById(long id) {
         return vaccineCycleRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "This vaccine cycle is not existed!"));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("vaccine_cycle.not_found")));
     }
 
     @Override
@@ -98,7 +99,7 @@ public class VaccineCycleService implements IVaccineCycleService {
     @Override
     public void deleteVaccineCycle(long id) {
         VaccineCycleEntity vaccineCycle = vaccineCycleRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Vaccine cycle", "id", id));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("vaccine_cycle.not_found")));
 
         vaccineCycleRepository.delete(vaccineCycle);
     }
@@ -106,7 +107,7 @@ public class VaccineCycleService implements IVaccineCycleService {
     @Override
     public VaccineCycleEntity updateVaccineCycle(Long id, UpdateVaccineCycleRequest request) {
         VaccineCycleEntity vaccineCycle = vaccineCycleRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Vaccine Cycle", "id", id));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("vaccine_cycle.not_found")));
 
         vaccineCycle.setName(request.getName());
         vaccineCycle.setDescription(request.getDescription());
