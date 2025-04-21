@@ -1,6 +1,7 @@
 package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.CowUtlis;
 import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.IHealthReportMapper;
 import com.capstone.dfms.models.CowEntity;
@@ -36,6 +37,7 @@ public class HealthRecordService implements IHealthRecordService{
         CowEntity cow = cowRepository.findById(request.getCowId())
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.not.found")));
 
+        CowUtlis.validateCow(cow);
         LocalDate reportDate = LocalDate.now();
         LocalDateTime startOfDay = reportDate.atStartOfDay();
         LocalDateTime endOfDay = reportDate.atTime(LocalTime.MAX); // End of the day

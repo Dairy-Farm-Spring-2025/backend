@@ -1,13 +1,11 @@
 package com.capstone.dfms.schedules;
 
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.CowUtlis;
 import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.IVaccineInjectionMapper;
 import com.capstone.dfms.models.*;
-import com.capstone.dfms.models.enums.InjectionStatus;
-import com.capstone.dfms.models.enums.PriorityTask;
-import com.capstone.dfms.models.enums.TaskShift;
-import com.capstone.dfms.models.enums.TaskStatus;
+import com.capstone.dfms.models.enums.*;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.services.ITaskTypeService;
 import com.capstone.dfms.services.IVaccineInjectionService;
@@ -56,71 +54,73 @@ public class VaccineInjectionSchedule {
 
             cycle.getVaccineCycleDetails().forEach(details -> {
                 cowEntitiesByCowType.forEach(cow -> {
-                    List<VaccineInjectionEntity> vaccineInjectionEntities =
-                            vaccineInjectionRepository.findVaccineInjectionsByCowAndVaccineCycleDetail(cow.getCowId(),
-                                    details.getVaccineCycleDetailId());
+                    if(!cow.getCowStatus().equals(CowStatus.culling)) {
+                        List<VaccineInjectionEntity> vaccineInjectionEntities =
+                                vaccineInjectionRepository.findVaccineInjectionsByCowAndVaccineCycleDetail(cow.getCowId(),
+                                        details.getVaccineCycleDetailId());
 
-                    LocalDate startMonth = LocalDate.now();
-                    LocalDate endMonth = LocalDate.now().plusDays(8);
+                        LocalDate startMonth = LocalDate.now();
+                        LocalDate endMonth = LocalDate.now().plusDays(8);
 
-                    LocalDate nextInjectionDate;
-                    if (vaccineInjectionEntities.isEmpty()) {
-                        nextInjectionDate = cow.getDateOfBirth().plusMonths(details.getFirstInjectionMonth());
-                    } else {
-                        VaccineInjectionEntity latestInjection = vaccineInjectionEntities.get(0);
-                        nextInjectionDate = calculateNextInjectionDate(latestInjection.getInjectionDate(), details);
-                    }
-
-                    // 🔹 Generate injections within the next month
-                    while (nextInjectionDate.isBefore(endMonth)) {
-                        if (nextInjectionDate.isAfter(startMonth)) {
-                            VaccineInjectionEntity newInjection = VaccineInjectionEntity.builder()
-                                    .injectionDate(nextInjectionDate)
-                                    .cowEntity(cow)
-                                    .vaccineCycleDetail(details)
-                                    .status(InjectionStatus.pending)
-                                    .description("Tiêm phòng cho: " + cow.getName() +
-                                            " - Vaccine: " + details.getItemEntity().getName())
-                                    .build();
-
-                            newVaccineInjectionEntities.add(newInjection);
-
-                            RoleEntity role = roleRepository.findById(3L).orElseThrow(()
-                                    -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
-
-                            TaskTypeEntity injectionTaskType = taskTypeRepository.findByName("Tiêm ngừa")
-                                    .orElseGet(() -> {
-                                        TaskTypeEntity newTaskType = new TaskTypeEntity();
-                                        newTaskType.setName("Tiêm ngừa");
-                                        newTaskType.setRoleId(role);
-                                        newTaskType.setDescription("Công việc tiêm ngừa cho bò");
-                                        return taskTypeRepository.save(newTaskType);
-                                    });
-
-                            CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
-                            AreaEntity area = null;
-                            if (latestCowPen != null && latestCowPen.getPenEntity() != null) {
-                                area = latestCowPen.getPenEntity().getAreaBelongto();
-                            }
-
-                            //  Create Task for This Injection
-                            TaskEntity newTask = TaskEntity.builder()
-                                    .description("Administer vaccine to cow: " + cow.getName())
-                                    .status(TaskStatus.pending)
-                                    .fromDate(nextInjectionDate)
-                                    .toDate(nextInjectionDate)
-                                    .priority(PriorityTask.high)
-                                    .shift(TaskShift.dayShift)
-                                    .taskTypeId(injectionTaskType)
-                                    .vaccineInjection(newInjection)
-                                    .areaId(area)
-                                    .build();
-
-                            newTaskEntities.add(newTask);
+                        LocalDate nextInjectionDate;
+                        if (vaccineInjectionEntities.isEmpty()) {
+                            nextInjectionDate = cow.getDateOfBirth().plusMonths(details.getFirstInjectionMonth());
+                        } else {
+                            VaccineInjectionEntity latestInjection = vaccineInjectionEntities.get(0);
+                            nextInjectionDate = calculateNextInjectionDate(latestInjection.getInjectionDate(), details);
                         }
 
-                        // Move to the next scheduled injection date
-                        nextInjectionDate = calculateNextInjectionDate(nextInjectionDate, details);
+                        // 🔹 Generate injections within the next month
+                        while (nextInjectionDate.isBefore(endMonth)) {
+                            if (nextInjectionDate.isAfter(startMonth)) {
+                                VaccineInjectionEntity newInjection = VaccineInjectionEntity.builder()
+                                        .injectionDate(nextInjectionDate)
+                                        .cowEntity(cow)
+                                        .vaccineCycleDetail(details)
+                                        .status(InjectionStatus.pending)
+                                        .description("Tiêm phòng cho: " + cow.getName() +
+                                                " - Vaccine: " + details.getItemEntity().getName())
+                                        .build();
+
+                                newVaccineInjectionEntities.add(newInjection);
+
+                                RoleEntity role = roleRepository.findById(3L).orElseThrow(()
+                                        -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
+
+                                TaskTypeEntity injectionTaskType = taskTypeRepository.findByName("Tiêm ngừa")
+                                        .orElseGet(() -> {
+                                            TaskTypeEntity newTaskType = new TaskTypeEntity();
+                                            newTaskType.setName("Tiêm ngừa");
+                                            newTaskType.setRoleId(role);
+                                            newTaskType.setDescription("Công việc tiêm ngừa cho bò");
+                                            return taskTypeRepository.save(newTaskType);
+                                        });
+
+                                CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
+                                AreaEntity area = null;
+                                if (latestCowPen != null && latestCowPen.getPenEntity() != null) {
+                                    area = latestCowPen.getPenEntity().getAreaBelongto();
+                                }
+
+                                //  Create Task for This Injection
+                                TaskEntity newTask = TaskEntity.builder()
+                                        .description("Administer vaccine to cow: " + cow.getName())
+                                        .status(TaskStatus.pending)
+                                        .fromDate(nextInjectionDate)
+                                        .toDate(nextInjectionDate)
+                                        .priority(PriorityTask.high)
+                                        .shift(TaskShift.dayShift)
+                                        .taskTypeId(injectionTaskType)
+                                        .vaccineInjection(newInjection)
+                                        .areaId(area)
+                                        .build();
+
+                                newTaskEntities.add(newTask);
+                            }
+
+                            // Move to the next scheduled injection date
+                            nextInjectionDate = calculateNextInjectionDate(nextInjectionDate, details);
+                        }
                     }
                 });
             });

@@ -2,6 +2,7 @@ package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
 import com.capstone.dfms.components.statics.UserStatic;
+import com.capstone.dfms.components.utils.CowUtlis;
 import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.IIllnessDetailMapper;
 import com.capstone.dfms.mappers.IIllnessMapper;
@@ -40,8 +41,6 @@ public class IllnessDetailService implements IIllnessDetailService {
 
     @Override
     public IllnessDetailEntity createIllnessDetail(IllnessDetailEntity detail, boolean isVet) {
-
-
         IllnessEntity illness = null;
         ItemEntity itemEntity = null;
         UserEntity userEntity = null;
@@ -53,6 +52,8 @@ public class IllnessDetailService implements IIllnessDetailService {
             this.checkValidateTreatmentPlan(illness);
             detail.setIllnessEntity(illness);
         }
+
+        CowUtlis.validateCow(illness.getCowEntity());
 
         if(detail.getVaccine().getItemId() != null){
             Long id = detail.getVaccine().getItemId();
@@ -105,6 +106,8 @@ public class IllnessDetailService implements IIllnessDetailService {
     public IllnessDetailEntity updateIllnessDetail(Long id, IllnessDetailUpdateRequest updatedDetail) {
         //Get updated Illness Detail
         IllnessDetailEntity oldIllnessDetail = this.getIllnessDetailById(id);
+
+        CowUtlis.validateCow(oldIllnessDetail.getIllnessEntity().getCowEntity());
         mapper.updateEntityFromDto(updatedDetail, oldIllnessDetail);
 
         this.checkValidateTreatmentPlan(oldIllnessDetail.getIllnessEntity());
@@ -130,8 +133,6 @@ public class IllnessDetailService implements IIllnessDetailService {
             illness.setEndDate(LocalDate.now());
             illness.setIllnessStatus(IllnessStatus.complete);
             illnessRepository.save(illness);
-
-            //return latest health record not sick
         }
 
         if(oldIllnessDetail.getStatus().equals(IllnessDetailStatus.deceased)){
@@ -165,6 +166,7 @@ public class IllnessDetailService implements IIllnessDetailService {
 
         // Validate that all requests have the same illnessId.
         Long baseIllnessId = createRequests.get(0).getIllnessId();
+
         for (IllnessDetailPlanRequest request : createRequests) {
             if (!baseIllnessId.equals(request.getIllnessId())) {
                 throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("request.illnessId.mismatch"));
@@ -181,7 +183,7 @@ public class IllnessDetailService implements IIllnessDetailService {
                 // Call the create function of IllnessDetailService.
                 IllnessDetailEntity createdEntity = this.createIllnessDetail(mapper.toModel(request), true);
                 successes.add(createdEntity);
-
+                CowUtlis.validateCow(createdEntity.getIllnessEntity().getCowEntity());
                 if (createdEntity.getDate().equals(LocalDate.now().plusDays(1))) {
                     RoleEntity role = roleRepository.findById(3L).orElseThrow(()
                             -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
@@ -238,6 +240,7 @@ public class IllnessDetailService implements IIllnessDetailService {
     @Override
     public IllnessDetailEntity reportTreatment(Long id, IllnessDetailReportRequest request) {
         IllnessDetailEntity oldIllnessDetail = this.getIllnessDetailById(id);
+        CowUtlis.validateCow(oldIllnessDetail.getIllnessEntity().getCowEntity());
         if(!oldIllnessDetail.getDate().equals(LocalDate.now())){
             throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("report.time.missing"));
         }
