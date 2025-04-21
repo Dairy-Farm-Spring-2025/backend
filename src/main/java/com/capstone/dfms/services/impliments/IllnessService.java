@@ -36,8 +36,7 @@ public class IllnessService implements IIllnessService {
     private final ITaskTypeRepository taskTypeRepository;
     private final ICowPenRepository cowPenRepository;
     private final IRoleRepository roleRepository;
-    private final IHealthRecordRepository healthRecordRepository;
-    private final IIllnessDetailMapper mapper;
+    private final IIllnessMediaRepository illnessMediaRepository;
     private final IUserRepository userRepository;
     private final INotificationService notificationService;
 
@@ -52,9 +51,11 @@ public class IllnessService implements IIllnessService {
         illness.setUserEntity(UserStatic.getCurrentUser());
         illness.setIllnessStatus(IllnessStatus.pending);
 
+        illness = illnessRepository.save(illness);
         this.attachMedia(illness, mediaFiles);
 
-        return illnessRepository.save(illness);
+
+        return illness;
     }
 
     @Override
@@ -216,8 +217,7 @@ public class IllnessService implements IIllnessService {
             createTaskForIllnessDetail(createdEntity, detail);
         }
 
-        this.attachMedia(illness, mediaFiles);
-
+        this.attachMedia(createdEntity, mediaFiles);
         return createdEntity;
     }
 
@@ -297,7 +297,7 @@ public class IllnessService implements IIllnessService {
                             .illness(illness)
                             .build();
 
-                    illness.getMediaList().add(media);
+                    illnessMediaRepository.save(media);
                 }
             }
         }
