@@ -247,6 +247,9 @@ public class IllnessService implements IIllnessService {
 
         CowEntity cow = illness.getCowEntity();
         CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
+        if (latestCowPen == null || latestCowPen.getPenEntity() == null) {
+            throw new AppException(HttpStatus.BAD_REQUEST,("Bò hiện không ở trong chuồng."));
+        }
 
         TaskEntity task = new TaskEntity();
         task.setDescription("Điều trị bệnh cho: " + cow.getName() +
