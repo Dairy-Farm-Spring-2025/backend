@@ -1,6 +1,7 @@
 package com.capstone.dfms.services.impliments;
 
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.CowUtlis;
 import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.ICowPenMapper;
 import com.capstone.dfms.models.AreaEntity;
@@ -265,6 +266,8 @@ public class CowPenService implements ICowPenService {
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found with ID: " + request.getId().getCowId()));
         PenEntity penEntity = penRepository.findById(request.getId().getPenId())
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Pen not found with ID: " + request.getId().getPenId()));
+
+        CowUtlis.validateCow(cowEntity);
         AreaEntity area = penEntity.getAreaBelongto();
         if (!cowEntity.getCowTypeEntity().getCowTypeId().equals(area.getCowTypeEntity().getCowTypeId())) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Loại bò không phù hợp với khu vực của chuồng.");
