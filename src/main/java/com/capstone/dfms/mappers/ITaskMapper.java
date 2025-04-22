@@ -25,6 +25,7 @@ public interface ITaskMapper {
     @Mapping(target = "assignerName", source = "assigner.name")
     @Mapping(target = "assigneeName", source = "assignee.name")
     @Mapping(target = "material", expression = "java(mapToMaterialResponse(entity))")
+    @Mapping(target = "reportTask", ignore = true)
     RangeTaskResponse toResponse2(TaskEntity entity);
 
 
