@@ -26,7 +26,7 @@ import static com.capstone.dfms.mappers.IIllnessMapper.INSTANCE;
 public class IllnessController {
     private final  IIllnessService illnessService;
 
-    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CoreApiResponse<IllnessEntity> createIllness(
             @Valid @ModelAttribute IllnessCreateRequest request,
@@ -72,7 +72,7 @@ public class IllnessController {
         return CoreApiResponse.success("Delete successfully!");
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','WORKER')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','WORKER')")
     @PostMapping(value = "/report", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CoreApiResponse<IllnessEntity> reportIllness(
             @Valid @ModelAttribute  IllnessReportRequest request,
@@ -82,7 +82,7 @@ public class IllnessController {
     }
 
 
-    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     @PutMapping("/prognosis/{id}")
     public CoreApiResponse<IllnessEntity> prognosisIllness(@PathVariable Long id, @RequestBody IllnessPrognosisRequest updatedIllness) {
         return CoreApiResponse.success(illnessService.prognosisIllness(id, updatedIllness));

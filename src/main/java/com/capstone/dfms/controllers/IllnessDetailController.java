@@ -47,26 +47,26 @@ public class IllnessDetailController {
         return CoreApiResponse.success(illnessDetailService.getIllnessDetailsByIllnessId(illnessId));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     @PutMapping("/{id}")
     public CoreApiResponse<IllnessDetailEntity> updateIllnessDetail(@PathVariable Long id, @RequestBody IllnessDetailUpdateRequest updatedDetail) {
         return CoreApiResponse.success(illnessDetailService.updateIllnessDetail(id, updatedDetail));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<Void> deleteIllnessDetail(@PathVariable Long id) {
         illnessDetailService.deleteIllnessDetail(id);
         return CoreApiResponse.success("Delete successfully!");
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     @PostMapping("/create-plan")
     public CoreApiResponse<CowPenBulkResponse> createTreatmentPlan(@RequestBody List<IllnessDetailPlanRequest> detail) {
         return CoreApiResponse.success(illnessDetailService.createTreatmentPlan(detail));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS')")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     @PutMapping("/report-treatment/{id}")
     public CoreApiResponse<IllnessDetailEntity> reportTreatment(@PathVariable Long id, @RequestBody IllnessDetailReportRequest detail) {
         return CoreApiResponse.success(illnessDetailService.reportTreatment(id, detail));
