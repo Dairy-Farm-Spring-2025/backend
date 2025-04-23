@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.FeedMealDetailEntity;
 import com.capstone.dfms.models.FeedMealEntity;
 import com.capstone.dfms.requests.DryMatterRequest;
@@ -27,7 +28,7 @@ public class FeedMealController {
     @PostMapping
     public CoreApiResponse<?> createFeedMeal(@RequestBody FeedMealRequest request) {
         FeedMealEntity feedMealEntity = feedMealService.createFeedMeal(request);
-        return CoreApiResponse.success(feedMealEntity,"Create feed meal successfully");
+        return CoreApiResponse.success(feedMealEntity, LocalizationUtils.getMessage("general.create_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
@@ -50,7 +51,7 @@ public class FeedMealController {
             @PathVariable Long id
     ){
         feedMealService.deleteFeedMeal(id);
-        return CoreApiResponse.success("Delete feed meal successfully");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.delete_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','VETERINARIANS','MANAGER')")

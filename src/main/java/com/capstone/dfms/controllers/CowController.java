@@ -2,6 +2,7 @@ package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.components.exceptions.AppException;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.HealthRecordEntity;
 import com.capstone.dfms.requests.BulkCowRequest;
@@ -46,7 +47,7 @@ public class CowController {
     @PostMapping("/create")
     public CoreApiResponse<CowResponse> createCow(@Valid @RequestBody CowCreateRequest cowCreateRequest) {
         CowResponse cowResponse = cowServices.createCow(INSTANCE.toModel(cowCreateRequest));
-        return CoreApiResponse.success(cowResponse);
+        return CoreApiResponse.success(cowResponse, LocalizationUtils.getMessage("general.create_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
@@ -67,7 +68,7 @@ public class CowController {
     @PutMapping("/{id}")
     public CoreApiResponse<CowResponse> updateCow(@PathVariable Long id, @Valid @RequestBody CowUpdateRequest cowUpdateRequest) {
         CowResponse cowResponse = cowServices.updateCow(id, cowUpdateRequest);
-        return CoreApiResponse.success(cowResponse);
+        return CoreApiResponse.success(cowResponse,LocalizationUtils.getMessage("general.update_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")

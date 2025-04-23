@@ -25,7 +25,7 @@ public class CategoryController {
             @Valid @RequestBody CategoryRequest request
     ){
         categoryServices.createCategory(request.getName());
-        return CoreApiResponse.success(LocalizationUtils.getMessage("category.create.success"));
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.create_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
@@ -46,7 +46,7 @@ public class CategoryController {
             @PathVariable Long id
     ){
         categoryServices.deleteCategory(id);
-        return CoreApiResponse.success(LocalizationUtils.getMessage("category.delete.success"));
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.delete_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
@@ -55,6 +55,6 @@ public class CategoryController {
             @PathVariable Long id,
             @RequestBody CategoryRequest request) {
         categoryServices.updateCategory(id,request.getName());
-        return CoreApiResponse.success(LocalizationUtils.getMessage("category.update.success"));
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.update_successfully"));
     }
 }

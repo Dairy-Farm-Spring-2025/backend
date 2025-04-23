@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.EquipmentEntity;
 import com.capstone.dfms.requests.EquipmentRequest;
 import com.capstone.dfms.services.IEquipmentService;
@@ -20,7 +21,7 @@ public class EquipmentController {
     @PostMapping
     public CoreApiResponse<EquipmentEntity> createEquipment(@RequestBody EquipmentRequest request) {
         EquipmentEntity equipment = equipmentService.createEquipment(request);
-        return CoreApiResponse.success(equipment);
+        return CoreApiResponse.success(equipment,LocalizationUtils.getMessage("general.create_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
@@ -43,13 +44,13 @@ public class EquipmentController {
             @PathVariable Long id,
             @RequestBody EquipmentRequest request) {
         EquipmentEntity updatedEquipment = equipmentService.updateEquipment(id, request);
-        return CoreApiResponse.success(updatedEquipment);
+        return CoreApiResponse.success(updatedEquipment,LocalizationUtils.getMessage("general.update_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('WORKER','MANAGER','VETERINARIANS')")
     @DeleteMapping("/{id}")
     public CoreApiResponse<Void> deleteEquipment(@PathVariable Long id) {
         equipmentService.deleteEquipment(id);
-        return CoreApiResponse.success("Delete successfully!");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.delete_successfully"));
     }
 }

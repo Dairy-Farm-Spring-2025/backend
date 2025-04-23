@@ -82,7 +82,7 @@ public class CowPenService implements ICowPenService {
         CowPenPK cowPenPK = new CowPenPK(penId, cowId, fromDate);
 
         CowPenEntity existingEntity = cowPenRepository.findById(cowPenPK)
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow-Pen not found for the provided key."));
+                .orElseThrow(() -> new AppException(HttpStatus.OK, LocalizationUtils.getMessage("not.found.for.key")));
 
         // Update the entity fields
         existingEntity.setToDate(updatedRequest.getToDate() != null ? updatedRequest.getToDate() : existingEntity.getToDate());
@@ -105,7 +105,7 @@ public class CowPenService implements ICowPenService {
         CowPenPK cowPenPK = new CowPenPK(penId, cowId, fromDate);
 
         CowPenEntity cowPenEntity = cowPenRepository.findById(cowPenPK)
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow-Pen not found for the provided key."));
+                .orElseThrow(() -> new AppException(HttpStatus.OK, LocalizationUtils.getMessage("not.found.for.key")));
 
         return mapper.toResponse(cowPenEntity);
     }
@@ -118,7 +118,7 @@ public class CowPenService implements ICowPenService {
         if (cowPenRepository.existsById(cowPenPK)) {
             cowPenRepository.deleteById(cowPenPK);
         } else {
-            throw new AppException(HttpStatus.OK, "Cow-Pen not found for the provided key.");
+            throw new AppException(HttpStatus.OK, LocalizationUtils.getMessage("not.found.for.key"));
         }
     }
 
@@ -141,7 +141,7 @@ public class CowPenService implements ICowPenService {
     public CowPenResponse approveOrRejectMovePen(Long penId, Long cowId, LocalDateTime fromDate, boolean isApproval) {
         CowPenPK cowPenPK = new CowPenPK(penId, cowId, fromDate);
         CowPenEntity cowPenEntity = cowPenRepository.findById(cowPenPK)
-                .orElseThrow(() -> new AppException(HttpStatus.OK, "Cow-Pen not found for the provided key."));
+                .orElseThrow(() -> new AppException(HttpStatus.OK, LocalizationUtils.getMessage("not.found.for.key")));
 
         if(cowPenEntity.getStatus() != PenCowStatus.planning){
             throw new AppException(HttpStatus.BAD_REQUEST, "Not longer to approve or reject");
@@ -182,20 +182,23 @@ public class CowPenService implements ICowPenService {
         for (int i = 0; i < cowEntities.size(); i++) {
             int finalI = i;
             CowEntity cow = cowRepository.findById(cowEntities.get(finalI))
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found with ID: " + cowEntities.get(finalI)));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                            String.format(LocalizationUtils.getMessage("cow.not_found_id"), cowEntities.get(finalI))));
+
             PenEntity pen = penRepository.findById(penEntities.get(finalI))
-                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Pen not found with ID: " + penEntities.get(finalI)));
+                    .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                            String.format(LocalizationUtils.getMessage("pen.not_found_id"), penEntities.get(finalI))));
 
             Optional<CowPenEntity> latestCowPen = cowPenRepository.findLatestCowPenByCowId(cow.getCowId());
 
             if (latestCowPen.isPresent() && latestCowPen.get().getToDate() == null) {
                 String cowName = cow.getName();
-                throw new AppException(HttpStatus.BAD_REQUEST, cowName + " is already in pen");
-            }
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        String.format(LocalizationUtils.getMessage("cow.already_in_pen"), cowName));            }
 
             if (pen.getPenStatus() == PenStatus.occupied) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Pen '" + pen.getName() + "' is already occupied!");
-            }
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        String.format(LocalizationUtils.getMessage("pen.already_occupied"), pen.getName()));            }
 
             AreaEntity area = pen.getAreaBelongto();
             if (!cow.getCowTypeEntity().getCowTypeId().equals(area.getCowTypeEntity().getCowTypeId())) {
@@ -263,9 +266,12 @@ public class CowPenService implements ICowPenService {
             throw new AppException(HttpStatus.OK, LocalizationUtils.getMessage("cow.pen.created.before"));
         }
         CowEntity cowEntity = cowRepository.findById(request.getId().getCowId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Cow not found with ID: " + request.getId().getCowId()));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                        String.format(LocalizationUtils.getMessage("cow.not_found_id"), request.getId().getCowId())));
+
         PenEntity penEntity = penRepository.findById(request.getId().getPenId())
-                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Pen not found with ID: " + request.getId().getPenId()));
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
+                        String.format(LocalizationUtils.getMessage("pen.not_found_id"), request.getId().getPenId())));
 
         CowUtlis.validateCow(cowEntity);
         AreaEntity area = penEntity.getAreaBelongto();

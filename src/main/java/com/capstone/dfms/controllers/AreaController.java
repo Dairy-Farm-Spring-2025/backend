@@ -8,8 +8,6 @@ import com.capstone.dfms.responses.AreaResponse;
 import com.capstone.dfms.services.IAreaServices;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,23 +36,20 @@ public class AreaController {
             @Valid @RequestBody AreaUpdateRequest areaUpdateRequest
     ) {
         AreaResponse areaResponse = areaServices.updateArea(id, areaUpdateRequest);
-        String message = LocalizationUtils.getMessage("area.update.success");
-        return CoreApiResponse.success(areaResponse, message);
+        return CoreApiResponse.success(areaResponse,LocalizationUtils.getMessage("general.update_successfully") );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping("/{id}")
     public CoreApiResponse<AreaResponse> getAreaById(@PathVariable Long id) {
         AreaResponse areaResponse = areaServices.getAreaById(id);
-        String message = LocalizationUtils.getMessage("area.get.success");
-        return CoreApiResponse.success(areaResponse, message);
+        return CoreApiResponse.success(areaResponse);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
     @GetMapping
     public CoreApiResponse<List<AreaResponse>> getAllAreas() {
         List<AreaResponse> areas = areaServices.getAllAreas();
-        String message = LocalizationUtils.getMessage("area.get.success");
-        return CoreApiResponse.success(areas, message);
+        return CoreApiResponse.success(areas);
     }
 }

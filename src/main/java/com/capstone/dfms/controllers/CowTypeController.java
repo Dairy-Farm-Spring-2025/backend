@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.requests.CowTypeCreateRequest;
 import com.capstone.dfms.requests.CowTypeUpdateRequest;
 import com.capstone.dfms.responses.CowTypeResponse;
@@ -24,7 +25,7 @@ public class CowTypeController {
     @PostMapping("/create")
     public CoreApiResponse<CowTypeResponse> createCowType(@Valid @RequestBody CowTypeCreateRequest cowTypeCreateRequest) {
         var cowTypeResponse = cowTypeServices.createCowType(INSTANCE.toModel(cowTypeCreateRequest));
-        return CoreApiResponse.success(cowTypeResponse);
+        return CoreApiResponse.success(cowTypeResponse, LocalizationUtils.getMessage("general.create_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
@@ -33,7 +34,7 @@ public class CowTypeController {
             @PathVariable Long id,
             @Valid @RequestBody CowTypeUpdateRequest cowTypeUpdateRequest) {
         CowTypeResponse cowTypeResponse = cowTypeServices.updateCowType(id, INSTANCE.toModel(cowTypeUpdateRequest));
-        return CoreApiResponse.success(cowTypeResponse);
+        return CoreApiResponse.success(cowTypeResponse,LocalizationUtils.getMessage("general.update_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
