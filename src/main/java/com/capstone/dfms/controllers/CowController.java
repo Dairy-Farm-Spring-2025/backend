@@ -61,7 +61,7 @@ public class CowController {
             return CoreApiResponse.status(400).body(result);
         }
 
-        return CoreApiResponse.success(cowServices.createInformation(requests));
+        return CoreApiResponse.success(result);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
@@ -112,12 +112,6 @@ public class CowController {
 
 
     @GetMapping("/templates/download/cow-bulk-excel")
-//    public ResponseEntity<Void> downloadExcelTemplate(HttpServletRequest request) {
-//        String fileUrl = "/document/Template%20Cow%20Import.xlsx";
-//        return ResponseEntity.status(HttpStatus.FOUND) // 302 Redirect
-//                .location(URI.create(fileUrl))
-//                .build();
-//    }
     public ResponseEntity<InputStreamResource> exportCowTemplate() throws IOException {
         ByteArrayInputStream stream = cowServices.exportCowTemplate();
 
