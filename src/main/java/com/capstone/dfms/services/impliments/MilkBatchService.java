@@ -231,4 +231,14 @@ public class MilkBatchService implements IMilkBatchService {
         return milkBatchRepository.save(milkBatch);
     }
 
+    @Override
+    public void markMilkBatchesAsOutOfStock(List<Long> milkBatchIds) {
+        List<MilkBatchEntity> batches = milkBatchRepository.findAllById(milkBatchIds);
+
+        for (MilkBatchEntity batch : batches) {
+            batch.setStatus(MilkBatchStatus.out_of_stock);
+        }
+        milkBatchRepository.saveAll(batches);
+    }
+
 }

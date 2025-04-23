@@ -20,4 +20,6 @@ public interface IMilkBatchService {
     void updateMilkBatch(Long milkBatchId, List<Long> dailyMilkIdsToAdd, List<Long> dailyMilkIdsToRemove);
 
     MilkBatchEntity createMilkBatchWithDailyMilks(MilkBatchRequest request);
+
+    void markMilkBatchesAsOutOfStock(List<Long> milkBatchIds);
 }

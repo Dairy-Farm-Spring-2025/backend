@@ -73,4 +73,11 @@ public class MilkBatchController {
         return CoreApiResponse.success(milkBatch,LocalizationUtils.getMessage("milk.batch.create.success"));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PutMapping("/set-out-of-stock")
+    public CoreApiResponse<?> setOutOfStock(@RequestBody List<Long> ids) {
+        milkBatchService.markMilkBatchesAsOutOfStock(ids);
+        return CoreApiResponse.success(LocalizationUtils.getMessage("milk.batch.update.export"));
+    }
+
 }
