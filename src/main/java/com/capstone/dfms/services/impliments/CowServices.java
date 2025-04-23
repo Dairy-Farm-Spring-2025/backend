@@ -541,7 +541,7 @@ public class CowServices implements ICowServices {
                             .map(ConstraintViolation::getMessage)
                             .toList(); // Or use newline "\n"
 
-                    record.setErrorString(messages); // Or cow.getErrors().addAll(...);
+                    record.setErrorStrings(messages); // Or cow.getErrors().addAll(...);
                     errorRecords.add(record);
                 } else {
                     validRecords.add(record);
@@ -573,7 +573,7 @@ public class CowServices implements ICowServices {
                 finalValidRecords.add(record); // only add if valid cow name
 
             } catch (Exception e) {
-                record.setErrorString(new ArrayList<>(List.of(e.getMessage())));
+                record.setErrorStrings(new ArrayList<>(List.of(e.getMessage())));
                 errorRecords.add(record);
             }
 
