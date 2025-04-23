@@ -83,8 +83,8 @@ public class PenController {
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
     @GetMapping("/available/cow")
     public CoreApiResponse<List<PenResponse>> getAvailablePens(
-            @RequestParam Long cowTypeId,
-            @RequestParam CowStatus cowStatus,
+            @RequestParam(required = false) Long cowTypeId,
+            @RequestParam(required = false) CowStatus cowStatus,
             @RequestParam AreaType areaType
     ) {
         List<PenResponse> pens = penServices.getPensByCowTypeAndStatus(cowTypeId, cowStatus, areaType);

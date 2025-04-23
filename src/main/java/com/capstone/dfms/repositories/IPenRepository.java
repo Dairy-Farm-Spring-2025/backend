@@ -38,13 +38,13 @@ public interface IPenRepository extends JpaRepository<PenEntity, Long> {
     int countByAreaBelongto(AreaEntity areaBelongto);
 
     @Query("SELECT p FROM PenEntity p " +
-            "WHERE p.areaBelongto.cowTypeEntity.cowTypeId = :cowTypeId " +
-            "AND p.areaBelongto.cowStatus = :cowStatus " +
+            "WHERE (:cowTypeId IS NULL OR p.areaBelongto.cowTypeEntity.cowTypeId = :cowTypeId) " +
+            "AND (:cowStatus IS NULL OR p.areaBelongto.cowStatus = :cowStatus) " +
             "AND p.areaBelongto.areaType = :areaType " +
             "AND p.penStatus = com.capstone.dfms.models.enums.PenStatus.empty")
     List<PenEntity> findAvailablePens(@Param("cowTypeId") Long cowTypeId,
-                                                                   @Param("cowStatus") CowStatus cowStatus,
-                                                                   @Param("areaType") AreaType areaType);
+                                      @Param("cowStatus") CowStatus cowStatus,
+                                      @Param("areaType") AreaType areaType);
 
 
 }
