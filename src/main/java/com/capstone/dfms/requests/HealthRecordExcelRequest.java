@@ -1,7 +1,6 @@
 package com.capstone.dfms.requests;
 
 import com.alibaba.excel.annotation.ExcelProperty;
-import com.capstone.dfms.models.enums.CowStatus;
 import com.capstone.dfms.models.enums.HealthRecordStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -63,7 +62,7 @@ public class HealthRecordExcelRequest {
     @ExcelProperty("Description")
     private String description;
 
-    private List<String> errorString;
+    private List<String> errorStrings;
 
 //    public CowStatus getCowStatus() {
 //        return CowStatus.fromString(period);
