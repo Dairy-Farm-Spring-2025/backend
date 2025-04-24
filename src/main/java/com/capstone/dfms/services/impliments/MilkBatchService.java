@@ -184,7 +184,7 @@ public class MilkBatchService implements IMilkBatchService {
         MilkBatchEntity milkBatch = MilkBatchEntity.builder()
                 .totalVolume(0L)
                 .date(LocalDateTime.now())
-                .expiryDate(LocalDateTime.now().plusDays(5))
+                .expiryDate(LocalDateTime.now().plusDays(1))
                 .status(MilkBatchStatus.inventory)
                 .dailyMilks(new ArrayList<>())
                 .build();

@@ -126,7 +126,7 @@ public class SecurityConfig {
                 String redirectUrl;
                 if (isMobile) {
                     redirectUrl = String.format(
-                            "exp://127.0.0.1:19000/",
+                            "http://localhost5173/login/oauth2/callback?access_token=%s&refresh_token=%s&userId=%s&userName=%s&roleName=%s",
                             URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
                             URLEncoder.encode(refreshToken, StandardCharsets.UTF_8),
                             URLEncoder.encode(userId, StandardCharsets.UTF_8),
