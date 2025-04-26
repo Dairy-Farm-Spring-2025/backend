@@ -258,6 +258,7 @@ public class IllnessService implements IIllnessService {
         task.setFromDate(detail.getDate());
         task.setToDate(detail.getDate());
         task.setShift(TaskShift.dayShift);
+        task.setPriority(PriorityTask.high);
         task.setTaskTypeId(treatmentTaskType);
         task.setAreaId(latestCowPen.getPenEntity().getAreaBelongto());
         task.setIllness(detail);

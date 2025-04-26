@@ -9,6 +9,7 @@ import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.CowPenEntity;
 import com.capstone.dfms.models.PenEntity;
 import com.capstone.dfms.models.compositeKeys.CowPenPK;
+import com.capstone.dfms.models.enums.AreaType;
 import com.capstone.dfms.models.enums.PenCowStatus;
 import com.capstone.dfms.models.enums.PenStatus;
 import com.capstone.dfms.repositories.ICowPenRepository;
@@ -201,11 +202,13 @@ public class CowPenService implements ICowPenService {
                         String.format(LocalizationUtils.getMessage("pen.already_occupied"), pen.getName()));            }
 
             AreaEntity area = pen.getAreaBelongto();
-            if (!cow.getCowTypeEntity().getCowTypeId().equals(area.getCowTypeEntity().getCowTypeId())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.invalid_type_for_area"));
-            }
-            if (!cow.getCowStatus().equals(area.getCowStatus())) {
-                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.invalid_status_for_area"));
+            if (!AreaType.quarantine.equals(area.getAreaType())) {
+                if (!cow.getCowTypeEntity().getCowTypeId().equals(area.getCowTypeEntity().getCowTypeId())) {
+                    throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.invalid_type_for_area"));
+                }
+                if (!cow.getCowStatus().equals(area.getCowStatus())) {
+                    throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.invalid_status_for_area"));
+                }
             }
 
             CowPenPK cowPenPK = new CowPenPK(pen.getPenId(), cow.getCowId(), fromDate);
@@ -275,12 +278,16 @@ public class CowPenService implements ICowPenService {
 
         CowUtlis.validateCow(cowEntity);
         AreaEntity area = penEntity.getAreaBelongto();
-        if (!cowEntity.getCowTypeEntity().getCowTypeId().equals(area.getCowTypeEntity().getCowTypeId())) {
-            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.invalid_type_for_area"));
+
+        if (!AreaType.quarantine.equals(area.getAreaType())) {
+            if (!cowEntity.getCowTypeEntity().getCowTypeId().equals(area.getCowTypeEntity().getCowTypeId())) {
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.invalid_type_for_area"));
+            }
+            if (!cowEntity.getCowStatus().equals(area.getCowStatus())) {
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.invalid_status_for_area"));
+            }
         }
-        if (!cowEntity.getCowStatus().equals(area.getCowStatus())) {
-            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.invalid_status_for_area"));
-        }
+
 
         Optional<CowPenEntity> latestCowPen = cowPenRepository.findLatestCowPenByCowId(cowEntity.getCowId());
         PenEntity oldPen = null;

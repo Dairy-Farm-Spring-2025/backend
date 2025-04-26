@@ -678,7 +678,7 @@ public class TaskService implements ITaskService {
             case "Lấy sữa bò":
             case "Cho bò ăn":
                 return PriorityTask.medium;
-            case "Chữa bệnh":
+            case "Khám bệnh":
                 return PriorityTask.critical;
             default:
                 return PriorityTask.low;
