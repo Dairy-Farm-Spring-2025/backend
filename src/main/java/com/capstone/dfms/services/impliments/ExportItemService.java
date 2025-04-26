@@ -9,8 +9,11 @@ import com.capstone.dfms.models.enums.ExportItemStatus;
 import com.capstone.dfms.repositories.IExportItemRepository;
 import com.capstone.dfms.repositories.IItemBatchRepository;
 import com.capstone.dfms.repositories.ITaskRepository;
+import com.capstone.dfms.requests.CreateExportItemsRequest;
+import com.capstone.dfms.requests.ExportItemDetailRequest;
 import com.capstone.dfms.requests.ExportItemRequest;
 import com.capstone.dfms.services.IExportItemService;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -182,4 +185,104 @@ public class ExportItemService implements IExportItemService {
         return exportItemRepository.findAll();
     }
 
+
+    @Override
+    @Transactional
+    public void createExportItems(CreateExportItemsRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity user = userPrincipal.getUser();
+
+        TaskEntity task = taskRepository.findById(request.getTaskId())
+                .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, "Task not found"));
+
+        AreaEntity area = task.getAreaId();
+
+        for (ExportItemDetailRequest itemRequest : request.getExportItems()) {
+            Long itemId = itemRequest.getItemId();
+
+            boolean alreadyExported = exportItemRepository.existsTodayByItemIdAndAreaId(itemId, area.getAreaId());
+
+            if (alreadyExported) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Item đã được export trong khu vực này rồi.");
+            }
+            List<ItemBatchEntity> inUseBatches = itemBatchRepository.findByItemEntity_ItemIdAndStatusOrderByImportDateAsc(
+                    itemRequest.getItemId(), BatchStatus.inUse);
+
+            List<ItemBatchEntity> availableBatches = itemBatchRepository.findByItemEntity_ItemIdAndStatusOrderByImportDateAsc(
+                    itemRequest.getItemId(), BatchStatus.available);
+
+            float totalAvailableQuantity = 0;
+
+            for (ItemBatchEntity batch : inUseBatches) {
+                totalAvailableQuantity += batch.getQuantity();
+            }
+
+            for (ItemBatchEntity batch : availableBatches) {
+                totalAvailableQuantity += batch.getQuantity();
+            }
+
+            if (totalAvailableQuantity < itemRequest.getQuantity()) {
+                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.quantity.exceed"));
+            }
+
+            float remainingQuantity = itemRequest.getQuantity();
+
+            for (ItemBatchEntity batch : inUseBatches) {
+                if (remainingQuantity <= 0) break;
+
+                float availableQuantity = batch.getQuantity();
+                float exportQuantity = Math.min(availableQuantity, remainingQuantity);
+
+                batch.setQuantity(batch.getQuantity() - exportQuantity);
+                if (batch.getQuantity() == 0) {
+                    batch.setStatus(BatchStatus.depleted);
+                }
+                itemBatchRepository.save(batch);
+
+                ExportItemEntity exportItem = ExportItemEntity.builder()
+                        .picker(user)
+                        .exportDate(LocalDateTime.now())
+                        .status(ExportItemStatus.pending)
+                        .itemBatchEntity(batch)
+                        .quantity(exportQuantity)
+                        .task(task)
+                        .build();
+
+                exportItemRepository.save(exportItem);
+
+                remainingQuantity -= exportQuantity;
+            }
+
+            if (remainingQuantity > 0) {
+                for (ItemBatchEntity batch : availableBatches) {
+                    if (remainingQuantity <= 0) break;
+
+                    float availableQuantity = batch.getQuantity();
+                    float exportQuantity = Math.min(availableQuantity, remainingQuantity);
+
+                    batch.setQuantity(batch.getQuantity() - exportQuantity);
+                    if (batch.getQuantity() == 0) {
+                        batch.setStatus(BatchStatus.depleted);
+                    } else {
+                        batch.setStatus(BatchStatus.inUse);
+                    }
+                    itemBatchRepository.save(batch);
+
+                    ExportItemEntity exportItem = ExportItemEntity.builder()
+                            .picker(user)
+                            .exportDate(LocalDateTime.now())
+                            .status(ExportItemStatus.pending)
+                            .itemBatchEntity(batch)
+                            .quantity(exportQuantity)
+                            .task(task)
+                            .build();
+
+                    exportItemRepository.save(exportItem);
+
+                    remainingQuantity -= exportQuantity;
+                }
+            }
+        }
+    }
 }

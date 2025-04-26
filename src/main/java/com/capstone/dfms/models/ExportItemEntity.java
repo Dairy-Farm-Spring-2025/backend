@@ -37,5 +37,4 @@ public class ExportItemEntity extends BaseEntity{
 
     @Enumerated(EnumType.STRING)
     private ExportItemStatus status;
-
 }

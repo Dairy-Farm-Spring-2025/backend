@@ -19,4 +19,12 @@ public interface IExportItemRepository extends JpaRepository<ExportItemEntity, L
             "WHERE DATE(e.exportDate) = :today " +
             "GROUP BY i.itemEntity.name")
     List<Object[]> getExportedItemsByDate(@Param("today") LocalDate today);
+
+    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
+            "FROM ExportItemEntity e " +
+            "WHERE e.itemBatchEntity.itemEntity.itemId = :itemId " +
+            "AND e.task.areaId.areaId = :areaId " +
+            "AND DATE(e.exportDate) = CURRENT_DATE")
+    boolean existsTodayByItemIdAndAreaId(@Param("itemId") Long itemId, @Param("areaId") Long areaId);
+
 }

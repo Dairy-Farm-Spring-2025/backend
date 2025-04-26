@@ -3,6 +3,7 @@ package com.capstone.dfms.controllers;
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.ExportItemEntity;
+import com.capstone.dfms.requests.CreateExportItemsRequest;
 import com.capstone.dfms.requests.ExportItemRequest;
 import com.capstone.dfms.services.IExportItemService;
 import jakarta.validation.Valid;
@@ -59,5 +60,11 @@ public class ExportItemController {
     @GetMapping("/{id}")
     public CoreApiResponse<ExportItemEntity> getById(@PathVariable Long id) {
         return CoreApiResponse.success(exportItemService.getExportItemById(id));
+    }
+
+    @PostMapping("/create/multi")
+    public CoreApiResponse<?> createExportItems(@RequestBody CreateExportItemsRequest request) {
+        exportItemService.createExportItems(request);
+        return CoreApiResponse.success(LocalizationUtils.getMessage("export.item.create.success"));
     }
 }
