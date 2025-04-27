@@ -20,6 +20,8 @@ public class AreaUpdateRequest {
     private Float width;
     private Float penLength;
     private Float penWidth;
+    private Integer maxPen;
+    private Integer numberInRow;
     private AreaType areaType;
     private Long cowTypeId;
 }
