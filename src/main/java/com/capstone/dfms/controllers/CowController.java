@@ -6,6 +6,7 @@ import com.capstone.dfms.models.CowEntity;
 import com.capstone.dfms.models.HealthRecordEntity;
 import com.capstone.dfms.requests.BulkCowRequest;
 import com.capstone.dfms.requests.CowCreateRequest;
+import com.capstone.dfms.requests.CowImportSingleRequest;
 import com.capstone.dfms.requests.CowUpdateRequest;
 import com.capstone.dfms.responses.*;
 import com.capstone.dfms.services.ICowServices;
@@ -46,6 +47,13 @@ public class CowController {
     @PostMapping("/create")
     public CoreApiResponse<CowResponse> createCow(@Valid @RequestBody CowCreateRequest cowCreateRequest) {
         CowResponse cowResponse = cowServices.createCow(INSTANCE.toModel(cowCreateRequest));
+        return CoreApiResponse.success(cowResponse);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PostMapping("/import-single")
+    public CoreApiResponse<CowResponse> importSingleCow(@Valid @RequestBody CowImportSingleRequest cowImportSingleRequest) {
+        CowResponse cowResponse = cowServices.importSingleCow(cowImportSingleRequest);
         return CoreApiResponse.success(cowResponse);
     }
 
