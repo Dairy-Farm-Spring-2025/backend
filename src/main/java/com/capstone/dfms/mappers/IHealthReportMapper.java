@@ -1,6 +1,7 @@
 package com.capstone.dfms.mappers;
 
 import com.capstone.dfms.models.HealthRecordEntity;
+import com.capstone.dfms.requests.HealthRecordCreateRequest;
 import com.capstone.dfms.requests.HealthRecordExcelRequest;
 import com.capstone.dfms.requests.HealthReportRequest;
 import org.mapstruct.*;
@@ -12,6 +13,8 @@ public interface IHealthReportMapper {
 
     @Mapping(source = "cowId", target = "cowEntity.cowId")
     HealthRecordEntity toModel(HealthReportRequest request);
+
+    HealthRecordEntity toModel(HealthRecordCreateRequest request);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "cowId", target = "cowEntity.cowId")
