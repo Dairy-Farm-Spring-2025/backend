@@ -201,10 +201,12 @@ public class ExportItemService implements IExportItemService {
         for (ExportItemDetailRequest itemRequest : request.getExportItems()) {
             Long itemId = itemRequest.getItemId();
 
-            boolean alreadyExported = exportItemRepository.existsTodayByItemIdAndAreaId(itemId, area.getAreaId());
+            if (task.getMainIllness() == null && task.getIllness() == null && task.getVaccineInjection() == null) {
+                boolean alreadyExportedToday = exportItemRepository.existsTodayByItemIdAndAreaId(itemId, area.getAreaId());
 
-            if (alreadyExported) {
-                throw new AppException(HttpStatus.BAD_REQUEST, "Item đã được export trong khu vực này rồi.");
+                if (alreadyExportedToday) {
+                    throw new AppException(HttpStatus.BAD_REQUEST, "Item đã được export trong khu vực này hôm nay rồi.");
+                }
             }
             List<ItemBatchEntity> inUseBatches = itemBatchRepository.findByItemEntity_ItemIdAndStatusOrderByImportDateAsc(
                     itemRequest.getItemId(), BatchStatus.inUse);
