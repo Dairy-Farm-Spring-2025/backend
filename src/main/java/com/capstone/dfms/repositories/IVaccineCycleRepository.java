@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IVaccineCycleRepository extends JpaRepository<VaccineCycleEntity, Long> {
     @Query("SELECT v FROM VaccineCycleEntity v JOIN FETCH v.vaccineCycleDetails")
@@ -13,4 +14,7 @@ public interface IVaccineCycleRepository extends JpaRepository<VaccineCycleEntit
 
     @Query("SELECT v FROM VaccineCycleEntity v WHERE v.cowTypeEntity.cowTypeId = :cowTypeId")
     List<VaccineCycleEntity> findByCowTypeId(@Param("cowTypeId") Long cowTypeId);
+
+    @Query("SELECT v FROM VaccineCycleEntity v WHERE v.cowTypeEntity.cowTypeId = :cowTypeId")
+    Optional<List<VaccineCycleEntity>> findByCowTypeIdOptional(@Param("cowTypeId") Long cowTypeId);
 }
