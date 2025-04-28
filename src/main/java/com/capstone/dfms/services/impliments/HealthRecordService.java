@@ -33,7 +33,6 @@ public class HealthRecordService implements IHealthRecordService{
 
     @Override
     public HealthRecordEntity createHealthReport(HealthReportRequest request) {
-        // Validate that the referenced Cow exists
         CowEntity cow = cowRepository.findById(request.getCowId())
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.not.found")));
 
@@ -80,7 +79,6 @@ public class HealthRecordService implements IHealthRecordService{
 
         HealthRecordEntity oldEntity = this.getHealthReportById(id);
 
-        // Check if the update is within 1 day of reportTime
         if (oldEntity.getReportTime() != null) {
             LocalDateTime oneDayAfterReport = oldEntity.getReportTime().plusDays(1);
             if (LocalDateTime.now().isAfter(oneDayAfterReport)) {

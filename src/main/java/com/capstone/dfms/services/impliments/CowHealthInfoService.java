@@ -23,17 +23,12 @@ public class CowHealthInfoService implements ICowHealthInfoService {
 
     @Override
     public List<CowHealthInfoResponse<?>> getAllHealthInfoOrderedDesc(Long cowId) {
-        // Fetch health records for the given cow
         List<HealthRecordEntity> healthRecords = healthRecordRepository.findByCowEntityCowId(cowId);
-        // Fetch illnesses for the given cow
         List<IllnessEntity> illnesses = illnessRepository.findByCowEntityCowId(cowId);
 
-        // Create a list to hold the unified response objects
         List<CowHealthInfoResponse<?>> responses = new ArrayList<>();
 
-        // Map health records to the response type
         for (HealthRecordEntity record : healthRecords) {
-            // Convert the reportTime to LocalDate (assumes reportTime is not null)
             LocalDate reportDate = record.getReportTime().toLocalDate();
             CowHealthInfoResponse<HealthRecordEntity> response = CowHealthInfoResponse.<HealthRecordEntity>builder()
                     .id(record.getHealthRecordId())
@@ -44,9 +39,7 @@ public class CowHealthInfoService implements ICowHealthInfoService {
             responses.add(response);
         }
 
-        // Map illnesses to the response type
         for (IllnessEntity illness : illnesses) {
-            // For illnesses, we use the startDate as the date field
             LocalDate startDate = illness.getStartDate();
             CowHealthInfoResponse<IllnessEntity> response = CowHealthInfoResponse.<IllnessEntity>builder()
                     .id(illness.getIllnessId())
@@ -57,7 +50,6 @@ public class CowHealthInfoService implements ICowHealthInfoService {
             responses.add(response);
         }
 
-        // Ensure a global descending order by date, regardless of type.
         responses.sort(
                 Comparator.comparing(
                         (CowHealthInfoResponse<?> r) -> r.getDate(),

@@ -12,11 +12,8 @@ import java.util.List;
 @Repository
 public interface IIllnessDetailRepository extends JpaRepository<IllnessDetailEntity, Long> {
     List<IllnessDetailEntity> findByIllnessEntityIllnessId(Long illnessId);
-    @Query("SELECT i FROM IllnessDetailEntity i WHERE i.illnessEntity.illnessId = :illnessId AND i.date < :date")
-    List<IllnessDetailEntity> findDetailsByIllnessIdAndDateAfter(@Param("illnessId") Long illnessId, @Param("date") LocalDate date);
 
-    @Query("SELECT i FROM IllnessDetailEntity i WHERE i.date BETWEEN :startDate AND :endDate")
-    List<IllnessDetailEntity> findByDateBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
 
     @Query("SELECT i FROM IllnessDetailEntity i WHERE i.date = :date")
     List<IllnessDetailEntity> findByDate(@Param("date") LocalDate date);

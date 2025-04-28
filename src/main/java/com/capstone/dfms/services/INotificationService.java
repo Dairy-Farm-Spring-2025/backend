@@ -3,7 +3,6 @@ package com.capstone.dfms.services;
 import com.capstone.dfms.models.NotificationEntity;
 import com.capstone.dfms.models.UserNotificationEntity;
 import com.capstone.dfms.requests.NotificationRequest;
-import com.capstone.dfms.responses.NotificationResponse;
 
 import java.util.List;
 

@@ -14,8 +14,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class CowCreateRequest {
-//    @NotNull(message = "Name cannot be null")
-//    private String name;
 
     @NotNull(message = "Cow Status cannot be null")
     private CowStatus cowStatus;

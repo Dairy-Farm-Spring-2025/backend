@@ -18,7 +18,6 @@ public class IllnessMediaEntity {
 
     private String url;
 
-//    @Enumerated(EnumType.STRING)
     private String type;
 
     @JsonIgnore

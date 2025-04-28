@@ -118,7 +118,6 @@ public class NotificationService implements INotificationService {
         }
         String notificationJson = new Gson().toJson(notificationPayload);
 
-        // Gửi cho mobile
         if (user.getFcmTokenMobile() != null && !user.getFcmTokenMobile().isEmpty()) {
             Message mobileMessage = Message.builder()
                     .putAllData(data)
@@ -129,7 +128,6 @@ public class NotificationService implements INotificationService {
             sendFcmMessage(mobileMessage, "mobile", user.getId());
         }
 
-        // Gửi cho web
         if (user.getFcmTokenWeb() != null && !user.getFcmTokenWeb().isEmpty()) {
             Message webMessage = Message.builder()
                     .putAllData(data)

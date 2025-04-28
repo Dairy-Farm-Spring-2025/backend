@@ -1,7 +1,6 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.services.IOcrServices;
-import com.capstone.dfms.services.impliments.OcrService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

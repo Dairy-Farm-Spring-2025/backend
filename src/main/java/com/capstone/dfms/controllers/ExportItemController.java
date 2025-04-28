@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.capstone.dfms.mappers.IExportItemMapper.INSTANCE;
 
 @RestController
 @RequestMapping("${app.api.version.v1}/export_items")

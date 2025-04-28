@@ -19,7 +19,6 @@ public interface IIllnessService{
     List<IllnessEntity> getIllnessByStatus(IllnessStatus status);
     IllnessEntity getIllnessById(Long id);
     List<IllnessEntity> getIllnessesByCowId(Long cowId);
-//    IllnessEntity updateIllness(Long id, IllnessUpdateRequest updatedIllness);
     IllnessEntity updateIllness(Long id, IllnessUpdateRequest updatedIllness, @Nullable Boolean isPrognosis);
 
     void deleteIllness(Long id);

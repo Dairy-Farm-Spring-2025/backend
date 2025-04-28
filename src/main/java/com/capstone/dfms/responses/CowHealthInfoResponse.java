@@ -12,8 +12,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class CowHealthInfoResponse<T>{
-    private Long id;         // ID of the record (health record or illness)
-    private String type;     // "HEALTH_RECORD" or "ILLNESS"
-    private LocalDate date;  // For health records, reportTime as LocalDate; for illnesses, startDate
+    private Long id;
+    private String type;
+    private LocalDate date;
     private T health;
 }

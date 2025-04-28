@@ -145,7 +145,6 @@ public class ReportTaskService implements IReportTaskService {
             reportTask.setDescription(request.getDescription());
         }
 
-        // Xử lý xóa ảnh cũ
         if (request.getDeleteUrls() != null && !request.getDeleteUrls().isEmpty()) {
             List<ReportTaskImageEntity> imagesToDelete = reportTask.getReportImages().stream()
                     .filter(image -> request.getDeleteUrls().contains(image.getUrl()))

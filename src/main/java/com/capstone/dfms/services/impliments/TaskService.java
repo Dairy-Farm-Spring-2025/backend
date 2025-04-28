@@ -54,8 +54,6 @@ public class TaskService implements ITaskService {
     private final ITaskTypeRepository taskTypeRepository;
     private final IReportTaskRepository reportTaskRepository;
     private final IIllnessRepository illnessRepository;
-    private final ITaskMapper taskMapper;
-    private final IReportTaskMapper reportTaskMapper;
     private final ICowPenRepository cowPenRepository;
     private final INotificationService notificationService;
 

@@ -14,15 +14,10 @@ public interface IExportItemService {
 
     List<ExportItemEntity> getAllExportItems();
 
-//    ExportItemEntity approveExportItem (Long id);
 
-//    List<ExportItemEntity> approveMultipleExportItems(List<Long> listId);
-
-//    ExportItemEntity rejectExportItem (Long id);
 
     ExportItemEntity cancelExportItem (Long id);
 
-//    ExportItemEntity updateExportItem (Long id, float quantiy);
 
     List<ExportItemEntity> getMyExportItems();
     ExportItemEntity exportItem (Long id);

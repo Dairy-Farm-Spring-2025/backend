@@ -90,7 +90,6 @@ public class AreaServices implements IAreaServices {
 
     @Override
     public AreaResponse updateArea(Long id, AreaUpdateRequest request) {
-        // Fetch the existing entity
         AreaEntity existingEntity = areaRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST,
                         LocalizationUtils.getMessage("area.not_found")));
@@ -119,7 +118,6 @@ public class AreaServices implements IAreaServices {
         areaMapper.updateAreaFromRequest(request, existingEntity);
         validateDimensions(existingEntity);
 
-        // Save the updated entity
         AreaEntity updatedEntity = areaRepository.save(existingEntity);
         return areaMapper.toResponse(updatedEntity);
     }

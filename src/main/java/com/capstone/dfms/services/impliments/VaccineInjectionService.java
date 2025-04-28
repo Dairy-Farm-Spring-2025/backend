@@ -30,19 +30,16 @@ public class VaccineInjectionService implements IVaccineInjectionService {
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow.not.found")
                 ));
 
-        // Validate vaccine cycle detail
         VaccineCycleDetailEntity vaccineCycleDetail = vaccineCycleDetailRepository.findById(request.getVaccineCycleDetailId())
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("vaccine_cycle_detail.not_found")));
 
         UserEntity vet = UserStatic.getCurrentUser();
 
-        // Convert request to entity
         VaccineInjectionEntity entity = vaccineInjectionMapper.toModel(request);
         entity.setCowEntity(cow);
         entity.setVaccineCycleDetail(vaccineCycleDetail);
         entity.setAdministeredBy(vet);
 
-        // Save to DB
         return vaccineInjectionRepository.save(entity);
     }
 

@@ -33,10 +33,7 @@ public class HealthRecordEntity extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "cow_id")
     private CowEntity cowEntity;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "task_id")
-//    private TaskEntity relatedTask;
+
 
     private LocalDateTime reportTime;
     private String description;

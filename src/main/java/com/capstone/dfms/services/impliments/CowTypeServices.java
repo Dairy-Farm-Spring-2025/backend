@@ -22,13 +22,11 @@ public class CowTypeServices implements ICowTypeServices {
 
     @Override
     public CowTypeResponse createCowType(CowTypeEntity request) {
-        // Check if a cow type with the same name exists
         request.setName(StringUtils.NameStandardlizing(request.getName()));
         if (cowTypeRepository.existsByName(request.getName())) {
             throw new AppException(HttpStatus.OK, LocalizationUtils.getMessage("cow_type.exists"));
         }
 
-        // Save the new cow type and map the result to a response
         CowTypeEntity savedEntity = cowTypeRepository.save(request);
         return cowTypeMapper.toResponse(savedEntity);
     }
@@ -55,10 +53,8 @@ public class CowTypeServices implements ICowTypeServices {
         existingEntity.setMaxWeight(request.getMaxWeight() != null ? request.getMaxWeight() : existingEntity.getMaxWeight());
         existingEntity.setMaxLength(request.getMaxLength() != 0 ? request.getMaxLength() : existingEntity.getMaxLength());
         existingEntity.setMaxHeight(request.getMaxHeight() != 0 ? request.getMaxHeight() : existingEntity.getMaxHeight());
-        // Save the updated entity
         CowTypeEntity updatedEntity = cowTypeRepository.save(existingEntity);
 
-        // Map the updated entity to a response and return
         return cowTypeMapper.toResponse(updatedEntity);
     }
 

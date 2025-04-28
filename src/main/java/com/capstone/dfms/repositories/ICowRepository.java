@@ -20,7 +20,6 @@ public interface ICowRepository extends JpaRepository<CowEntity, Long> {
     @Query("SELECT COUNT(c) FROM CowEntity c WHERE c.name LIKE %:substring%")
     long countByNameContains(@Param("substring") String substring);
 
-    List<CowEntity> findByCowTypeEntity_CowTypeId(Long cowTypeId);
     List<CowEntity> findByCowTypeEntity_CowTypeIdAndDateOfOutIsNullOrDateOfOutAfter(Long cowTypeId, LocalDate currentDate);
     Optional<CowEntity> findByName(String name);
     @Query("SELECT MAX(c.importTimes) FROM CowEntity c")

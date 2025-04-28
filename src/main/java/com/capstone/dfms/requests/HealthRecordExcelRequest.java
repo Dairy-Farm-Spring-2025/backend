@@ -24,10 +24,6 @@ public class HealthRecordExcelRequest {
     @ExcelProperty("Size")
     private Float size;
 
-//    @NotBlank(message = "Period is required")
-//    @ExcelProperty("Period")
-//    private String period;
-
     @NotNull(message = "Body Temperature is required")
     @Positive(message = "Body Temperature must be positive")
     @ExcelProperty("Body Temperature")
@@ -64,9 +60,6 @@ public class HealthRecordExcelRequest {
 
     private List<String> errorStrings;
 
-//    public CowStatus getCowStatus() {
-//        return CowStatus.fromString(period);
-//    }
 
     public HealthRecordStatus getHealthRecordStatus() {
         return HealthRecordStatus.fromString(status);

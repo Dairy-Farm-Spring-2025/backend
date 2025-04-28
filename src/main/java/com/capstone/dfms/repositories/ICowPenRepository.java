@@ -19,12 +19,9 @@ import java.util.Optional;
 public interface ICowPenRepository extends JpaRepository<CowPenEntity, CowPenPK> {
     List<CowPenEntity> findByIdCowId(Long cowId);
 
-    // Find all cow pens by pen ID
     List<CowPenEntity> findByIdPenId(Long penId);
 
-    // Custom query to find active cow pens
-    @Query("SELECT c FROM CowPenEntity c WHERE c.status = 'ACTIVE'")
-    List<CowPenEntity> findActiveCowPens();
+
 
     @Query("SELECT c FROM CowPenEntity c WHERE c.id.cowId = :cowId " +
             "AND (c.toDate IS NULL OR c.toDate >= :currentDate)")
@@ -40,16 +37,8 @@ public interface ICowPenRepository extends JpaRepository<CowPenEntity, CowPenPK>
             "WHERE c.id.cowId = :cowId " +
             "ORDER BY c.toDate DESC LIMIT 1")
     CowPenEntity findPreviousCowPensByCowId(@Param("cowId") Long cowId);
-    @Query("SELECT c FROM CowPenEntity c WHERE  c.toDate <= :inputDate")
-    List<CowPenEntity> findToDateBefore(@Param("inputDate") LocalDate inputDate);
 
-    @Query("SELECT cp.penEntity FROM CowPenEntity cp " +
-            "WHERE cp.cowEntity.cowId = :cowId AND cp.status = 'assigned' " +
-            "AND (cp.toDate IS NULL OR cp.toDate >= CURRENT_DATE)")
-    PenEntity findCurrentPenByCowId(@Param("cowId") Long cowId);
 
-    @Query("SELECT cp FROM CowPenEntity cp WHERE cp.status = :status")
-    List<CowPenEntity> findByStatus(@Param("status") PenCowStatus status);
 
     @Query("SELECT c FROM CowPenEntity c WHERE c.id.cowId = :cowId AND c.toDate IS NULL AND c.status = 'inPen'")
     Optional<CowPenEntity> findLatestCowPenByCowId(@Param("cowId") Long cowId);

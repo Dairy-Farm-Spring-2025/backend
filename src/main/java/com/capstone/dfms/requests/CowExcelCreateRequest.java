@@ -46,7 +46,6 @@ public class CowExcelCreateRequest {
 
     private List<String> errorStrings;
 
-    // Custom setters to convert String -> Enum
     public CowStatus getCowStatus() {
         return CowStatus.fromString(cowStatusStr);
     }

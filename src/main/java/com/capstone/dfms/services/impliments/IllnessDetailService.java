@@ -59,8 +59,7 @@ public class IllnessDetailService implements IIllnessDetailService {
             Long id = detail.getVaccine().getItemId();
             itemEntity = iItemRepository.findById(id)
                     .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not_exist")));
-//            if(!itemEntity.getCategoryEntity().getName().equalsIgnoreCase("vaccine"))
-//                throw new AppException(HttpStatus.BAD_REQUEST, "Item is not vaccine");
+
             detail.setVaccine(itemEntity);
         }
 
@@ -104,7 +103,6 @@ public class IllnessDetailService implements IIllnessDetailService {
 
     @Override
     public IllnessDetailEntity updateIllnessDetail(Long id, IllnessDetailUpdateRequest updatedDetail) {
-        //Get updated Illness Detail
         IllnessDetailEntity oldIllnessDetail = this.getIllnessDetailById(id);
 
         CowUtlis.validateCow(oldIllnessDetail.getIllnessEntity().getCowEntity());
@@ -159,12 +157,10 @@ public class IllnessDetailService implements IIllnessDetailService {
 
     @Override
     public CowPenBulkResponse<IllnessDetailEntity> createTreatmentPlan(List<IllnessDetailPlanRequest> createRequests) {
-        // Validate that the request list is not empty.
         if (createRequests == null || createRequests.isEmpty()) {
             throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("request.list.empty"));
         }
 
-        // Validate that all requests have the same illnessId.
         Long baseIllnessId = createRequests.get(0).getIllnessId();
 
         for (IllnessDetailPlanRequest request : createRequests) {
@@ -173,11 +169,9 @@ public class IllnessDetailService implements IIllnessDetailService {
             }
         }
 
-        // Prepare lists for successes and errors.
         List<IllnessDetailEntity> successes = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
-        // Process each request individually.
         for (IllnessDetailPlanRequest request : createRequests) {
             try {
                 // Call the create function of IllnessDetailService.
@@ -218,19 +212,15 @@ public class IllnessDetailService implements IIllnessDetailService {
 
                 }
             } catch (Exception ex) {
-                // Collect error messages but continue processing.
                 String errorMessage = "Failed to create illness detail for date " + request.getDate()
                         + " with illnessId " + request.getIllnessId() + ": " + ex.getMessage();
                 errors.add(errorMessage);
-                // Optionally, log the error using your logging framework.
                 System.err.println(errorMessage);
             }
         }
 
-        // Sort successes by date in ascending order.
         successes.sort(Comparator.comparing(IllnessDetailEntity::getDate));
 
-        // Return the bulk response with successes and errors.
         return CowPenBulkResponse.<IllnessDetailEntity>builder()
                 .successes(successes)
                 .errors(errors)
@@ -307,11 +297,11 @@ public class IllnessDetailService implements IIllnessDetailService {
 
     private CowStatus getLatestHealthRecordByCowId(Long cowId) {
         List<HealthRecordEntity> healthRecords = healthRecordRepository
-                .findByCowEntityCowIdOrderByReportTimeDesc(cowId); // Ensure ordering by latest first
+                .findByCowEntityCowIdOrderByReportTimeDesc(cowId);
 
         for (HealthRecordEntity record : healthRecords) {
             if (record.getPeriod() != CowStatus.sickCow) {
-                return record.getPeriod(); // Return the first non-sickCow record (which is the latest one)
+                return record.getPeriod();
             }
         }
 

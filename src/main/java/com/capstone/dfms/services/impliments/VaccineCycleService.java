@@ -93,14 +93,6 @@ public class VaccineCycleService implements IVaccineCycleService {
         return vaccineCycleRepository.findAll();
     }
 
-//    @Override
-//    public VaccineCycleEntity updateVaccineCycle(Long id, VaccineCycleUpdateInfo request) {
-//        VaccineCycleEntity vaccineCycle = vaccineCycleRepository.findById(id)
-//                .orElseThrow(() -> new DataNotFoundException("Vaccine cycle", "id", id));
-//
-//        vaccineCycleMapper.updateVaccineCycleFromRequest(request, vaccineCycle);
-//        return vaccineCycleRepository.save(vaccineCycle);
-//    }
 
     @Override
     public void deleteVaccineCycle(long id) {

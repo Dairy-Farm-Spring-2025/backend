@@ -21,7 +21,6 @@ public interface IApplicationMapper {
     ApplicationEntity toModel (ApplicationCreateRequest request);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-//    @Mapping(target = "", source = "approvalStatus", ignore = true)
     @Mapping(target = "approveDate", expression = "java(java.time.LocalDate.now())")
     void updateEntityFromDto(ApplicationApproveRequest dto, @MappingTarget ApplicationEntity entity);
 }

@@ -79,15 +79,6 @@ public class IllnessService implements IIllnessService {
         return illnessRepository.findByCowEntityCowId(cowId);
     }
 
-//    @Override
-//    public IllnessEntity updateIllness(Long id, IllnessUpdateRequest updatedIllness) {
-//        CowEntity cowEntity = this.findCowEntity(updatedIllness.getCowId());
-//        IllnessEntity oldIllness = this.getIllnessById(id);
-//
-//        iIllnessMapper.updateIllnessEntityFromDto(updatedIllness, oldIllness);
-//
-//        return illnessRepository.save(oldIllness);
-//    }
 
     @Override
     public IllnessEntity updateIllness(Long id, IllnessUpdateRequest updatedIllness, Boolean isPrognosis) {
@@ -181,7 +172,6 @@ public class IllnessService implements IIllnessService {
 
         IllnessEntity illness = iIllnessMapper.toModel(request);
 
-        // Ensure relations are set properly
         illness.setCowEntity(findCowEntity(request.getCowId()));
         illness.setUserEntity(UserStatic.getCurrentUser());
         illness.setIllnessStatus(IllnessStatus.processing);
@@ -212,7 +202,6 @@ public class IllnessService implements IIllnessService {
 
         IllnessEntity createdEntity = illnessRepository.save(illness);
 
-        // 🔹 Create Tasks for Each Illness Detail
         for (IllnessDetailEntity detail : createdEntity.getIllnessDetails()) {
             createTaskForIllnessDetail(createdEntity, detail);
         }

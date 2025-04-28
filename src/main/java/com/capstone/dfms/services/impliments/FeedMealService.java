@@ -68,11 +68,9 @@ public class FeedMealService implements IFeedMealService {
                 "Thức ăn ủ chua", BigDecimal.valueOf(0.35),
                 "Khoáng chất", BigDecimal.valueOf(0.75)
         );
-        // Tính tổng DM và lưu trữ DM theo category
         BigDecimal totalDryMatter = BigDecimal.ZERO;
         Map<String, BigDecimal> categoryDryMatters = new HashMap<>();
 
-        // Tính DM cho từng category
         for (String categoryName : requiredPercentages.keySet()) {
             CategoryEntity category = categoryRepository.findAll().stream()
                     .filter(cat -> StringUtils.normalizeString(cat.getName()).equals(StringUtils.normalizeString(categoryName)))
@@ -99,12 +97,10 @@ public class FeedMealService implements IFeedMealService {
                             requiredDryMatter, totalDryMatter));
         }
 
-        // Tính và kiểm tra tỉ lệ % của từng category dựa trên tổng DM
         for (Map.Entry<String, BigDecimal> entry : categoryDryMatters.entrySet()) {
             String categoryName = entry.getKey();
             BigDecimal categoryDM = entry.getValue();
 
-            // Tính % thực tế dựa trên tổng DM
             BigDecimal actualPercentage = categoryDM
                     .multiply(BigDecimal.valueOf(100))
                     .divide(totalDryMatter, 2, RoundingMode.HALF_UP);
@@ -128,7 +124,6 @@ public class FeedMealService implements IFeedMealService {
                         .name(request.getName())
                         .status(FeedMealStatus.inUse)
                         .cowStatus(request.getCowStatus())
-//                        .shift(request.getShift())
                         .description(request.getDescription())
                         .cowTypeEntity(cowTypeEntity)
                         .build()
@@ -147,11 +142,6 @@ public class FeedMealService implements IFeedMealService {
         return savedFeedMeal;
     }
 
-//    private boolean isValidPercentage(BigDecimal actual, BigDecimal expected) {
-//        BigDecimal difference = actual.subtract(expected).abs();
-//        BigDecimal tolerance = BigDecimal.valueOf(5.0);
-//        return difference.compareTo(tolerance) <= 0;
-//    }
 
     private BigDecimal getTotalWeightByCategory(List<FeedMealDetailRequest> details, CategoryEntity category) {
         return details.stream()
@@ -162,16 +152,6 @@ public class FeedMealService implements IFeedMealService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-//    private BigDecimal calculatePercentage(BigDecimal part, BigDecimal total) {
-//        if (total.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
-//
-//        // Chia trước rồi nhân 100 để giảm sai số
-//        BigDecimal percentage = part.divide(total, 6, RoundingMode.HALF_UP) // Chia trước với 6 chữ số thập phân
-//                .multiply(BigDecimal.valueOf(100))      // Nhân 100 để lấy %
-//                .setScale(2, RoundingMode.HALF_UP);      // Làm tròn về 2 chữ số thập phân
-//
-//        return percentage;
-//    }
 
 
     @Override
@@ -347,7 +327,6 @@ public class FeedMealService implements IFeedMealService {
                 ))
                 .collect(Collectors.toList());
 
-        // Trả về response tổng hợp
         return new CalculateFeedSummaryResponse(totalCows, cowTypeCountMap, foodList);
     }
 }

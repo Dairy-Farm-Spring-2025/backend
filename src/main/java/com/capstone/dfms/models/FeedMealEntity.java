@@ -32,8 +32,7 @@ public class FeedMealEntity extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private CowStatus cowStatus;
 
-//    @Enumerated(EnumType.STRING)
-//    private FeedMealShift shift;
+
 
     @Enumerated(EnumType.STRING)
     private FeedMealStatus status;

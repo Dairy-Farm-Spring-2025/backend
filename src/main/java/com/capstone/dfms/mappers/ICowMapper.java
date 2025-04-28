@@ -11,21 +11,21 @@ import org.mapstruct.factory.Mappers;
 public interface ICowMapper {
     ICowMapper INSTANCE = Mappers.getMapper(ICowMapper.class);
 
-    @Mapping(source = "dateOfBirth", target = "dateOfBirth") // Make sure it's correctly mapped
-    @Mapping(source = "dateOfEnter", target = "dateOfEnter") // Make sure it's correctly mapped
+    @Mapping(source = "dateOfBirth", target = "dateOfBirth")
+    @Mapping(source = "dateOfEnter", target = "dateOfEnter")
     @Mapping(source = "cowTypeId", target = "cowTypeEntity.cowTypeId")
     CowEntity toModel(CowCreateRequest request);
 
-    @Mapping(source = "dateOfBirth", target = "dateOfBirth") // Make sure it's correctly mapped
-    @Mapping(source = "dateOfEnter", target = "dateOfEnter") // Make sure it's correctly mapped
+    @Mapping(source = "dateOfBirth", target = "dateOfBirth")
+    @Mapping(source = "dateOfEnter", target = "dateOfEnter")
     @Mapping(source = "cowTypeId", target = "cowTypeEntity.cowTypeId")
     CowEntity toModel(CowUpdateRequest request);
 
-    @Mapping(source = "cowStatus", target = "cowStatus")  // Ensure correct mapping
+    @Mapping(source = "cowStatus", target = "cowStatus")
     @Mapping(source = "cowOrigin", target = "cowOrigin")
     @Mapping(source = "gender", target = "gender")
     @Mapping(source = "cowTypeName", target = "cowTypeEntity.name")
-    CowEntity toModel(CowExcelCreateRequest row); // ✅ Add this line
+    CowEntity toModel(CowExcelCreateRequest row);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "cowStatus", ignore = true)

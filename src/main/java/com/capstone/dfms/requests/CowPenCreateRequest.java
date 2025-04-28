@@ -22,7 +22,5 @@ public class CowPenCreateRequest {
     @NotNull(message = "Cow ID cannot be null")
     private Long cowId;
 
-//    @JsonInclude(JsonInclude.Include.NON_NULL)
-//    private LocalDate toDate;
 
 }

@@ -15,7 +15,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class CowUpdateRequest {
-//    private String name;
     private CowStatus cowStatus;
     private LocalDate dateOfBirth;
     private LocalDate dateOfEnter;

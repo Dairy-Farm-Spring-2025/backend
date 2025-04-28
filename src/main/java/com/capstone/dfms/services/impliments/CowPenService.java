@@ -85,7 +85,6 @@ public class CowPenService implements ICowPenService {
         CowPenEntity existingEntity = cowPenRepository.findById(cowPenPK)
                 .orElseThrow(() -> new AppException(HttpStatus.OK, LocalizationUtils.getMessage("not.found.for.key")));
 
-        // Update the entity fields
         existingEntity.setToDate(updatedRequest.getToDate() != null ? updatedRequest.getToDate() : existingEntity.getToDate());
         existingEntity.setStatus(updatedRequest.getStatus() != null ? updatedRequest.getStatus() : existingEntity.getStatus());
 
@@ -115,7 +114,6 @@ public class CowPenService implements ICowPenService {
     public void delete(Long penId, Long cowId, LocalDateTime fromDate) {
         CowPenPK cowPenPK = new CowPenPK(penId, cowId, fromDate);
 
-        // Check if the entity exists and delete it
         if (cowPenRepository.existsById(cowPenPK)) {
             cowPenRepository.deleteById(cowPenPK);
         } else {

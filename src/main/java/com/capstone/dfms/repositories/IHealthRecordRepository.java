@@ -12,7 +12,6 @@ public interface IHealthRecordRepository extends JpaRepository<HealthRecordEntit
     // In HealthRecordRepository
     boolean existsByCowEntity_CowIdAndReportTimeBetween(Long cowId, LocalDateTime start, LocalDateTime end);
     List<HealthRecordEntity> findByCowEntityCowId(Long cowId);
-    Optional<HealthRecordEntity> findFirstByCowEntity_CowIdOrderByReportTimeDesc(Long cowId);
 
     List<HealthRecordEntity> findByCowEntityCowIdOrderByReportTimeDesc(Long cowId);
 

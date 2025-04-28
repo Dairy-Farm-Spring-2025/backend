@@ -19,8 +19,6 @@ public interface IIllnessMapper {
     @Mapping(source = "detail", target = "illnessDetails")
     IllnessEntity toModel(IllnessCreateRequest request);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateIllnessEntityFromDto(IllnessPrognosisRequest dto, @MappingTarget IllnessEntity entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateIllnessEntityFromDto(IllnessUpdateRequest dto, @MappingTarget IllnessEntity entity);
