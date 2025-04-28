@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,6 +44,11 @@ public class VaccineCycleService implements IVaccineCycleService {
     public VaccineCycleEntity createVaccineCycle(VaccineCycleRequest request) {
         CowTypeEntity cowType = cowTypeRepository.findById(request.getCowTypeId())
                 .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("cow_type.not_found")));
+
+        Optional<List<VaccineCycleEntity>> cowTypeIdOptional = vaccineCycleRepository.findByCowTypeIdOptional(cowType.getCowTypeId());
+        if(!cowTypeIdOptional.get().isEmpty()){
+            throw new AppException(HttpStatus.BAD_REQUEST, "There are Vaccine Cycle for " + cowType.getName());
+        }
 
         VaccineCycleEntity vaccineCycle = VaccineCycleEntity.builder()
                 .name(StringUtils.NameStandardlizing(request.getName()))
