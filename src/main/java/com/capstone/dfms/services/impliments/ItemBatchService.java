@@ -79,4 +79,9 @@ public class ItemBatchService implements IItemBatchService {
 
         itemBatchRepository.delete(itemBatch);
     }
+
+    @Override
+    public List<ItemBatchEntity> getItemBatchesByItemId(Long itemId) {
+        return itemBatchRepository.findByItemEntityItemId(itemId);
+    }
 }

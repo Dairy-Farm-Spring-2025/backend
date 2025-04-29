@@ -18,4 +18,5 @@ public interface IItemBatchService {
 
     void deleteItemBatch(long id);
 
+    List<ItemBatchEntity> getItemBatchesByItemId(Long itemId);
 }

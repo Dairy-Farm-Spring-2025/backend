@@ -13,4 +13,6 @@ public interface IItemBatchRepository extends JpaRepository<ItemBatchEntity, Lon
     @Query("SELECT ib FROM ItemBatchEntity ib WHERE ib.itemEntity.itemId = :itemId AND ib.status = :status ORDER BY ib.importDate ASC")
     List<ItemBatchEntity> findByItemEntity_ItemIdAndStatusOrderByImportDateAsc(@Param("itemId") Long itemId, @Param("status") BatchStatus status);
 
+    List<ItemBatchEntity> findByItemEntityItemId(Long itemId);
+
 }

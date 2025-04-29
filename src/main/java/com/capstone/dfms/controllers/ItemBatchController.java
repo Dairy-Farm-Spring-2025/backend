@@ -59,4 +59,12 @@ public class ItemBatchController {
         itemBatchService.updateItemBatch(id, status);
         return CoreApiResponse.success(LocalizationUtils.getMessage("item_batch.update.success"));
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @GetMapping("/batches/{itemId}")
+    public CoreApiResponse<List<ItemBatchEntity>> getItemBatchesByItemId(@PathVariable Long itemId) {
+            List<ItemBatchEntity> itemBatches = itemBatchService.getItemBatchesByItemId(itemId);
+            return CoreApiResponse.success(itemBatches);
+
+    }
 }
