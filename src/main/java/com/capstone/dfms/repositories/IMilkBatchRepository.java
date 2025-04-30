@@ -14,5 +14,6 @@ public interface IMilkBatchRepository extends JpaRepository<MilkBatchEntity, Lon
     @Query("SELECT m FROM MilkBatchEntity m WHERE m.status <> :status AND m.expiryDate < :date")
     List<MilkBatchEntity> findExpiredMilkBatches(@Param("status") MilkBatchStatus status, @Param("date") LocalDateTime date);
 
-
+    @Query("SELECT DISTINCT d.milkBatch FROM DailyMilkEntity d WHERE d.worker.id = :workerId AND d.milkBatch IS NOT NULL")
+    List<MilkBatchEntity> findDistinctMilkBatchesByWorkerId(@Param("workerId") Long workerId);
 }

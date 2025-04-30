@@ -22,4 +22,6 @@ public interface IMilkBatchService {
     MilkBatchEntity createMilkBatchWithDailyMilks(MilkBatchRequest request);
 
     void markMilkBatchesAsOutOfStock(List<Long> milkBatchIds);
+
+    List<MilkBatchEntity> getMilkBatchesByWorkerId();
 }

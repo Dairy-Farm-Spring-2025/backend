@@ -241,4 +241,12 @@ public class MilkBatchService implements IMilkBatchService {
         milkBatchRepository.saveAll(batches);
     }
 
+    @Override
+    public List<MilkBatchEntity> getMilkBatchesByWorkerId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity user = userPrincipal.getUser();
+        return milkBatchRepository.findDistinctMilkBatchesByWorkerId(user.getId());
+    }
+
 }

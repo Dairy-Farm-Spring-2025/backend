@@ -80,4 +80,10 @@ public class MilkBatchController {
         return CoreApiResponse.success(LocalizationUtils.getMessage("milk.batch.update.export"));
     }
 
+    @GetMapping("/my")
+    public CoreApiResponse<List<MilkBatchEntity>> getMyMilkBatches() {
+        List<MilkBatchEntity> milkBatches = milkBatchService.getMilkBatchesByWorkerId();
+        return CoreApiResponse.success(milkBatches);
+    }
+
 }
