@@ -8,10 +8,7 @@ import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.IReportTaskMapper;
 import com.capstone.dfms.mappers.ITaskMapper;
 import com.capstone.dfms.models.*;
-import com.capstone.dfms.models.enums.CategoryNotification;
-import com.capstone.dfms.models.enums.PriorityTask;
-import com.capstone.dfms.models.enums.TaskShift;
-import com.capstone.dfms.models.enums.TaskStatus;
+import com.capstone.dfms.models.enums.*;
 import com.capstone.dfms.repositories.*;
 import com.capstone.dfms.requests.CreateTaskExcelRequest;
 import com.capstone.dfms.requests.NotificationRequest;
@@ -66,6 +63,8 @@ public class TaskService implements ITaskService {
                         LocalizationUtils.getMessage("task.task_type_not_found")
                 ));
 
+
+
         IllnessEntity illness = null;
         AreaEntity area;
 
@@ -95,6 +94,13 @@ public class TaskService implements ITaskService {
                     ));
         } else {
             area = null;
+        }
+
+        if (taskType.getName().equalsIgnoreCase("Lấy sữa bò") && area != null) {
+            if (area.getCowStatus() != CowStatus.milkingCow) {
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        "Không thể giao công việc 'Lấy sữa bò' cho khu vực không nuôi bò đang vắt sữa.");
+            }
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -636,6 +642,11 @@ public class TaskService implements ITaskService {
 
             TaskTypeEntity taskTypeEntity = taskTypeRepository.findByName(request.getTaskType())
                     .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("task.task_type_not_found") + request.getTaskType()));
+
+            if (taskTypeEntity.getName().equalsIgnoreCase("Lấy sữa bò") && area.getCowStatus() != CowStatus.milkingCow) {
+                throw new AppException(HttpStatus.BAD_REQUEST,
+                        LocalizationUtils.getMessage("task.invalid_area_for_milking"));
+            }
 
             PriorityTask priority = determinePriority(request.getTaskType());
 
