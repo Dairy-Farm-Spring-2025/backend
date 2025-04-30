@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.ReportTaskEntity;
 import com.capstone.dfms.requests.ReportTaskRequest;
 import com.capstone.dfms.requests.ReportTaskUpdateRequest;
@@ -31,7 +32,7 @@ public class ReportTaskController {
     public CoreApiResponse<?> joinTask(
             @PathVariable Long taskId){
         reportTaskService.joinTask(taskId);
-        return CoreApiResponse.success("Join task successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("report.task.check.in"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS')")
@@ -41,7 +42,7 @@ public class ReportTaskController {
             @Valid @ModelAttribute ReportTaskRequest request,
             @RequestParam(name = "imagesFile", required = false) List<MultipartFile> images) throws IOException {
         reportTaskService.createReportTask(id,INSTANCE.toModel(request),images);
-        return CoreApiResponse.success("Report task successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("report.task.success"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS')")
@@ -51,7 +52,7 @@ public class ReportTaskController {
             @Valid @ModelAttribute ReportTaskUpdateRequest request,
             @RequestParam(name = "newImages", required = false) List<MultipartFile> newImages) throws IOException {
         reportTaskService.updateReportTask(id, request, newImages);
-        return CoreApiResponse.success("Report task updated successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("report.task.update"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
@@ -60,7 +61,7 @@ public class ReportTaskController {
             @PathVariable Long id,
             @Valid @RequestBody ReviewReportTaskRequest request)  {
         reportTaskService.reviewReportTask(id, request);
-        return CoreApiResponse.success("Report task review successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("report.task.review"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
@@ -81,7 +82,7 @@ public class ReportTaskController {
             @PathVariable Long id
     ){
         reportTaskService.deleteReportTask(id);
-        return CoreApiResponse.success("Delete report task successfully");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.create_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
