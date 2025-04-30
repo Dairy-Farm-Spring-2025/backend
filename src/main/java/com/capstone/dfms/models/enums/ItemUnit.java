@@ -1,24 +1,18 @@
 package com.capstone.dfms.models.enums;
 
 public enum ItemUnit {
+    kilogram,
+    gram,
 
-    // Units for weight
-    kilogram,  // kg
-    gram,      // g
+    liter,
+    milliliter,
 
-    // Units for volume
-    liter,     // L
-    milliliter,// mL
+    piece,
+    pack,
 
-    // Units for count
-    piece,     // For items counted individually
-    pack,      // For items packaged together
+    squareMeter,
 
-    // Units for area (if applicable)
-    squareMeter, // m²
-
-    // Miscellaneous units
-    bottle,    // For liquids in bottles
-    bag,       // For large quantities of items (e.g., feed)
-    box        // For items stored in boxes
+    bottle,
+    bag,
+    box
 }

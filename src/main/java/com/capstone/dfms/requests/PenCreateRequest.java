@@ -2,7 +2,6 @@ package com.capstone.dfms.requests;
 
 
 import com.capstone.dfms.models.enums.PenStatus;
-import com.capstone.dfms.models.enums.PenType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

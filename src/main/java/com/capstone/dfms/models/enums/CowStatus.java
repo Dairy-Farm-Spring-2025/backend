@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum CowStatus {
     milkingCow,
-    dryCow, //temporarily end cycle milking
+    dryCow,
     sickCow,
     seriousSickcow,
     youngCow,
-    culling;//Cows identified for removal from the herd due to age, low productivity, or health
+    culling;
 
     @JsonCreator
     public static CowStatus fromString(String value) {

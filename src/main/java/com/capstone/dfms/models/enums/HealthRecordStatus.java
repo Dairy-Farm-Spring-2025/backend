@@ -4,16 +4,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum HealthRecordStatus {
-    good,       // Health condition is good
-    fair,       // Health condition is fair
-    poor,       // Health condition is poor
-    critical,   // Health condition is critical
-    recovering;  // Cow is recovering
+    good,
+    fair,
+    poor,
+    critical,
+    recovering;
 
     @JsonCreator
     public static HealthRecordStatus fromString(String value) {
         if (value == null || value.trim().isEmpty()) {
-            return null; // or throw a custom exception if you want to enforce it
+            return null;
         }
         for (HealthRecordStatus status : HealthRecordStatus.values()) {
             if (status.name().equalsIgnoreCase(value)) {

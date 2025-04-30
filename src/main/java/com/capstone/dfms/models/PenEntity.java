@@ -1,7 +1,6 @@
 package com.capstone.dfms.models;
 
 import com.capstone.dfms.models.enums.PenStatus;
-import com.capstone.dfms.models.enums.PenType;
 import jakarta.persistence.*;
 import lombok.*;
 

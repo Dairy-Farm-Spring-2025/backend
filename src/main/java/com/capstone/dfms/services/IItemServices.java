@@ -21,4 +21,6 @@ public interface IItemServices {
     List<ItemEntity> getItemsByLocationId(Long locationId);
 
     List<ItemEntity> getItemsVaccine();
+
+    String checkLowStockByItemId(Long itemId);
 }

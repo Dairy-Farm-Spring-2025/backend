@@ -75,4 +75,10 @@ public class ItemController {
     public CoreApiResponse<List<ItemEntity>> getItemsVaccine() {
         return CoreApiResponse.success(itemServices.getItemsVaccine());
     }
+
+    @GetMapping("/check-stock/{itemId}")
+    public CoreApiResponse<String> checkItemStock(@PathVariable Long itemId) {
+        String message = itemServices.checkLowStockByItemId(itemId);
+        return CoreApiResponse.success(message);
+    }
 }

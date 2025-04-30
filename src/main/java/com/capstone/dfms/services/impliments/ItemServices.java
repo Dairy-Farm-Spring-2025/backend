@@ -5,9 +5,12 @@ import com.capstone.dfms.components.exceptions.DataNotFoundException;
 import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.mappers.ItemMapper;
 import com.capstone.dfms.models.CategoryEntity;
+import com.capstone.dfms.models.ItemBatchEntity;
 import com.capstone.dfms.models.ItemEntity;
 import com.capstone.dfms.models.WarehouseLocationEntity;
+import com.capstone.dfms.models.enums.ItemUnit;
 import com.capstone.dfms.repositories.ICategoryRepository;
+import com.capstone.dfms.repositories.IItemBatchRepository;
 import com.capstone.dfms.repositories.IItemRepository;
 import com.capstone.dfms.repositories.IWarehouseLocationRepository;
 import com.capstone.dfms.requests.ItemCreateRequest;
@@ -28,6 +31,8 @@ public class ItemServices implements IItemServices {
     private final IWarehouseLocationRepository locationRepository;
 
     private final ItemMapper itemMapper;
+
+    private final IItemBatchRepository itemBatchRepository;
     @Override
     public ItemEntity createItem(ItemEntity itemEntity) {
         CategoryEntity category = categoryRepository.findById(itemEntity.getCategoryEntity().getCategoryId())
@@ -95,4 +100,31 @@ public class ItemServices implements IItemServices {
     public List<ItemEntity> getItemsVaccine() {
         return itemRepository.findItemsByCategoryName("Vắc-xin");
     }
+
+
+    @Override
+    public String checkLowStockByItemId(Long itemId) {
+        List<ItemBatchEntity> batches = itemBatchRepository.findByItemEntityItemId(itemId);
+
+        if (batches.isEmpty()) {
+            return "Không có lô hàng nào cho sản phẩm này.";
+        }
+
+        ItemEntity item = batches.get(0).getItemEntity();
+        ItemUnit unit = item.getUnit();
+
+        float totalQuantity = 0;
+        for (ItemBatchEntity batch : batches) {
+            totalQuantity += batch.getQuantity();
+        }
+
+        if (unit == ItemUnit.kilogram && totalQuantity < 1000) {
+            return "Cảnh báo: Tổng khối lượng hàng tồn kho nhỏ hơn 1000kg.";
+        } else if (unit == ItemUnit.milliliter && totalQuantity < 200) {
+            return "Cảnh báo: Tổng dung tích hàng tồn kho nhỏ hơn 200ml.";
+        } else {
+            return "Hàng tồn kho vẫn đủ số lượng.";
+        }
+    }
+
 }
