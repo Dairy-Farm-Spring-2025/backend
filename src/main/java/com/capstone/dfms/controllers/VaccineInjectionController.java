@@ -47,7 +47,7 @@ public class VaccineInjectionController {
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     public CoreApiResponse<VaccineInjectionEntity> reportVaccineInjection(
             @PathVariable Long id,
-            @RequestParam InjectionStatus status) { // Accept status as a query param
+            @RequestParam InjectionStatus status) { 
 
         VaccineInjectionEntity updatedEntity = vaccineInjectionService.reportVaccineInjection(id, status);
         return CoreApiResponse.success(updatedEntity);

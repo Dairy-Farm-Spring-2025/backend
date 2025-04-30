@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.TaskEntity;
 import com.capstone.dfms.requests.CreateTaskExcelRequest;
 import com.capstone.dfms.requests.TaskDateRangeRequest;
@@ -36,7 +37,7 @@ public class TaskController {
             @Valid @RequestBody TaskRequest request
     ){
         taskService.createMultipleTasks(request);
-        return CoreApiResponse.success("Create task successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.create_successfully"));
     }
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @GetMapping
@@ -55,7 +56,7 @@ public class TaskController {
             @PathVariable Long id
     ){
         taskService.deleteTask(id);
-        return CoreApiResponse.success("Delete task successfully");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.delete_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
@@ -103,7 +104,7 @@ public class TaskController {
     public CoreApiResponse<TaskEntity> updateTask(@PathVariable Long taskId,
                                                  @RequestBody UpdateTaskRequest updateTaskRequest) {
         TaskEntity updatedTask = taskService.updateTask(taskId, updateTaskRequest);
-        return CoreApiResponse.success(updatedTask,"Update task successfully");
+        return CoreApiResponse.success(updatedTask,LocalizationUtils.getMessage("general.update_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
@@ -111,7 +112,7 @@ public class TaskController {
     public CoreApiResponse<TaskEntity> assginVeterinarians(@PathVariable Long taskId,
                                                            @PathVariable Long assigneeId) {
         TaskEntity updatedTask = taskService.updateAssigneeForTask(taskId, assigneeId);
-        return CoreApiResponse.success(updatedTask,"Update task successfully");
+        return CoreApiResponse.success(updatedTask,LocalizationUtils.getMessage("general.update_successfully"));
     }
 
 
@@ -143,6 +144,6 @@ public class TaskController {
     @PostMapping("/create-from-excel")
     public CoreApiResponse<List<TaskEntity>> createTasksFromExcel(@RequestBody List<CreateTaskExcelRequest> requests) {
         List<TaskEntity> createdTasks = taskService.createTasksFromExcel(requests);
-        return  CoreApiResponse.success(createdTasks);
+        return  CoreApiResponse.success(createdTasks, LocalizationUtils.getMessage("general.create_successfully"));
     }
 }

@@ -55,7 +55,7 @@ public class CowController {
     @PostMapping("/import-single")
     public CoreApiResponse<CowResponse> importSingleCow(@Valid @RequestBody CowImportSingleRequest cowImportSingleRequest) {
         CowResponse cowResponse = cowServices.importSingleCow(cowImportSingleRequest);
-        return CoreApiResponse.success(cowResponse);
+        return CoreApiResponse.success(cowResponse,LocalizationUtils.getMessage("general.create_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")

@@ -7,12 +7,4 @@ public enum ItemUnit {
     liter,
     milliliter,
 
-    piece,
-    pack,
-
-    squareMeter,
-
-    bottle,
-    bag,
-    box
 }

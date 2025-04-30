@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.VaccineCycleEntity;
 import com.capstone.dfms.requests.UpdateVaccineCycleRequest;
 import com.capstone.dfms.requests.VaccineCycleRequest;
@@ -22,7 +23,7 @@ public class VaccineCycleController {
     @PostMapping("/create")
     public CoreApiResponse<VaccineCycleEntity> createVaccineCycle(@RequestBody VaccineCycleRequest request) {
         VaccineCycleEntity savedVaccineCycle = vaccineCycleService.createVaccineCycle(request);
-        return CoreApiResponse.success(savedVaccineCycle,"Create Vaccine cycle successfully");
+        return CoreApiResponse.success(savedVaccineCycle, LocalizationUtils.getMessage("general.create_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
@@ -43,14 +44,14 @@ public class VaccineCycleController {
             @PathVariable Long id
     ){
         vaccineCycleService.deleteVaccineCycle(id);
-        return CoreApiResponse.success("Delete vaccine cycle successfully");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.delete_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     @PutMapping("/{id}")
     public CoreApiResponse<VaccineCycleEntity> updateVaccineCycle(@PathVariable Long id,
                                                                   @RequestBody @Valid UpdateVaccineCycleRequest request) {
-        return CoreApiResponse.success(vaccineCycleService.updateVaccineCycle(id, request));
+        return CoreApiResponse.success(vaccineCycleService.updateVaccineCycle(id, request),LocalizationUtils.getMessage("general.update_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")

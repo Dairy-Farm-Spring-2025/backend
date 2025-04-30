@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.WarehouseLocationEntity;
 import com.capstone.dfms.requests.WarehouseUpdateRequest;
 import com.capstone.dfms.services.IWarehouseLocationService;
@@ -26,7 +27,7 @@ public class WareHouseController {
             @Valid @RequestBody WarehouseUpdateRequest request
     ){
         var areaResponse = warehouseLocationService.createWareHouse(INSTANCE.toModel(request));
-        return CoreApiResponse.success("Create warehouse successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.create_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
@@ -47,7 +48,7 @@ public class WareHouseController {
             @PathVariable Long id
     ){
         warehouseLocationService.deleteWareHouse(id);
-        return CoreApiResponse.success("Delete warehouse successfully");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.delete_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
@@ -56,7 +57,7 @@ public class WareHouseController {
             @PathVariable Long id,
             @RequestBody WarehouseUpdateRequest request) {
         warehouseLocationService.updateWarehouse(id,request );
-        return CoreApiResponse.success("Warehouse updated successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.update_successfully"));
     }
 
 }

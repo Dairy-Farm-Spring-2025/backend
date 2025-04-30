@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.TaskTypeEntity;
 import com.capstone.dfms.requests.TaskTypeRequest;
 import com.capstone.dfms.services.ITaskTypeService;
@@ -26,7 +27,7 @@ public class TaskTypeController {
             @Valid @RequestBody TaskTypeRequest  request
     ){
         taskTypeService.createTaskType(INSTANCE.toModel(request));
-        return CoreApiResponse.success("Create task type successfully.");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.create_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','VETERINARIANS','MANAGER')")
@@ -53,6 +54,6 @@ public class TaskTypeController {
             @PathVariable Long id
     ){
         taskTypeService.deleteTaskType(id);
-        return CoreApiResponse.success("Delete task type successfully");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.delete_successfully"));
     }
 }

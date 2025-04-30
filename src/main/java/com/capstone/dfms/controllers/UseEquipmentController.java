@@ -1,6 +1,7 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.UseEquipmentEntity;
 import com.capstone.dfms.requests.UseEquipmentEntityRequest;
 import com.capstone.dfms.requests.UseEquipmentUpdateRequest;
@@ -35,7 +36,7 @@ public class UseEquipmentController {
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping
     public CoreApiResponse<UseEquipmentEntity> create(@RequestBody UseEquipmentEntityRequest request) {
-        return CoreApiResponse.success(service.create(request));
+        return CoreApiResponse.success(service.create(request), LocalizationUtils.getMessage("general.create_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
@@ -43,7 +44,7 @@ public class UseEquipmentController {
     public CoreApiResponse<UseEquipmentEntity> update(@PathVariable Long equipmentId,
                                                      @PathVariable Long taskTypeId,
                                                      @RequestBody UseEquipmentUpdateRequest request) {
-        return CoreApiResponse.success(service.update(equipmentId, taskTypeId, request));
+        return CoreApiResponse.success(service.update(equipmentId, taskTypeId, request),LocalizationUtils.getMessage("general.update_successfully"));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
@@ -51,7 +52,7 @@ public class UseEquipmentController {
     public CoreApiResponse<Void> delete(@PathVariable Long equipmentId,
                                        @PathVariable Long taskTypeId) {
         service.delete(equipmentId, taskTypeId);
-        return CoreApiResponse.success("Delete successfully!");
+        return CoreApiResponse.success(LocalizationUtils.getMessage("general.delete_successfully"));
     }
 
 }
