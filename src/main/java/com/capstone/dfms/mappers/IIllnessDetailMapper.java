@@ -18,9 +18,11 @@ public interface IIllnessDetailMapper {
 
     @Mapping(target = "vaccine.itemId", source = "itemId")
     @Mapping(target = "illnessEntity.illnessId", source = "illnessId")
+    @Mapping(target = "date", ignore = true)
     IllnessDetailEntity toModel(IllnessDetailPlanRequest request);
 
     @Mapping(target = "vaccine.itemId", source = "vaccineId")
+    @Mapping(target = "date", ignore = true)
     IllnessDetailEntity toModel(IllnessDetailPlanVet request);
 
 

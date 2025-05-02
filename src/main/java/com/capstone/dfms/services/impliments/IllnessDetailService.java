@@ -169,53 +169,64 @@ public class IllnessDetailService implements IIllnessDetailService {
             }
         }
 
+        Optional<IllnessEntity> illness = illnessRepository.findById(baseIllnessId);
+        if(illness.isPresent()){
+            CowUtlis.validateCow(illness.get().getCowEntity());
+        }
+        else{
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("illness.not.found"));
+        }
+
         List<IllnessDetailEntity> successes = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
         for (IllnessDetailPlanRequest request : createRequests) {
-            try {
-                // Call the create function of IllnessDetailService.
-                IllnessDetailEntity createdEntity = this.createIllnessDetail(mapper.toModel(request), true);
-                successes.add(createdEntity);
-                CowUtlis.validateCow(createdEntity.getIllnessEntity().getCowEntity());
-                if (createdEntity.getDate().equals(LocalDate.now().plusDays(1))) {
-                    RoleEntity role = roleRepository.findById(3L).orElseThrow(()
-                            -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
+            for(LocalDate date = request.getDateFrom(); !date.isAfter(request.getDateTo()); date = date.plusDays(1)) {
+                try {
+                    // Call the create function of IllnessDetailService.
+                    IllnessDetailEntity createdEntity = mapper.toModel(request);
+                    createdEntity.setDate(date);
+                    createdEntity = this.createIllnessDetail(createdEntity, true);
+                    successes.add(createdEntity);
+                    if (createdEntity.getDate().equals(LocalDate.now().plusDays(1))) {
+                        RoleEntity role = roleRepository.findById(3L).orElseThrow(()
+                                -> new AppException(HttpStatus.NOT_FOUND, LocalizationUtils.getMessage("user.login.role_not_exist")));
 
-                    TaskTypeEntity treatmentTaskType = taskTypeRepository.findByName("Chữa bệnh")
-                            .orElseGet(() -> {
-                                TaskTypeEntity newTaskType = new TaskTypeEntity();
-                                newTaskType.setName("Chữa bệnh");
-                                newTaskType.setRoleId(role);
-                                newTaskType.setDescription("Công việc điều trị bệnh cho bò");
-                                return taskTypeRepository.save(newTaskType);
-                            });
+                        TaskTypeEntity treatmentTaskType = taskTypeRepository.findByName("Chữa bệnh")
+                                .orElseGet(() -> {
+                                    TaskTypeEntity newTaskType = new TaskTypeEntity();
+                                    newTaskType.setName("Chữa bệnh");
+                                    newTaskType.setRoleId(role);
+                                    newTaskType.setDescription("Công việc điều trị bệnh cho bò");
+                                    return taskTypeRepository.save(newTaskType);
+                                });
 
-                    CowEntity cow = createdEntity.getIllnessEntity().getCowEntity();
-                    CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
+                        CowEntity cow = createdEntity.getIllnessEntity().getCowEntity();
+                        CowPenEntity latestCowPen = cowPenRepository.latestCowPenByCowId(cow.getCowId());
 
-                    TaskEntity task = new TaskEntity();
-                    task.setDescription("Điều trị bệnh: " + createdEntity.getDescription());
-                    task.setStatus(TaskStatus.pending);
-                    task.setPriority(PriorityTask.high);
-                    task.setFromDate(createdEntity.getDate());
-                    task.setToDate(createdEntity.getDate());
-                    task.setIllness(createdEntity);
-                    task.setShift(TaskShift.dayShift);
-                    task.setTaskTypeId(treatmentTaskType);
+                        TaskEntity task = new TaskEntity();
+                        task.setDescription("Điều trị bệnh: " + createdEntity.getDescription());
+                        task.setStatus(TaskStatus.pending);
+                        task.setPriority(PriorityTask.high);
+                        task.setFromDate(createdEntity.getDate());
+                        task.setToDate(createdEntity.getDate());
+                        task.setIllness(createdEntity);
+                        task.setShift(TaskShift.dayShift);
+                        task.setTaskTypeId(treatmentTaskType);
 
-                    if (latestCowPen != null && latestCowPen.getPenEntity() != null) {
-                        task.setAreaId(latestCowPen.getPenEntity().getAreaBelongto());
+                        if (latestCowPen != null && latestCowPen.getPenEntity() != null) {
+                            task.setAreaId(latestCowPen.getPenEntity().getAreaBelongto());
+                        }
+
+                        taskRepository.save(task);
+
                     }
-
-                    taskRepository.save(task);
-
+                } catch (Exception ex) {
+                    String errorMessage = "Failed to create illness detail for date " + date
+                            + " with illnessId " + request.getIllnessId() + ": " + ex.getMessage();
+                    errors.add(errorMessage);
+                    System.err.println(errorMessage);
                 }
-            } catch (Exception ex) {
-                String errorMessage = "Failed to create illness detail for date " + request.getDate()
-                        + " with illnessId " + request.getIllnessId() + ": " + ex.getMessage();
-                errors.add(errorMessage);
-                System.err.println(errorMessage);
             }
         }
 

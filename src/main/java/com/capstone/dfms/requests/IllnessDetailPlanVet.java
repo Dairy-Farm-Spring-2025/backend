@@ -13,7 +13,8 @@ import java.time.LocalDate;
 public class IllnessDetailPlanVet {
     private double dosage;
     private InjectionSite injectionSite;
-    private LocalDate date;
+    private LocalDate dateFrom;
+    private LocalDate dateTo;
     private String description;
     private Long vaccineId;
 }
