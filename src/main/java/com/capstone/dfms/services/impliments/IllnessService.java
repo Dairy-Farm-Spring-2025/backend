@@ -180,21 +180,25 @@ public class IllnessService implements IIllnessService {
         if (request.getDetail() != null) {
             List<IllnessDetailEntity > illnessDetails = new ArrayList<>();
             request.getDetail().forEach(detail -> {
-                IllnessDetailEntity illnessDetail = illnessDetailMapper.toModel(detail);
-                illnessDetail.setStatus(IllnessDetailStatus.pending);
-                illnessDetail.setIllnessEntity(illness);
+                for(LocalDate date = detail.getDateFrom(); !date.isAfter(detail.getDateTo()); date = date.plusDays(1))
+                {
+                    IllnessDetailEntity illnessDetail = illnessDetailMapper.toModel(detail);
+                    illnessDetail.setDate(date);
+                    illnessDetail.setStatus(IllnessDetailStatus.pending);
+                    illnessDetail.setIllnessEntity(illness);
 
+                    Long id = detail.getVaccineId();
+                    var itemEntity = iItemRepository.findById(id)
+                            .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not_exist")
+                            ));
+                    illnessDetail.setVaccine(itemEntity);
 
-                Long id = detail.getVaccineId();
-                var itemEntity = iItemRepository.findById(id)
-                        .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not_exist")
-                        ));
-                illnessDetail.setVaccine(itemEntity);
+                    illnessDetail.setDescription("Điều trị bệnh cho: " + illness.getCowEntity().getName() +
+                            " - Vaccine: " + itemEntity.getName());
 
-                illnessDetail.setDescription("Điều trị bệnh cho: " + illness.getCowEntity().getName() +
-                        " - Vaccine: " + itemEntity.getName());
+                    illnessDetails.add(illnessDetail);
+                }
 
-                illnessDetails.add(illnessDetail);
             });
 
             illness.setIllnessDetails(illnessDetails);
