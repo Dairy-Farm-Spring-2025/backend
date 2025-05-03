@@ -166,53 +166,25 @@ public class IllnessService implements IIllnessService {
     }
 
     @Override
-    public IllnessEntity createIllness(IllnessCreateRequest request, List<MultipartFile> mediaFiles) throws IOException {
+    public IllnessEntity createIllnessForVet(IllnessCreateRequest request, List<MultipartFile> mediaFiles) throws IOException {
         if (request.getSeverity().equals(IllnessSeverity.none)){
             throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("illness.severity.none"));
         }
 
+        CowEntity cowEntity = this.findCowEntity(request.getCowId());
+        CowUtlis.validateCow(cowEntity);
+
         IllnessEntity illness = iIllnessMapper.toModel(request);
 
-        illness.setCowEntity(findCowEntity(request.getCowId()));
+        illness.setCowEntity(cowEntity);
         illness.setUserEntity(UserStatic.getCurrentUser());
         illness.setIllnessStatus(IllnessStatus.processing);
         illness.setStartDate(LocalDate.now());
 
-        if (request.getDetail() != null) {
-            List<IllnessDetailEntity > illnessDetails = new ArrayList<>();
-            request.getDetail().forEach(detail -> {
-                for(LocalDate date = detail.getDateFrom(); !date.isAfter(detail.getDateTo()); date = date.plusDays(1))
-                {
-                    IllnessDetailEntity illnessDetail = illnessDetailMapper.toModel(detail);
-                    illnessDetail.setDate(date);
-                    illnessDetail.setStatus(IllnessDetailStatus.pending);
-                    illnessDetail.setIllnessEntity(illness);
+        illness = illnessRepository.save(illness);
+        this.attachMedia(illness, mediaFiles);
 
-                    Long id = detail.getVaccineId();
-                    var itemEntity = iItemRepository.findById(id)
-                            .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not_exist")
-                            ));
-                    illnessDetail.setVaccine(itemEntity);
-
-                    illnessDetail.setDescription("Điều trị bệnh cho: " + illness.getCowEntity().getName() +
-                            " - Vaccine: " + itemEntity.getName());
-
-                    illnessDetails.add(illnessDetail);
-                }
-
-            });
-
-            illness.setIllnessDetails(illnessDetails);
-        }
-
-        IllnessEntity createdEntity = illnessRepository.save(illness);
-
-        for (IllnessDetailEntity detail : createdEntity.getIllnessDetails()) {
-            createTaskForIllnessDetail(createdEntity, detail);
-        }
-
-        this.attachMedia(createdEntity, mediaFiles);
-        return createdEntity;
+        return illness;
     }
 
 
