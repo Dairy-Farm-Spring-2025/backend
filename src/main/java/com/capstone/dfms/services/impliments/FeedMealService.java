@@ -329,4 +329,12 @@ public class FeedMealService implements IFeedMealService {
 
         return new CalculateFeedSummaryResponse(totalCows, cowTypeCountMap, foodList);
     }
+
+    public void isFeedMealInUse(Long cowTypeId, CowStatus cowStatus) {
+        boolean exists = feedMealRepository.existsFeedMeal(cowTypeId, cowStatus, FeedMealStatus.inUse);
+        if (exists) {
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    LocalizationUtils.getMessage("feed_meal.already_exists"));
+        }
+    }
 }

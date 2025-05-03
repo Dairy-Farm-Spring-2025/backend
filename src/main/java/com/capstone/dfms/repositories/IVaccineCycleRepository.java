@@ -17,4 +17,8 @@ public interface IVaccineCycleRepository extends JpaRepository<VaccineCycleEntit
 
     @Query("SELECT v FROM VaccineCycleEntity v WHERE v.cowTypeEntity.cowTypeId = :cowTypeId")
     Optional<List<VaccineCycleEntity>> findByCowTypeIdOptional(@Param("cowTypeId") Long cowTypeId);
+
+    @Query("SELECT CASE WHEN COUNT(v) > 0 THEN true ELSE false END " +
+            "FROM VaccineCycleEntity v WHERE v.cowTypeEntity.cowTypeId = :cowTypeId")
+    boolean existsByCowTypeId(@Param("cowTypeId") Long cowTypeId);
 }

@@ -4,6 +4,7 @@ import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.FeedMealDetailEntity;
 import com.capstone.dfms.models.FeedMealEntity;
+import com.capstone.dfms.models.enums.CowStatus;
 import com.capstone.dfms.requests.DryMatterRequest;
 import com.capstone.dfms.requests.FeedMealDetailRequest;
 import com.capstone.dfms.requests.FeedMealRequest;
@@ -101,5 +102,13 @@ public class FeedMealController {
         return CoreApiResponse.success("Xóa nguyên liệu khỏi khẩu phần ăn thành công");
     }
 
+    @GetMapping("/check-exists")
+    public CoreApiResponse<?> checkFeedMealInUse(
+            @RequestParam Long cowTypeId,
+            @RequestParam CowStatus cowStatus
+    ) {
+        feedMealService.isFeedMealInUse(cowTypeId, cowStatus);
+        return CoreApiResponse.success("ok");
+    }
 
 }

@@ -25,4 +25,14 @@ public interface IFeedMealRepository extends JpaRepository<FeedMealEntity, Long>
             @Param("cowTypeEntity") CowTypeEntity cowTypeEntity,
             @Param("status") FeedMealStatus status
     );
+
+    @Query("SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END " +
+            "FROM FeedMealEntity f " +
+            "WHERE f.cowTypeEntity.cowTypeId = :cowTypeId " +
+            "AND f.cowStatus = :cowStatus " +
+            "AND f.status = :status")
+    boolean existsFeedMeal(
+            @Param("cowTypeId") Long cowTypeId,
+            @Param("cowStatus") CowStatus cowStatus,
+            @Param("status") FeedMealStatus status);
 }

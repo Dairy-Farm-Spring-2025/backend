@@ -3,6 +3,7 @@ package com.capstone.dfms.controllers;
 import com.capstone.dfms.components.apis.CoreApiResponse;
 import com.capstone.dfms.components.utils.LocalizationUtils;
 import com.capstone.dfms.models.VaccineCycleEntity;
+import com.capstone.dfms.models.enums.CowStatus;
 import com.capstone.dfms.requests.UpdateVaccineCycleRequest;
 import com.capstone.dfms.requests.VaccineCycleRequest;
 import com.capstone.dfms.services.IVaccineCycleService;
@@ -59,5 +60,13 @@ public class VaccineCycleController {
     public CoreApiResponse<List<VaccineCycleEntity>> getByCowType(@PathVariable Long cowTypeId) {
         List<VaccineCycleEntity> vaccineCycles = vaccineCycleService.getByCowTypeId(cowTypeId);
         return CoreApiResponse.success(vaccineCycles);
+    }
+
+    @GetMapping("/check-exists")
+    public CoreApiResponse<?> checkFeedMealInUse(
+            @RequestParam Long cowTypeId
+    ) {
+        vaccineCycleService.validateNoExistingVaccineCycle(cowTypeId);
+        return CoreApiResponse.success("ok");
     }
 }

@@ -146,4 +146,13 @@ public class VaccineCycleService implements IVaccineCycleService {
     public List<VaccineCycleEntity> getByCowTypeId(Long cowTypeId) {
         return vaccineCycleRepository.findByCowTypeId(cowTypeId);
     }
+
+    @Override
+    public void validateNoExistingVaccineCycle(Long cowTypeId) {
+        if (vaccineCycleRepository.existsByCowTypeId(cowTypeId)) {
+            throw new AppException(HttpStatus.BAD_REQUEST,
+                    LocalizationUtils.getMessage("vaccine_cycle_exist"));
+        }
+    }
+
 }
