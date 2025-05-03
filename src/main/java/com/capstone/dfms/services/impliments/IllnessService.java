@@ -50,6 +50,7 @@ public class IllnessService implements IIllnessService {
         illness.setCowEntity(cowEntity);
         illness.setUserEntity(UserStatic.getCurrentUser());
         illness.setIllnessStatus(IllnessStatus.pending);
+        illness.setStartDate(LocalDate.now());
 
         illness = illnessRepository.save(illness);
         this.attachMedia(illness, mediaFiles);
