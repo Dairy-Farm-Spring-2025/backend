@@ -27,9 +27,9 @@ public class IllnessController {
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CoreApiResponse<IllnessEntity> createIllness(
-            @Valid @ModelAttribute IllnessCreateOgrRequest request,
+            @Valid @ModelAttribute IllnessCreateRequest request,
             @RequestPart(name = "newImages", required = false) List<MultipartFile> newImages) throws IOException {
-        return CoreApiResponse.success(illnessService.createIllness(INSTANCE.toModel(request), newImages));
+        return CoreApiResponse.success(illnessService.createIllnessForVet(request, newImages));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")

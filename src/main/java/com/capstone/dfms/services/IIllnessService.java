@@ -27,5 +27,5 @@ public interface IIllnessService{
 
     IllnessEntity getIllnessWithDetail(Long id);
 
-    IllnessEntity createIllness(IllnessCreateRequest request, List<MultipartFile> mediaFiles) throws IOException;
+    IllnessEntity createIllnessForVet(IllnessCreateRequest request, List<MultipartFile> mediaFiles) throws IOException;
 }
