@@ -1,10 +1,7 @@
 package com.capstone.dfms.mappers;
 
 import com.capstone.dfms.models.IllnessEntity;
-import com.capstone.dfms.requests.IllnessCreateRequest;
-import com.capstone.dfms.requests.IllnessPrognosisRequest;
-import com.capstone.dfms.requests.IllnessReportRequest;
-import com.capstone.dfms.requests.IllnessUpdateRequest;
+import com.capstone.dfms.requests.*;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -18,6 +15,10 @@ public interface IIllnessMapper {
     @Mapping(source = "cowId", target = "cowEntity.cowId")
     @Mapping(source = "detail", target = "illnessDetails")
     IllnessEntity toModel(IllnessCreateRequest request);
+
+
+    @Mapping(source = "cowId", target = "cowEntity.cowId")
+    IllnessEntity toModel(IllnessCreateOgrRequest request);
 
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

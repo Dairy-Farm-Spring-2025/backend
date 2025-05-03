@@ -1,12 +1,10 @@
 package com.capstone.dfms.controllers;
 
 import com.capstone.dfms.components.apis.CoreApiResponse;
+import com.capstone.dfms.mappers.IIllnessMapper;
 import com.capstone.dfms.models.IllnessEntity;
 import com.capstone.dfms.models.enums.IllnessStatus;
-import com.capstone.dfms.requests.IllnessCreateRequest;
-import com.capstone.dfms.requests.IllnessPrognosisRequest;
-import com.capstone.dfms.requests.IllnessReportRequest;
-import com.capstone.dfms.requests.IllnessUpdateRequest;
+import com.capstone.dfms.requests.*;
 import com.capstone.dfms.services.IIllnessService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +27,9 @@ public class IllnessController {
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CoreApiResponse<IllnessEntity> createIllness(
-            @Valid @ModelAttribute IllnessCreateRequest request,
+            @Valid @ModelAttribute IllnessCreateOgrRequest request,
             @RequestPart(name = "newImages", required = false) List<MultipartFile> newImages) throws IOException {
-        return CoreApiResponse.success(illnessService.createIllness(request, newImages));
+        return CoreApiResponse.success(illnessService.createIllness(INSTANCE.toModel(request), newImages));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','WORKER','MANAGER','VETERINARIANS')")
