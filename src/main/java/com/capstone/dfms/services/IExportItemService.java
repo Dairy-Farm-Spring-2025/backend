@@ -24,4 +24,5 @@ public interface IExportItemService {
 
     void createExportItems(CreateExportItemsRequest request);
 
+    List<ExportItemEntity> exportItems(List<Long> ids);
 }

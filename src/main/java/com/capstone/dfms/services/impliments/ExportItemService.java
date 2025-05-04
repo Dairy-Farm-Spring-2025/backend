@@ -161,6 +161,31 @@ public class ExportItemService implements IExportItemService {
         return exportItemRepository.save(exportItem);
     }
 
+    @Override
+    public List<ExportItemEntity> exportItems(List<Long> ids) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity user = userPrincipal.getUser();
+
+        List<ExportItemEntity> exportItems = exportItemRepository.findAllById(ids);
+
+        if (exportItems.size() != ids.size()) {
+            throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("export.item.not.exist"));
+        }
+
+        for (ExportItemEntity item : exportItems) {
+            if (!item.getPicker().getId().equals(user.getId())) {
+                throw new AppException(HttpStatus.FORBIDDEN, LocalizationUtils.getMessage("export.item.not.authorized"));
+            }
+
+            item.setStatus(ExportItemStatus.exported);
+            item.setExportDate(LocalDateTime.now());
+        }
+
+        return exportItemRepository.saveAll(exportItems);
+    }
+
+
 
     @Override
     public List<ExportItemEntity> getMyExportItems() {

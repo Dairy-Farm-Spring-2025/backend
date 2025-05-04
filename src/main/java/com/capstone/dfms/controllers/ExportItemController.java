@@ -66,4 +66,10 @@ public class ExportItemController {
         exportItemService.createExportItems(request);
         return CoreApiResponse.success(LocalizationUtils.getMessage("export.item.create.success"));
     }
+
+    @PostMapping("/bulk-export")
+    public CoreApiResponse<?> exportMultipleItems(@RequestBody List<Long> exportItemIds) {
+        List<ExportItemEntity> exported = exportItemService.exportItems(exportItemIds);
+        return CoreApiResponse.success(exported);
+    }
 }
