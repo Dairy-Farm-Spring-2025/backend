@@ -18,10 +18,10 @@ public class VaccineInjectionController {
     private final IVaccineInjectionService vaccineInjectionService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
-    public CoreApiResponse<VaccineInjectionEntity> createVaccineInjection(@RequestBody VaccineInjectionRequest request) {
-        VaccineInjectionEntity entity = vaccineInjectionService.createVaccineInjection(request);
-        return CoreApiResponse.success(entity);
+//    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS')")
+    public CoreApiResponse<VaccineInjectionEntity> createVaccineInjection() {
+        vaccineInjectionService.createVaccineInjection();
+        return CoreApiResponse.success("Create successfully!");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VETERINARIANS','WORKER')")
