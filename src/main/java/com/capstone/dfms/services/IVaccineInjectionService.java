@@ -8,7 +8,7 @@ import com.capstone.dfms.requests.VaccineInjectionRequest;
 import java.util.List;
 
 public interface IVaccineInjectionService {
-    VaccineInjectionEntity createVaccineInjection(VaccineInjectionRequest request);
+    void createVaccineInjection();
     List<VaccineInjectionEntity> getAllVaccineInjections();
     VaccineInjectionEntity getVaccineInjectionById(Long id);
     VaccineInjectionEntity updateVaccineInjection(Long id, VaccineInjectionRequest request);
