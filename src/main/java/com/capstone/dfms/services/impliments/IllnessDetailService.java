@@ -117,10 +117,7 @@ public class IllnessDetailService implements IIllnessDetailService {
             Long tempId = updatedDetail.getItemId();
             ItemEntity itemEntity = iItemRepository.findById(tempId)
                     .orElseThrow(() -> new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not_exist")));
-            if(!itemEntity.getCategoryEntity().getName().equalsIgnoreCase("Vắc-xin")
-                    || !itemEntity.getCategoryEntity().getName().equalsIgnoreCase("Thuốc"))
-                throw new AppException(HttpStatus.BAD_REQUEST, LocalizationUtils.getMessage("item.not.vaccine"));
-            oldIllnessDetail.setVaccine(itemEntity);
+                oldIllnessDetail.setVaccine(itemEntity);
         }
 
         oldIllnessDetail = illnessDetailRepository.save(oldIllnessDetail);
