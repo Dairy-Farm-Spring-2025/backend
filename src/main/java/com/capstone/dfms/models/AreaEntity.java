@@ -20,6 +20,7 @@ public class AreaEntity extends  BaseEntity{
 
     private String name;
 
+    @Column(length = 1000)
     private String description;
 
     private Float length;

@@ -32,6 +32,7 @@ public class CowEntity extends BaseEntity {
 
     private LocalDate dateOfOut;
 
+    @Column(length = 1000)
     private String description;
 
     @Enumerated(EnumType.STRING)

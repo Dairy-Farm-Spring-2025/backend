@@ -22,6 +22,7 @@ public class ReportTaskEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reportTaskId;
 
+    @Column(length = 1000)
     private String description;
 
     @Enumerated(EnumType.STRING)

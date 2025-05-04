@@ -36,6 +36,8 @@ public class HealthRecordEntity extends BaseEntity{
 
 
     private LocalDateTime reportTime;
+
+    @Column(length = 1000)
     private String description;
     private float weight;
     private float bodyTemperature;

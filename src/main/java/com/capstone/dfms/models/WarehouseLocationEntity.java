@@ -19,6 +19,7 @@ public class WarehouseLocationEntity extends BaseEntity{
 
     private String name;
 
+    @Column(length = 1000)
     private String description;
 
     @Enumerated(EnumType.STRING)

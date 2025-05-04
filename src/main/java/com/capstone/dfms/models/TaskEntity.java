@@ -21,6 +21,7 @@ public class TaskEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long taskId;
 
+    @Column(length = 1000)
     private String description;
 
     @Enumerated(EnumType.STRING)

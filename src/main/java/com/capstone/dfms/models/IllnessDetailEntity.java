@@ -24,6 +24,8 @@ public class IllnessDetailEntity extends BaseEntity {
     private Long illnessDetailId;
 
     private LocalDate date;
+
+    @Column(length = 1000)
     private String description;
 
     private double dosage;

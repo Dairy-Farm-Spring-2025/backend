@@ -25,6 +25,7 @@ public class TaskTypeEntity {
     @JoinColumn(name = "role_id")
     private RoleEntity roleId;
 
+    @Column(length = 1000)
     private String description;
 
     @OneToMany(mappedBy = "taskType", cascade = CascadeType.ALL, orphanRemoval = true)

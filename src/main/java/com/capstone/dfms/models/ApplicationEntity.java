@@ -20,6 +20,7 @@ public class ApplicationEntity {
 
     private String title;
 
+    @Column(length = 10000)
     private String content;
 
     @Enumerated(EnumType.STRING)
@@ -28,6 +29,7 @@ public class ApplicationEntity {
     private LocalDate fromDate;
     private LocalDate toDate;
 
+    @Column(length = 1000)
     private String commentApprove;
 
     private LocalDate requestDate;
