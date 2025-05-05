@@ -11,4 +11,5 @@ public interface IEquipmentService {
     EquipmentEntity getEquipmentById(Long id);
     EquipmentEntity updateEquipment(Long id, EquipmentRequest request);
     void deleteEquipment(Long id);
+    List<EquipmentEntity> getByWarehouseLocationId(Long locationId);
 }

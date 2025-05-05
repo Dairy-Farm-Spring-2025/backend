@@ -77,4 +77,9 @@ public class EquipmentService implements IEquipmentService {
         EquipmentEntity existingEquipment = getEquipmentById(id);
         equipmentRepository.delete(existingEquipment);
     }
+
+    @Override
+    public List<EquipmentEntity> getByWarehouseLocationId(Long locationId) {
+        return equipmentRepository.findByWarehouseLocation(locationId);
+    }
 }

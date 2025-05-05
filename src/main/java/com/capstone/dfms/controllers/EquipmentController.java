@@ -53,4 +53,9 @@ public class EquipmentController {
         equipmentService.deleteEquipment(id);
         return CoreApiResponse.success(LocalizationUtils.getMessage("general.delete_successfully"));
     }
+
+    @GetMapping("/location/{locationId}")
+    public CoreApiResponse<?> getByLocation(@PathVariable Long locationId) {
+        return CoreApiResponse.success(equipmentService.getByWarehouseLocationId(locationId));
+    }
 }
