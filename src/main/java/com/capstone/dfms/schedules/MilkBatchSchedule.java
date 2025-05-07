@@ -15,11 +15,11 @@ import java.util.List;
 public class MilkBatchSchedule {
     private final IMilkBatchRepository milkBatchRepository;
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void updateExpiredMilkBatches() {
         LocalDateTime now = LocalDateTime.now();
         List<MilkBatchEntity> expiredBatches = milkBatchRepository
-                .findExpiredMilkBatches(MilkBatchStatus.expired, now);
+                .findInventoryMilkBatches(MilkBatchStatus.inventory, now);
 
         for (MilkBatchEntity batch : expiredBatches) {
             batch.setStatus(MilkBatchStatus.expired);
